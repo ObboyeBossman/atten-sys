@@ -65,10 +65,13 @@ export default async function CheckinPage(props: { params: Promise<{ sessionId: 
   }
 
   // 4. Fetch system settings required for checkin (gps accuracy, late threshold)
+  // Cast needed: system_settings has Insert:never which poisons Supabase's select return type inference.
   const { data: settings } = await supabase
     .from("system_settings")
     .select("key, value")
-    .in("key", ["gps_accuracy_floor_metres", "late_threshold_minutes"]);
+    .in("key", ["gps_accuracy_floor_metres", "late_threshold_minutes"]) as unknown as {
+      data: { key: string; value: string }[] | null;
+    };
 
   let gpsAccuracyFloor = 100;
   let lateThresholdMinutes = 15;

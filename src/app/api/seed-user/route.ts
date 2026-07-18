@@ -243,8 +243,7 @@ async function seedSuperAdmin(
       .update({ role: "super_admin" })
       .eq("id", userId);
 
-    const { error } = await admin
-      .from("super_admins")
+    const { error } = await (admin.from("super_admins") as any)
       .upsert({ id: userId, name }, { onConflict: "id", ignoreDuplicates: true });
 
     if (error) {

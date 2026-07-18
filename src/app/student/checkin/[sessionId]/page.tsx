@@ -14,7 +14,7 @@ export default async function CheckinPage(props: { params: Promise<{ sessionId: 
   if (!user) return redirect("/login");
 
   // 1. Validate session
-  const { data: session } = await supabase
+  const { data: sessionData } = await supabase
     .from("class_sessions")
     .select(`
       id, started_at, ended_at, course_id,
@@ -22,6 +22,8 @@ export default async function CheckinPage(props: { params: Promise<{ sessionId: 
     `)
     .eq("id", sessionId)
     .single();
+
+  const session = sessionData as any;
 
   if (!session) {
     return <ErrorState message="Session not found." />;

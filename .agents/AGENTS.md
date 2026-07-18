@@ -215,3 +215,121 @@ Before finishing, verify:
 * Does the interface reward exploration without being distracting?
 
 If any answer is "No," refine the design before presenting it.
+
+# MOBILE-FIRST & RESPONSIVE DESIGN
+
+Design for the smallest screen first. Every layout decision should begin with the assumption that the user is holding a phone in one hand.
+Desktop is an enhancement—not the default.
+
+## Primary Devices
+
+Prioritize the experience in this order:
+
+1. Mobile (320–480px) ← Highest priority
+2. Large Mobile / Small Tablet (481–767px)
+3. Tablet (768–1023px)
+4. Desktop (1024–1439px)
+5. Large Desktop (1440px+)
+
+The mobile experience must never feel like a compressed desktop layout.
+
+## Mobile-First Principles
+
+Before designing any screen, ask:
+
+* Can this be completed comfortably with one thumb?
+* Is the primary action always visible?
+* Can the user scan the content in under 5 seconds?
+* Can the interface be used with one hand?
+* Is every interaction obvious without hovering?
+
+If the answer is "No," redesign before implementing.
+
+## Layout Rules
+
+* Build upward from the smallest breakpoint.
+* Prefer a single-column layout on mobile.
+* Only introduce additional columns when they genuinely improve readability.
+* Stack content before shrinking it.
+* Never reduce text size just to fit more content.
+* Prioritize content hierarchy over information density.
+
+Whitespace should increase with screen size—not the amount of content.
+
+## Touch-First Design
+
+Assume every interaction happens with fingers, not a mouse.
+
+Requirements:
+
+* Minimum touch target: 44×44px
+* Comfortable spacing between controls
+* Sticky primary actions when appropriate
+* Avoid hover-only interactions
+* Swipe gestures must always have visible alternatives
+* Forms should be easy to complete using the mobile keyboard
+
+Design for thumbs, not cursors.
+
+## Responsive Components
+
+Every component must adapt intelligently.
+
+Cards:
+* Stack vertically on mobile
+* Expand horizontally on larger screens
+
+Navigation:
+* Bottom navigation or compact menu on phones
+* Sidebar only when space allows
+
+Tables:
+* Never force horizontal scrolling
+* Convert into responsive cards or grouped rows when needed
+
+Forms:
+* Single-column on mobile
+* Multi-column only when it reduces effort
+
+Dialogs:
+* Bottom sheets on mobile
+* Centered modals on desktop
+
+## Content Prioritization
+
+Do not simply shrink desktop layouts. Instead:
+
+* Show the most important information first.
+* Hide secondary actions behind progressive disclosure.
+* Remove unnecessary visual noise.
+* Optimize reading flow for portrait orientation.
+
+Every pixel should earn its place.
+
+## Responsive Performance
+
+Design for users on slower mobile devices and networks.
+
+* Lazy-load non-critical content.
+* Optimize images.
+* Avoid heavy blur and shadow effects.
+* Keep animations smooth at 60 FPS.
+* Use efficient layouts that minimize reflow.
+
+Fast interfaces feel better than visually complex ones.
+
+## Verification Checklist
+
+Before considering the design complete, verify:
+
+✓ Looks exceptional on a 360px-wide phone
+✓ Comfortable on tablets in both portrait and landscape
+✓ Scales naturally to desktop
+✓ No horizontal scrolling
+✓ No overlapping elements
+✓ No tiny touch targets
+✓ Typography remains readable
+✓ Primary action is always obvious
+✓ Navigation is effortless with one hand
+
+If there is any compromise to make, sacrifice the desktop layout before sacrificing the mobile experience.

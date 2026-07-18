@@ -20,6 +20,7 @@
 @media (max-width: 1024px) {
   .adminMain {
     margin-left: 0;
+    padding-top: 56px; /* mobile topbar height */
   }
 
   .adminContent {

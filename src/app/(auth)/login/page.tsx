@@ -56,7 +56,9 @@ export default function LoginPage() {
         return;
       }
 
-      if (!profile.is_active && profile.role !== "student") {
+      const p = profile as any;
+
+      if (!p.is_active && p.role !== "student") {
         await supabase.auth.signOut();
         setError("Your account has been deactivated. Contact the administrator.");
         return;
@@ -69,7 +71,7 @@ export default function LoginPage() {
         student: "/student/dashboard",
       };
 
-      const destination = portalMap[profile.role] ?? "/login";
+      const destination = portalMap[p.role] ?? "/login";
       router.replace(destination);
       router.refresh();
     } finally {

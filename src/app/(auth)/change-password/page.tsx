@@ -68,8 +68,7 @@ export default function ChangePasswordPage() {
       }
 
       // Clear must_change_password flag
-      await supabase
-        .from("user_profiles")
+      await (supabase.from("user_profiles") as any)
         .update({ must_change_password: false })
         .eq("id", user.id);
 
@@ -86,7 +85,7 @@ export default function ChangePasswordPage() {
         student: "/student/dashboard",
       };
 
-      router.replace(roleMap[profile?.role ?? ""] ?? "/login");
+      router.replace(roleMap[(profile as any)?.role ?? ""] ?? "/login");
       router.refresh();
     } finally {
       setLoading(false);

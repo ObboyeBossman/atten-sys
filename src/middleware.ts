@@ -22,8 +22,7 @@ export async function middleware(request: NextRequest) {
   if (PUBLIC_ROUTES.some((r) => pathname.startsWith(r))) {
     if (user && pathname === "/login") {
       // Redirect to correct portal based on role
-      const profile = await supabase
-        .from("user_profiles")
+      const profile = await (supabase.from("user_profiles") as any)
         .select("role, is_active, must_change_password")
         .eq("id", user.id)
         .single();
@@ -41,8 +40,7 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    const profile = await supabase
-      .from("user_profiles")
+    const profile = await (supabase.from("user_profiles") as any)
       .select("role")
       .eq("id", user.id)
       .single();
@@ -67,8 +65,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Fetch profile for role/status checks
-  const { data: profile } = await supabase
-    .from("user_profiles")
+  const { data: profile } = await (supabase.from("user_profiles") as any)
     .select("role, is_active, must_change_password")
     .eq("id", user.id)
     .single();

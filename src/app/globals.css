@@ -15,10 +15,13 @@
   --color-border:       rgba(255, 255, 255, 0.08);
   --color-border-hover: rgba(255, 255, 255, 0.16);
 
-  /* Brand blue */
-  --color-primary:      #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-primary-glow: rgba(59, 130, 246, 0.25);
+  /* Brand red & blue */
+  --color-primary:      #ef4444;
+  --color-primary-dark: #dc2626;
+  --color-primary-glow: rgba(239, 68, 68, 0.25);
+  
+  --color-secondary:    #3b82f6;
+  --color-secondary-dark: #2563eb;
 
   /* Accent colours */
   --color-success:      #22c55e;
@@ -217,14 +220,13 @@ p { color: var(--color-text-2); }
 }
 
 .btn-primary {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   color: #fff;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 0 var(--color-primary-glow);
+  border: none;
+  box-shadow: 0 4px 15px var(--color-primary-glow);
 }
 .btn-primary:hover {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-secondary-dark));
   box-shadow: var(--shadow-glow);
 }
 .btn-primary:active { transform: scale(0.98); }

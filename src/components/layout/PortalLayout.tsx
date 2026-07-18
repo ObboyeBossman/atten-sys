@@ -90,7 +90,13 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
         <div className={styles.brand}>
           <div className={styles.brandIcon}>
             <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-              <rect width="28" height="28" rx="8" fill="#3b82f6" />
+              <defs>
+                <linearGradient id="brandGradPortal" x1="0" y1="0" x2="28" y2="28">
+                  <stop stopColor="#ef4444" />
+                  <stop offset="1" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+              <rect width="28" height="28" rx="8" fill="url(#brandGradPortal)" />
               <path d="M7 10h14M7 14h10M7 18h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
               <circle cx="21" cy="18" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
               <path d="M19.5 18l1 1 2-2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

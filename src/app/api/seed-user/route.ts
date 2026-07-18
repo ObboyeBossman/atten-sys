@@ -275,7 +275,7 @@ async function seedStudent(
       .update({ role: "student" })
       .eq("id", userId);
 
-    const { error } = await admin.from("students").upsert(
+    const { error } = await (admin.from("students") as any).upsert(
       { id: userId, name, index_number: finalIndex },
       { onConflict: "id", ignoreDuplicates: true }
     );
@@ -307,7 +307,7 @@ async function seedLecturer(
       .update({ role: "lecturer" })
       .eq("id", userId);
 
-    const { error } = await admin.from("lecturers").upsert(
+    const { error } = await (admin.from("lecturers") as any).upsert(
       {
         id: userId,
         name,

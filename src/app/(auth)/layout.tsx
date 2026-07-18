@@ -1,43 +1,94 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import styles from "./auth.module.css";
 
 export const metadata: Metadata = {
-  title: "Sign In",
-  description: "Sign in to ATTEN-SYS attendance management portal.",
+  title: "Sign In — ATTEN SYS",
+  description: "Sign in to the ATTEN SYS attendance management portal.",
 };
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const currentYear = new Date().getFullYear();
+
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={styles.authRoot}>
-      {/* Animated background blobs */}
-      <div className={styles.blob} style={{ "--x": "20%", "--y": "15%", "--size": "600px", "--color": "rgba(239,68,68,0.12)" } as React.CSSProperties} />
-      <div className={styles.blob} style={{ "--x": "75%", "--y": "70%", "--size": "500px", "--color": "rgba(59,130,246,0.12)" } as React.CSSProperties} />
-      <div className={styles.blob} style={{ "--x": "50%", "--y": "45%", "--size": "400px", "--color": "rgba(239,68,68,0.06)" } as React.CSSProperties} />
 
-      <div className={styles.authContainer}>
-        <div className={styles.brandRow}>
-          <div className={styles.brandIcon}>
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <defs>
-                <linearGradient id="brandGradAuth" x1="0" y1="0" x2="28" y2="28">
-                  <stop stopColor="#ef4444" />
-                  <stop offset="1" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
-              <rect width="28" height="28" rx="8" fill="url(#brandGradAuth)" />
-              <path d="M7 10h14M7 14h10M7 18h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="21" cy="18" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
-              <path d="M19.5 18l1 1 2-2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <span className={styles.brandName}>ATTEN-SYS</span>
+      {/* ── Mobile top bar (hidden on lg+) ─────────────────── */}
+      <div className={styles.mobileBar}>
+        <Image
+          src="/ttu_logo.png"
+          alt="TTU Logo"
+          width={36}
+          height={36}
+          className={styles.mobileBarLogo}
+        />
+        <div>
+          <span className={styles.mobileBarTitle}>Takoradi Technical University</span>
+          <span className={styles.mobileBarSub}>ATTEN SYS</span>
         </div>
-        {children}
       </div>
+
+      {/* ── Left hero panel (desktop only) ─────────────────── */}
+      <section className={styles.heroPanel} aria-hidden="true">
+        <div className={styles.heroBlob1} />
+        <div className={styles.heroBlob2} />
+        <div className={styles.heroGrid} />
+
+        <div className={styles.heroContent}>
+          {/* Brand identity */}
+          <div className={styles.heroBrand}>
+            <Image
+              src="/ttu_logo.png"
+              alt="TTU Logo"
+              width={48}
+              height={48}
+              className={styles.heroBrandLogo}
+            />
+            <div>
+              <span className={styles.heroBrandName}>TTU PORTALS</span>
+              <span className={styles.heroBrandSub}>Takoradi Technical University</span>
+            </div>
+          </div>
+
+          {/* Hero message */}
+          <div>
+            <div className={styles.heroPill}>
+              <span className={styles.heroPillDot} />
+              TTU Live Tracking Active
+            </div>
+            <h1 className={styles.heroHeadline}>
+              Every seat.<br />
+              Every session.<br />
+              <span className={styles.heroHeadlineAccent}>Accounted for.</span>
+            </h1>
+            <p className={styles.heroBody}>
+              Secured, real-time class attendance validation. Seamlessly checking
+              academic progression paths across every lecture hall at Takoradi
+              Technical University.
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className={styles.heroFooter}>
+            <span>Active Academic Season: {currentYear}/{currentYear + 1}</span>
+            <span className={styles.heroFooterDot} />
+            <span>TTU Main Campus</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Right form panel ───────────────────────────────── */}
+      <section
+        className={styles.formPanel}
+        style={{ backgroundImage: "url('/background.png')" }}
+      >
+        <div className={styles.formPanelOverlay} />
+        <div className={styles.formPanelGlow} />
+        <div className={styles.formWrap}>
+          {children}
+        </div>
+      </section>
+
     </div>
   );
 }

@@ -1,20 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const hanken = Hanken_Grotesk({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-hanken",
-  display: "swap",
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
-  display: "swap",
-});
+// Google Fonts loaded via CSS @import in globals.css instead of next/font
+// to avoid build-time network fetches in restricted environments.
+const hanken = { variable: "" };
+const jetbrains = { variable: "" };
 
 export const metadata: Metadata = {
   title: {

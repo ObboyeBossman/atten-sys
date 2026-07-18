@@ -15,14 +15,18 @@ export default async function StudentDashboardPage() {
     .from("students")
     .select("name, index_number, photo_path")
     .eq("id", user.id)
-    .single();
+    .single() as unknown as {
+      data: { name: string; index_number: string; photo_path: string | null } | null;
+    };
 
   // 2. Fetch active memberships
   const { data: memberships } = await supabase
     .from("group_memberships")
     .select("group_id, groups(group_name)")
     .eq("student_id", user.id)
-    .eq("status", "active");
+    .eq("status", "active") as unknown as {
+      data: { group_id: string; groups: { group_name: string } | null }[] | null;
+    };
 
   const groupIds = memberships?.map((m) => m.group_id) || [];
 
@@ -31,7 +35,9 @@ export default async function StudentDashboardPage() {
     .from("app_semesters")
     .select("id, name")
     .eq("status", "active")
-    .maybeSingle();
+    .maybeSingle() as unknown as {
+      data: { id: string; name: string } | null;
+    };
 
   // 4. Fetch courses for these groups in active semester
   let courseIds: string[] = [];
@@ -40,8 +46,10 @@ export default async function StudentDashboardPage() {
       .from("courses")
       .select("id")
       .in("group_id", groupIds)
-      .eq("semester_id", activeSemester.id);
-    
+      .eq("semester_id", activeSemester.id) as unknown as {
+        data: { id: string }[] | null;
+      };
+
     courseIds = courses?.map((c) => c.id) || [];
   }
 
@@ -68,8 +76,10 @@ export default async function StudentDashboardPage() {
       .from("attendance")
       .select("session_id")
       .in("session_id", sessionIds)
-      .eq("student_id", user.id);
-      
+      .eq("student_id", user.id) as unknown as {
+        data: { session_id: string }[] | null;
+      };
+
     attendance?.forEach((a) => checkedInSessionIds.add(a.session_id));
   }
 
@@ -87,7 +97,9 @@ export default async function StudentDashboardPage() {
       .from("attendance")
       .select(`status, class_sessions!inner(semester_id)`)
       .eq("student_id", user.id)
-      .eq("class_sessions.semester_id", activeSemester.id);
+      .eq("class_sessions.semester_id", activeSemester.id) as unknown as {
+        data: { status: string; class_sessions: { semester_id: string } }[] | null;
+      };
 
     if (attendanceStats) {
       totalClasses = attendanceStats.length;

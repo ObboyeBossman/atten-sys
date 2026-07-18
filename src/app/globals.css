@@ -2,7 +2,8 @@
    ATTEN-SYS — Global Design System
    ============================================================ */
 
-/* Fonts are self-hosted via next/font — see src/app/layout.tsx */
+/* Fonts loaded at runtime via CSS @import (avoids build-time network fetch) */
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ── CSS Custom Properties ───────────────────────────────── */
 :root {

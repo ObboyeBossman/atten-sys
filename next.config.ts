@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  turbopack: {},
   // Enable React strict mode for better development experience
   reactStrictMode: true,
   images: {

@@ -2,7 +2,7 @@
    ATTEN-SYS — Global Design System
    ============================================================ */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+/* Fonts are self-hosted via next/font — see src/app/layout.tsx */
 
 /* ── CSS Custom Properties ───────────────────────────────── */
 :root {
@@ -16,9 +16,9 @@
   --color-border-hover: rgba(255, 255, 255, 0.16);
 
   /* Brand red & blue */
-  --color-primary:      #ef4444;
-  --color-primary-dark: #dc2626;
-  --color-primary-glow: rgba(239, 68, 68, 0.25);
+  --color-primary:      #9d0a12;
+  --color-primary-dark: #82080f;
+  --color-primary-glow: rgba(157, 10, 18, 0.25);
   
   --color-secondary:    #3b82f6;
   --color-secondary-dark: #2563eb;
@@ -47,9 +47,9 @@
   --color-text-3:       #64748b;
   --color-text-inverse: #0a0f1e;
 
-  /* Typography */
-  --font-sans:          "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono:          "JetBrains Mono", "Fira Code", monospace;
+  /* Typography — fonts are self-hosted via next/font (see layout.tsx) */
+  --font-sans:          var(--font-hanken), system-ui, -apple-system, sans-serif;
+  --font-mono:          var(--font-mono, "JetBrains Mono"), "Fira Code", monospace;
 
   /* Type scale */
   --text-xs:    0.75rem;

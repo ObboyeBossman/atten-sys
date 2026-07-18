@@ -77,7 +77,7 @@ BEGIN
     INSERT INTO public.user_profiles (id, role, email, phone, must_change_password)
     VALUES (
         NEW.id,
-        (NEW.raw_user_meta_data->>'role')::user_role,
+        (NEW.raw_user_meta_data->>'role')::public.user_role,
         NEW.email,
         NEW.raw_user_meta_data->>'phone',
         COALESCE((NEW.raw_user_meta_data->>'must_change_password')::boolean, false)
@@ -124,16 +124,35 @@ $$;
 -- Returns true if the calling user is an active super_admin.
 CREATE OR REPLACE FUNCTION is_super_admin()
 RETURNS boolean
-LANGUAGE sql
+LANGUAGE plpgsql
 SECURITY DEFINER
 STABLE
 AS $$
-    SELECT EXISTS (
-        SELECT 1 FROM user_profiles
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM public.user_profiles
         WHERE id        = auth.uid()
           AND role      = 'super_admin'
           AND is_active = true
     );
+END;
+$$;
+
+-- Returns true if the calling user is an active lecturer.
+CREATE OR REPLACE FUNCTION is_lecturer()
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+STABLE
+AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM public.user_profiles
+        WHERE id        = auth.uid()
+          AND role      = 'lecturer'
+          AND is_active = true
+    );
+END;
 $$;
 
 -- Returns true if the calling user is an active course rep in p_group_id.
@@ -1048,7 +1067,7 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
-    INSERT INTO audit_log (actor_id, action, table_name, record_id, old_data, new_data)
+    INSERT INTO public.audit_log (actor_id, action, table_name, record_id, old_data, new_data)
     VALUES (auth.uid(), p_action, p_table_name, p_record_id, p_old_data, p_new_data);
 END;
 $$;

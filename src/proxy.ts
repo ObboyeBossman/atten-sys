@@ -12,7 +12,7 @@ const PORTAL_GUARDS = [
   { prefix: "/student", role: "student" },
 ] as const;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Always refresh the Supabase session

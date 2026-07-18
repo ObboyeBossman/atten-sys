@@ -1,15 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-const r2 = new S3Client({
-  region: "auto",
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
+import { getR2Client } from "@/lib/r2";
 
 const ALLOWED_CONTENT_TYPES = ["image/jpeg", "image/webp", "image/png"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -73,7 +65,8 @@ export async function POST(request: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
-    await r2.send(
+    const r2Client = getR2Client();
+    await r2Client.send(
       new PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME!,
         Key: objectKey,

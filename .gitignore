@@ -1,40 +1,65 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ============================================================
+# ATTEN-SYS — .gitignore
+# ============================================================
 
-# dependencies
-/node_modules
-/.pnp
+# ── Dependencies ──────────────────────────────────────────
+node_modules/
+.pnp
 .pnp.js
+.yarn/install-state.gz
 
-# testing
-/coverage
+# ── Build outputs ─────────────────────────────────────────
+.next/
+out/
+build/
+dist/
 
-# next.js
-/.next/
-/out/
+# ── Environment & secrets ─────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
 
-# production
-/build
+# ── Supabase ─────────────────────────────────────────────
+supabase/.temp/
+supabase/.branches/
 
-# misc
+# ── Testing ───────────────────────────────────────────────
+coverage/
+
+# ── PWA / next-pwa generated files ───────────────────────
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+public/worker-*.js
+public/worker-*.js.map
+public/fallback-*.js
+public/fallback-*.js.map
+
+# ── TypeScript ────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+
+# ── OS / editor ───────────────────────────────────────────
 .DS_Store
+Thumbs.db
 *.pem
+.idea/
+.vscode/settings.json
 
-# debug
+# ── Logs ─────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
-# local env files
-.env*.local
-.env
-
-# vercel
+# ── Vercel ───────────────────────────────────────────────
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# supabase
-supabase/.temp
+# ── AI Studio / Google tooling (do not track) ────────────
+.aistudio/
+metadata.json

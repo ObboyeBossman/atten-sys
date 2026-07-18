@@ -135,11 +135,7 @@ CREATE POLICY "profiles_select" ON user_profiles
                 WHERE  s.id = user_profiles.id
                   AND  is_lecturer_for_group(gm.group_id)
             )
-            AND EXISTS (
-                SELECT 1 FROM user_profiles up2
-                WHERE  up2.id   = auth.uid()
-                  AND  up2.role = 'lecturer'
-            )
+            AND is_lecturer()
         )
     );
 

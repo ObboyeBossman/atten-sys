@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./PortalLayout.module.css";
 
@@ -77,78 +78,154 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const roleColor = ROLE_COLORS[role];
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Close drawer on route change
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [drawerOpen]);
+
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   async function handleLogout() {
     await supabase.auth.signOut();
     router.replace("/login");
   }
 
+  const BrandMark = () => (
+    <>
+      <div className={styles.brandIcon}>
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <defs>
+            <linearGradient id="brandGradPortal" x1="0" y1="0" x2="28" y2="28">
+              <stop stopColor="#ef4444" />
+              <stop offset="1" stopColor="#3b82f6" />
+            </linearGradient>
+          </defs>
+          <rect width="28" height="28" rx="8" fill="url(#brandGradPortal)" />
+          <path d="M7 10h14M7 14h10M7 18h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="21" cy="18" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
+          <path d="M19.5 18l1 1 2-2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+      <div>
+        <div className={styles.brandName}>ATTEN-SYS</div>
+        <div className={styles.brandRole} style={{ color: roleColor }}>{roleLabel}</div>
+      </div>
+    </>
+  );
+
+  const NavLinks = () => (
+    <>
+      <nav className={styles.nav} aria-label={`${roleLabel} navigation`}>
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={closeDrawer}
+              className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              style={isActive ? { "--role-color": roleColor } as React.CSSProperties : undefined}
+            >
+              <span className={styles.navIcon}>
+                <Icon name={item.icon} size={18} />
+              </span>
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+      <div className={styles.sidebarFooter}>
+        <div
+          className={styles.avatar}
+          style={{ background: `linear-gradient(135deg, ${roleColor}, #3b82f6)` }}
+        >
+          {ROLE_INITIALS[role]}
+        </div>
+        <button onClick={handleLogout} className={styles.logoutBtn} title="Sign out">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
+          </svg>
+          Sign out
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <div className={styles.root}>
-      {/* Sidebar (desktop) */}
+      {/* ── Desktop sidebar ──────────────────────────────────────── */}
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
-          <div className={styles.brandIcon}>
-            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-              <defs>
-                <linearGradient id="brandGradPortal" x1="0" y1="0" x2="28" y2="28">
-                  <stop stopColor="#ef4444" />
-                  <stop offset="1" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
-              <rect width="28" height="28" rx="8" fill="url(#brandGradPortal)" />
-              <path d="M7 10h14M7 14h10M7 18h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="21" cy="18" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
-              <path d="M19.5 18l1 1 2-2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div>
-            <div className={styles.brandName}>ATTEN-SYS</div>
-            <div className={styles.brandRole} style={{ color: roleColor }}>{roleLabel}</div>
-          </div>
+          <BrandMark />
         </div>
-
-        <nav className={styles.nav} aria-label={`${roleLabel} navigation`}>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
-                style={isActive ? { "--role-color": roleColor } as React.CSSProperties : undefined}
-              >
-                <span className={styles.navIcon}>
-                  <Icon name={item.icon} size={18} />
-                </span>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className={styles.sidebarFooter}>
-          <div
-            className={styles.avatar}
-            style={{ background: `linear-gradient(135deg, ${roleColor}, #3b82f6)` }}
-          >
-            {ROLE_INITIALS[role]}
-          </div>
-          <button onClick={handleLogout} className={styles.logoutBtn} title="Sign out">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
-            </svg>
-            Sign out
-          </button>
-        </div>
+        <NavLinks />
       </aside>
 
-      {/* Main content */}
+      {/* ── Mobile topbar ────────────────────────────────────────── */}
+      <header className={styles.mobileTopbar}>
+        <button
+          className={styles.hamburger}
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Open navigation menu"
+          aria-expanded={drawerOpen}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+            <path d="M3 5h14M3 10h14M3 15h14" />
+          </svg>
+        </button>
+        <div className={styles.mobileTopbarBrand}>
+          <BrandMark />
+        </div>
+      </header>
+
+      {/* ── Mobile drawer overlay ─────────────────────────────────── */}
+      {/* Backdrop */}
+      <div
+        className={`${styles.drawerBackdrop} ${drawerOpen ? styles.drawerBackdropOpen : ""}`}
+        onClick={closeDrawer}
+        aria-hidden="true"
+      />
+      {/* Drawer panel */}
+      <aside
+        className={`${styles.drawer} ${drawerOpen ? styles.drawerOpen : ""}`}
+        aria-label="Navigation menu"
+        aria-hidden={!drawerOpen}
+      >
+        <div className={styles.drawerHeader}>
+          <div className={styles.brand} style={{ border: "none", padding: 0 }}>
+            <BrandMark />
+          </div>
+          <button
+            className={styles.drawerClose}
+            onClick={closeDrawer}
+            aria-label="Close navigation menu"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+              <path d="M4 4l10 10M14 4L4 14" />
+            </svg>
+          </button>
+        </div>
+        <NavLinks />
+      </aside>
+
+      {/* ── Main content ─────────────────────────────────────────── */}
       <main className={styles.main}>
         <div className={styles.content}>{children}</div>
       </main>
 
-      {/* Bottom nav (mobile) */}
+      {/* ── Bottom nav (mobile quick-access) ─────────────────────── */}
       <nav className={styles.bottomNav} aria-label="Mobile navigation">
         {navItems.slice(0, 5).map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");

@@ -152,6 +152,9 @@ Examples:
 * Navigation clearly indicates where the user currently is.
 * Empty states teach users what to do next.
 
+Every interaction should answer the user's question:
+"Did the interface understand what I just did?"
+
 ---
 
 ## Intelligent Micro-interactions

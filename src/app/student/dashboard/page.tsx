@@ -1,16 +1,67 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import styles from "./dashboard.module.css";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
+/* ─── helpers ────────────────────────────────────────────── */
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("en-GH", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+  return d.toLocaleDateString("en-GH", { weekday: "short", month: "short", day: "numeric" });
+}
+
+function AttendanceRingSVG({ pct }: { pct: number }) {
+  const r = 44;
+  const circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  const colour =
+    pct >= 80 ? "var(--color-success)" : pct >= 60 ? "var(--color-warning)" : "var(--color-danger)";
+
+  return (
+    <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
+      {/* track */}
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--color-surface-3)" strokeWidth="8" />
+      {/* progress */}
+      <circle
+        cx="50"
+        cy="50"
+        r={r}
+        fill="none"
+        stroke={colour}
+        strokeWidth="8"
+        strokeLinecap="round"
+        strokeDasharray={`${dash} ${circ}`}
+        strokeDashoffset={circ / 4}
+        style={{ transition: "stroke-dasharray 0.8s ease" }}
+      />
+    </svg>
+  );
+}
+
+/* ─── page ────────────────────────────────────────────────── */
 export default async function StudentDashboardPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return null;
 
-  // 1. Fetch student info
+  /* 1. Student profile */
   const { data: student } = await supabase
     .from("students")
     .select("name, index_number, photo_path")
@@ -19,7 +70,7 @@ export default async function StudentDashboardPage() {
       data: { name: string; index_number: string; photo_path: string | null } | null;
     };
 
-  // 2. Fetch active memberships
+  /* 2. Active group memberships */
   const { data: memberships } = await supabase
     .from("group_memberships")
     .select("group_id, groups(group_name)")
@@ -28,9 +79,11 @@ export default async function StudentDashboardPage() {
       data: { group_id: string; groups: { group_name: string } | null }[] | null;
     };
 
-  const groupIds = memberships?.map((m) => m.group_id) || [];
+  const groupIds = memberships?.map((m) => m.group_id) ?? [];
+  const groupName =
+    (memberships?.[0]?.groups as { group_name: string } | null)?.group_name ?? null;
 
-  // 3. Fetch active semester
+  /* 3. Active semester */
   const { data: activeSemester } = await supabase
     .from("app_semesters")
     .select("id, name")
@@ -39,7 +92,7 @@ export default async function StudentDashboardPage() {
       data: { id: string; name: string } | null;
     };
 
-  // 4. Fetch courses for these groups in active semester
+  /* 4. Courses for active semester */
   let courseIds: string[] = [];
   if (groupIds.length > 0 && activeSemester) {
     const { data: courses } = await supabase
@@ -49,61 +102,52 @@ export default async function StudentDashboardPage() {
       .eq("semester_id", activeSemester.id) as unknown as {
         data: { id: string }[] | null;
       };
-
-    courseIds = courses?.map((c) => c.id) || [];
+    courseIds = courses?.map((c) => c.id) ?? [];
   }
 
-  // 5. Fetch active sessions for these courses
+  /* 5. Active (live) sessions */
   let activeSessions: any[] = [];
   if (courseIds.length > 0) {
     const { data: sessions } = await supabase
       .from("class_sessions")
-      .select(`
-        id, started_at, venue,
-        courses ( id, name, code, groups ( group_name ) )
-      `)
+      .select(`id, started_at, venue, courses(id, name, code, groups(group_name))`)
       .in("course_id", courseIds)
       .is("ended_at", null);
-      
-    activeSessions = sessions || [];
+    activeSessions = sessions ?? [];
   }
 
-  // 6. Check if student already checked in for these active sessions
+  /* 6. Already checked-in session IDs */
   const sessionIds = activeSessions.map((s) => s.id);
-  let checkedInSessionIds = new Set<string>();
+  const checkedInSessionIds = new Set<string>();
   if (sessionIds.length > 0) {
-    const { data: attendance } = await supabase
+    const { data: myAtt } = await supabase
       .from("attendance")
       .select("session_id")
       .in("session_id", sessionIds)
       .eq("student_id", user.id) as unknown as {
         data: { session_id: string }[] | null;
       };
-
-    attendance?.forEach((a) => checkedInSessionIds.add(a.session_id));
+    myAtt?.forEach((a) => checkedInSessionIds.add(a.session_id));
   }
 
-  // 7. Attendance stats for active semester
+  /* 7. Attendance stats for active semester */
   let totalPresent = 0;
   let totalLate = 0;
   let totalAbsent = 0;
   let totalClasses = 0;
 
   if (activeSemester && courseIds.length > 0) {
-    // get all attendance records for this student for sessions in this semester
-    // wait, we can just query attendance for this student and filter by session's semester_id
-    // Supabase inner joins:
-    const { data: attendanceStats } = await supabase
+    const { data: attStats } = await supabase
       .from("attendance")
-      .select(`status, class_sessions!inner(semester_id)`)
+      .select("status, class_sessions!inner(semester_id)")
       .eq("student_id", user.id)
       .eq("class_sessions.semester_id", activeSemester.id) as unknown as {
         data: { status: string; class_sessions: { semester_id: string } }[] | null;
       };
 
-    if (attendanceStats) {
-      totalClasses = attendanceStats.length;
-      attendanceStats.forEach((a) => {
+    if (attStats) {
+      totalClasses = attStats.length;
+      attStats.forEach((a) => {
         if (a.status === "present") totalPresent++;
         else if (a.status === "late") totalLate++;
         else if (a.status === "absent") totalAbsent++;
@@ -111,98 +155,421 @@ export default async function StudentDashboardPage() {
     }
   }
 
-  const attendanceRate = totalClasses > 0 
-    ? Math.round(((totalPresent + totalLate) / totalClasses) * 100) 
-    : 0;
+  const attendanceRate =
+    totalClasses > 0
+      ? Math.round(((totalPresent + totalLate) / totalClasses) * 100)
+      : 0;
 
+  /* 8. Recent 5 attendance records */
+  const { data: recentRaw } = await supabase
+    .from("attendance")
+    .select(`
+      id, status, checked_in_at, created_at,
+      class_sessions(
+        started_at, ended_at,
+        courses(name, code)
+      )
+    `)
+    .eq("student_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(5) as unknown as {
+      data: Array<{
+        id: string;
+        status: string;
+        checked_in_at: string | null;
+        created_at: string;
+        class_sessions: {
+          started_at: string;
+          ended_at: string | null;
+          courses: { name: string; code: string } | null;
+        } | null;
+      }> | null;
+    };
+
+  const recentActivity = (recentRaw ?? []).map((r) => {
+    const sess = r.class_sessions;
+    const course = sess?.courses;
+    return {
+      id: r.id,
+      status: r.status,
+      date: sess?.started_at ?? r.created_at,
+      courseName: course?.name ?? "Unknown course",
+      courseCode: course?.code ?? "—",
+      checkInTime: r.checked_in_at ?? r.created_at,
+    };
+  });
+
+  /* ── derived display ────────────────────────────────────── */
+  const firstName = student?.name?.split(" ")[0] ?? "Student";
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const rateColour =
+    attendanceRate >= 80
+      ? "var(--color-success)"
+      : attendanceRate >= 60
+      ? "var(--color-warning)"
+      : "var(--color-danger)";
+
+  /* ─── render ─────────────────────────────────────────────── */
   return (
-    <div className="flex flex-col gap-8">
-      {/* Page Header */}
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Welcome back, {student?.name?.split(" ")[0] || "Student"}</h1>
-          <p className="page-subtitle">
-            {activeSemester?.name ? `${activeSemester.name} Semester` : "No active semester"}
-          </p>
+    <div>
+      {/* ══ Hero / Welcome ══════════════════════════════════════ */}
+      <div className={styles.hero}>
+        <div className={styles.heroGlow} />
+        <div className={styles.heroLeft}>
+          <span className={styles.heroGreeting}>{greeting}</span>
+          <h1 className={styles.heroName}>{firstName}</h1>
+          <div className={styles.heroMeta}>
+            {activeSemester ? (
+              <span className={styles.heroPill}>
+                <span className={styles.heroPillDot} />
+                {activeSemester.name}
+              </span>
+            ) : (
+              <span className={`${styles.heroPill} ${styles.heroPillNeutral}`}>
+                No active semester
+              </span>
+            )}
+            {groupName && (
+              <span className={`${styles.heroPill} ${styles.heroPillNeutral}`}>
+                {groupName}
+              </span>
+            )}
+          </div>
+        </div>
+        {student?.index_number && (
+          <div className={styles.heroRight}>
+            <div className={styles.heroIndexCard}>
+              <div className={styles.heroIndexLabel}>Student ID</div>
+              <div className={styles.heroIndexValue}>{student.index_number}</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ══ Quick Links ═════════════════════════════════════════ */}
+      <div className={styles.quickLinks}>
+        <Link
+          href="/student/attendance"
+          className={styles.quickLink}
+          style={{ "--ql-color": "var(--color-secondary)" } as React.CSSProperties}
+        >
+          <span className={styles.quickLinkIcon}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 10l5 5L19 4" /><circle cx="10" cy="10" r="9" />
+            </svg>
+          </span>
+          History
+        </Link>
+        <Link
+          href="/student/notifications"
+          className={styles.quickLink}
+          style={{ "--ql-color": "var(--color-warning)" } as React.CSSProperties}
+        >
+          <span className={styles.quickLinkIcon}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 2a6 6 0 00-6 6v3l-2 4h16l-2-4V8a6 6 0 00-6-6z" />
+              <path d="M8 17a2 2 0 004 0" />
+            </svg>
+          </span>
+          Alerts
+        </Link>
+        <Link
+          href="/student/profile"
+          className={styles.quickLink}
+          style={{ "--ql-color": "var(--color-info)" } as React.CSSProperties}
+        >
+          <span className={styles.quickLinkIcon}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="10" cy="6" r="4" />
+              <path d="M2 19c0-4.42 3.58-8 8-8s8 3.58 8 8" />
+            </svg>
+          </span>
+          Profile
+        </Link>
+      </div>
+
+      {/* ══ Live Session Banner ══════════════════════════════════ */}
+      <div className={styles.liveWrap}>
+        <div className={styles.sectionLabel}>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="6" cy="6" r="2.5" fill="currentColor" />
+          </svg>
+          Live Now
+          <span className={styles.sectionLabelLine} />
+        </div>
+
+        {activeSessions.length === 0 ? (
+          <div className={styles.noSession}>
+            <span className={styles.noSessionIcon}>
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <rect x="2" y="5" width="16" height="12" rx="2" />
+                <path d="M6 5V3M14 5V3M2 9h16" />
+              </svg>
+            </span>
+            <span>No classes in session right now. Check back when your next class starts.</span>
+          </div>
+        ) : (
+          <div className={styles.multiLiveGrid}>
+            {activeSessions.map((session) => {
+              const isCheckedIn = checkedInSessionIds.has(session.id);
+              const course = Array.isArray(session.courses) ? session.courses[0] : session.courses;
+              const courseName = course?.name ?? "Unknown course";
+              const courseCode = course?.code ?? "—";
+              const startTime = formatTime(session.started_at);
+              const elapsed = Math.floor(
+                (Date.now() - new Date(session.started_at).getTime()) / 60000
+              );
+              const elapsedLabel =
+                elapsed < 60 ? `${elapsed}m elapsed` : `${Math.floor(elapsed / 60)}h ${elapsed % 60}m elapsed`;
+
+              return (
+                <div key={session.id} className={styles.liveBanner}>
+                  <div className={styles.liveBannerGlow} />
+                  <div className={styles.liveBannerContent}>
+                    <div className={styles.livePulse}>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--color-primary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="5" width="12" height="10" rx="1.5" />
+                        <path d="M14 8l5-3v9l-5-3" />
+                      </svg>
+                    </div>
+                    <div className={styles.liveTextWrap}>
+                      <div className={styles.liveLabelRow}>
+                        <span className={styles.liveDot}>● LIVE</span>
+                        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
+                          {elapsedLabel}
+                        </span>
+                      </div>
+                      <div className={styles.liveCourseName}>{courseName}</div>
+                      <div className={styles.liveCourseMeta}>
+                        {courseCode}
+                        {session.venue ? ` · ${session.venue}` : ""}
+                        {" · "}Started at {startTime}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.liveBannerActions}>
+                    {isCheckedIn ? (
+                      <div className={styles.liveCheckedIn}>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 8l4 4 6-7" />
+                        </svg>
+                        Checked In
+                      </div>
+                    ) : (
+                      <Link href={`/student/checkin/${session.id}`} className="btn btn-primary">
+                        Check In Now
+                      </Link>
+                    )}
+                    <Link
+                      href={`/student/attendance/${session.id}`}
+                      style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", textAlign: "center" }}
+                    >
+                      View details
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ══ Attendance Stats ═════════════════════════════════════ */}
+      <div className={styles.statsSection}>
+        <div className={styles.sectionLabel}>
+          Semester Summary
+          <span className={styles.sectionLabelLine} />
+          {activeSemester && (
+            <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
+              {activeSemester.name}
+            </span>
+          )}
+        </div>
+
+        <div className={styles.statsGrid}>
+          {/* Attendance ring */}
+          <div className={styles.ringCard}>
+            <div className={styles.ringWrap}>
+              <AttendanceRingSVG pct={attendanceRate} />
+              <div className={styles.ringLabel}>
+                <span className={styles.ringPct} style={{ color: rateColour }}>
+                  {attendanceRate}%
+                </span>
+                <span className={styles.ringSubtext}>rate</span>
+              </div>
+            </div>
+            <span className={styles.ringCardTitle}>Attendance Rate</span>
+          </div>
+
+          {/* 4 detail cards */}
+          <div className={styles.detailCards}>
+            {/* Total */}
+            <div
+              className={styles.detailCard}
+              style={{
+                "--card-accent": "var(--color-secondary)",
+                "--icon-bg": "rgba(59,130,246,0.1)",
+              } as React.CSSProperties}
+            >
+              <div className={styles.detailIcon}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="16" height="15" rx="1.5" />
+                  <path d="M2 9h16M7 2v4M13 2v4" />
+                </svg>
+              </div>
+              <div className={styles.detailRight}>
+                <div className={styles.detailValue}>{totalClasses}</div>
+                <div className={styles.detailLabel}>Total</div>
+                <div className={styles.detailSub}>classes held</div>
+              </div>
+            </div>
+
+            {/* Present */}
+            <div
+              className={styles.detailCard}
+              style={{
+                "--card-accent": "var(--color-success)",
+                "--icon-bg": "var(--color-success-bg)",
+              } as React.CSSProperties}
+            >
+              <div className={styles.detailIcon}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 10l5 5L19 4" />
+                  <circle cx="10" cy="10" r="9" />
+                </svg>
+              </div>
+              <div className={styles.detailRight}>
+                <div className={styles.detailValue}>{totalPresent}</div>
+                <div className={styles.detailLabel}>Present</div>
+                <div className={styles.detailSub}>on time</div>
+              </div>
+            </div>
+
+            {/* Late */}
+            <div
+              className={styles.detailCard}
+              style={{
+                "--card-accent": "var(--color-warning)",
+                "--icon-bg": "var(--color-warning-bg)",
+              } as React.CSSProperties}
+            >
+              <div className={styles.detailIcon}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="10" cy="10" r="8" />
+                  <path d="M10 5v5l4 4" />
+                </svg>
+              </div>
+              <div className={styles.detailRight}>
+                <div className={styles.detailValue}>{totalLate}</div>
+                <div className={styles.detailLabel}>Late</div>
+                <div className={styles.detailSub}>arrivals</div>
+              </div>
+            </div>
+
+            {/* Absent */}
+            <div
+              className={styles.detailCard}
+              style={{
+                "--card-accent": "var(--color-danger)",
+                "--icon-bg": "var(--color-danger-bg)",
+              } as React.CSSProperties}
+            >
+              <div className={styles.detailIcon}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="10" cy="10" r="8" />
+                  <path d="M7 7l6 6M13 7l-6 6" />
+                </svg>
+              </div>
+              <div className={styles.detailRight}>
+                <div className={styles.detailValue}>{totalAbsent}</div>
+                <div className={styles.detailLabel}>Absent</div>
+                <div className={styles.detailSub}>missed</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Active Sessions Banner */}
-      {activeSessions.length > 0 ? (
-        <div className="grid gap-4">
-          <h2 className="text-lg font-bold">Active Classes Now</h2>
-          {activeSessions.map((session) => {
-            const isCheckedIn = checkedInSessionIds.has(session.id);
-            const courseName = Array.isArray(session.courses) ? session.courses[0]?.name : session.courses?.name;
-            const courseCode = Array.isArray(session.courses) ? session.courses[0]?.code : session.courses?.code;
-            
-            return (
-              <div key={session.id} className="card border-l-4" style={{ borderLeftColor: isCheckedIn ? "var(--color-success)" : "var(--color-primary)" }}>
-                <div className="flex justify-between items-center gap-4 flex-wrap">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="badge badge-primary">{courseCode}</span>
-                      {isCheckedIn && <span className="badge badge-success">Checked In</span>}
-                      {!isCheckedIn && <span className="badge badge-warning">Check-in Open</span>}
-                    </div>
-                    <h3 className="font-bold text-lg">{courseName}</h3>
-                    <p className="text-sm text-[var(--color-text-3)] mt-1">
-                      Started at {new Date(session.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
-                      {session.venue && ` • ${session.venue}`}
-                    </p>
-                  </div>
-                  
-                  {!isCheckedIn ? (
-                    <Link href={`/student/checkin/${session.id}`} className="btn btn-primary">
-                      Check In Now
-                    </Link>
-                  ) : (
-                    <Link href={`/student/attendance/${session.id}`} className="btn btn-secondary">
-                      View Details
-                    </Link>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+      {/* ══ Recent Activity ══════════════════════════════════════ */}
+      <div className={styles.recentSection}>
+        <div className={styles.sectionLabel}>
+          Recent Activity
+          <span className={styles.sectionLabelLine} />
         </div>
-      ) : (
-        <div className="card text-center py-12">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mx-auto text-[var(--color-text-3)] mb-4">
-            <rect x="2" y="4" width="20" height="16" rx="2" />
-            <path d="M12 12v.01M8 12v.01M16 12v.01" />
-          </svg>
-          <h3 className="text-lg font-bold">No Active Classes</h3>
-          <p className="text-[var(--color-text-3)] max-w-sm mx-auto mt-2">
-            You don't have any classes running right now. Check back when your next class is scheduled to begin.
-          </p>
-        </div>
-      )}
 
-      {/* Stats Grid */}
-      <div>
-        <h2 className="text-lg font-bold mb-4">Your Attendance Summary</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="stat-card" style={{ "--accent": "var(--color-secondary)" } as React.CSSProperties}>
-            <div className="stat-card-label">Overall Rate</div>
-            <div className="stat-card-value">{attendanceRate}%</div>
-            <div className="stat-card-sub">{totalClasses} classes total</div>
+        <div className={styles.recentCard}>
+          <div className={styles.recentHeader}>
+            <span className={styles.recentHeaderTitle}>Last 5 check-ins</span>
+            <Link href="/student/attendance" className={styles.recentHeaderLink}>
+              View all
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 6h8M7 3l3 3-3 3" />
+              </svg>
+            </Link>
           </div>
-          <div className="stat-card" style={{ "--accent": "var(--color-success)" } as React.CSSProperties}>
-            <div className="stat-card-label">Present</div>
-            <div className="stat-card-value text-[var(--color-success)]">{totalPresent}</div>
-            <div className="stat-card-sub">classes on time</div>
-          </div>
-          <div className="stat-card" style={{ "--accent": "var(--color-warning)" } as React.CSSProperties}>
-            <div className="stat-card-label">Late</div>
-            <div className="stat-card-value text-[var(--color-warning)]">{totalLate}</div>
-            <div className="stat-card-sub">classes</div>
-          </div>
-          <div className="stat-card" style={{ "--accent": "var(--color-danger)" } as React.CSSProperties}>
-            <div className="stat-card-label">Absent</div>
-            <div className="stat-card-value text-[var(--color-danger)]">{totalAbsent}</div>
-            <div className="stat-card-sub">classes missed</div>
-          </div>
+
+          {recentActivity.length === 0 ? (
+            <div className={styles.recentEmpty}>
+              No attendance records yet. Your check-ins will appear here.
+            </div>
+          ) : (
+            recentActivity.map((item) => {
+              const statusColor =
+                item.status === "present"
+                  ? "var(--color-success)"
+                  : item.status === "late"
+                  ? "var(--color-warning)"
+                  : "var(--color-danger)";
+              const statusBg =
+                item.status === "present"
+                  ? "var(--color-success-bg)"
+                  : item.status === "late"
+                  ? "var(--color-warning-bg)"
+                  : "var(--color-danger-bg)";
+              const statusLabel =
+                item.status === "present" ? "Present" : item.status === "late" ? "Late" : "Absent";
+              const badgeCls =
+                item.status === "present"
+                  ? "badge badge-success"
+                  : item.status === "late"
+                  ? "badge badge-warning"
+                  : "badge badge-danger";
+
+              return (
+                <Link
+                  key={item.id}
+                  href={`/student/attendance/${item.id}`}
+                  className={styles.recentRow}
+                >
+                  {/* Course code avatar */}
+                  <div
+                    className={styles.recentIcon}
+                    style={{ background: statusBg, color: statusColor }}
+                  >
+                    {item.courseCode.slice(0, 3)}
+                  </div>
+
+                  <div className={styles.recentRowContent}>
+                    <div className={styles.recentRowTitle}>{item.courseName}</div>
+                    <div className={styles.recentRowMeta}>
+                      {item.courseCode} · {formatTime(item.checkInTime)}
+                    </div>
+                  </div>
+
+                  <div className={styles.recentRowRight}>
+                    <span className={badgeCls} aria-label={`Status: ${statusLabel}`}>
+                      {statusLabel}
+                    </span>
+                    <span className={styles.recentDate}>{formatDate(item.date)}</span>
+                  </div>
+                </Link>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

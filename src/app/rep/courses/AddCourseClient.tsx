@@ -8,6 +8,8 @@ type Props = {
   semesterId: string;
 };
 
+const CREDIT_OPTIONS = [1, 2, 3, 4, 5, 6];
+
 export function AddCourseClient({ groupId, semesterId }: Props) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -16,15 +18,20 @@ export function AddCourseClient({ groupId, semesterId }: Props) {
 
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
-  const [creditHours, setCreditHours] = useState("3");
+  const [creditHours, setCreditHours] = useState(3);
 
   const nameRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus name field when sheet opens
   useEffect(() => {
     if (open) {
-      setTimeout(() => nameRef.current?.focus(), 80);
+      const t = setTimeout(() => nameRef.current?.focus(), 120);
+      return () => clearTimeout(t);
     }
+  }, [open]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
   function handleOpen() {
@@ -32,7 +39,7 @@ export function AddCourseClient({ groupId, semesterId }: Props) {
     setSaved(false);
     setName("");
     setCode("");
-    setCreditHours("3");
+    setCreditHours(3);
     setOpen(true);
   }
 
@@ -42,154 +49,91 @@ export function AddCourseClient({ groupId, semesterId }: Props) {
   }
 
   function handleSubmit() {
-    if (!name.trim() || !code.trim()) {
-      setError("Course name and code are required.");
-      return;
-    }
-    const ch = parseInt(creditHours, 10);
-    if (isNaN(ch) || ch < 1 || ch > 12) {
-      setError("Credit hours must be between 1 and 12.");
-      return;
-    }
+    if (!name.trim()) { setError("Course name is required."); return; }
+    if (!code.trim()) { setError("Course code is required."); return; }
     setError(null);
+
     startTransition(async () => {
       const res = await addCourse({
         groupId,
         semesterId,
         name: name.trim(),
         code: code.trim().toUpperCase(),
-        creditHours: ch,
+        creditHours,
       });
       if ("error" in res) {
         setError(res.error);
       } else {
         setSaved(true);
-        setTimeout(() => {
-          setOpen(false);
-          setSaved(false);
-        }, 900);
+        setTimeout(() => { setOpen(false); setSaved(false); }, 900);
       }
     });
   }
 
   return (
     <>
-      {/* Trigger button */}
-      <button
-        onClick={handleOpen}
-        className="btn btn-primary"
-        style={{ flexShrink: 0 }}
-        aria-haspopup="dialog"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
+      {/* Trigger */}
+      <button onClick={handleOpen} className="btn btn-primary" aria-haspopup="dialog">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M10 4v12M4 10h12" />
         </svg>
         Add Course
       </button>
 
       {/* Backdrop */}
-      {open && (
-        <div
-          onClick={handleClose}
-          aria-hidden="true"
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-            zIndex: 40,
-            animation: "fadeIn 180ms ease-out both",
-          }}
-        />
-      )}
+      <div
+        aria-hidden="true"
+        onClick={handleClose}
+        className={`ac-backdrop${open ? " ac-backdrop--open" : ""}`}
+      />
 
-      {/* Bottom sheet */}
+      {/* Drawer */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Add Course"
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          background: "var(--color-surface)",
-          borderRadius: "var(--radius-2xl) var(--radius-2xl) 0 0",
-          padding: "var(--space-6) var(--space-6) calc(var(--space-8) + env(safe-area-inset-bottom))",
-          boxShadow: "0 -4px 32px rgba(0,0,0,0.18)",
-          maxWidth: 560,
-          margin: "0 auto",
-          transform: open ? "translateY(0)" : "translateY(105%)",
-          transition: "transform 280ms cubic-bezier(0.22,1,0.36,1)",
-          pointerEvents: open ? "auto" : "none",
-        }}
+        className={`ac-drawer${open ? " ac-drawer--open" : ""}`}
       >
-        {/* Handle */}
-        <div
-          aria-hidden="true"
-          style={{
-            width: 36,
-            height: 4,
-            borderRadius: 9999,
-            background: "var(--color-border)",
-            margin: "0 auto var(--space-5)",
-          }}
-        />
+        {/* Mobile drag handle */}
+        <div className="ac-handle" aria-hidden="true" />
 
-        <h2
-          style={{
-            fontSize: "var(--text-lg)",
-            fontWeight: 700,
-            color: "var(--color-text)",
-            marginBottom: "var(--space-5)",
-          }}
-        >
-          Add Course
-        </h2>
-
-        {error && (
-          <div
-            className="alert alert-error"
-            style={{ marginBottom: "var(--space-4)" }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="10" cy="10" r="9" />
-              <path d="M10 7v3M10 13h.01" />
-            </svg>
-            {error}
+        {/* Header */}
+        <div className="ac-header">
+          <div>
+            <h2 className="ac-title">New Course</h2>
+            <p className="ac-subtitle">Added to the active semester</p>
           </div>
-        )}
+          <button
+            onClick={handleClose}
+            aria-label="Close drawer"
+            disabled={isPending}
+            className="ac-close"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+              <path d="M5 5l10 10M15 5L5 15" />
+            </svg>
+          </button>
+        </div>
 
-        {/* Fields */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="course-name">
-              Course Name
-            </label>
+        {/* Scrollable body */}
+        <div className="ac-body">
+
+          {error && (
+            <div className="alert alert-error" style={{ marginBottom: "var(--space-5)" }}>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="10" cy="10" r="9" /><path d="M10 7v3M10 13h.01" />
+              </svg>
+              {error}
+            </div>
+          )}
+
+          {/* Course Name */}
+          <div className="ac-field">
+            <label htmlFor="ac-name" className="ac-label">Course Name</label>
             <input
               ref={nameRef}
-              id="course-name"
-              className="form-input"
+              id="ac-name"
+              className="input ac-input"
               type="text"
               placeholder="e.g. Introduction to Computing"
               value={name}
@@ -199,95 +143,81 @@ export function AddCourseClient({ groupId, semesterId }: Props) {
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="course-code">
-                Course Code
-              </label>
+          {/* Code + Credits */}
+          <div className="ac-row">
+            <div className="ac-field">
+              <label htmlFor="ac-code" className="ac-label">Course Code</label>
               <input
-                id="course-code"
-                className="form-input"
+                id="ac-code"
+                className="input ac-input ac-mono"
                 type="text"
-                placeholder="e.g. ITC 101"
+                placeholder="ITC 101"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
                 disabled={isPending || saved}
                 autoComplete="off"
-                style={{ textTransform: "uppercase" }}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="credit-hours">
-                Credit Hours
-              </label>
-              <select
-                id="credit-hours"
-                className="form-input"
-                value={creditHours}
-                onChange={(e) => setCreditHours(e.target.value)}
-                disabled={isPending || saved}
-              >
-                {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <option key={n} value={n}>
+            <div className="ac-field">
+              <span className="ac-label" id="ac-credits-label">Credit Hours</span>
+              <div className="ac-credit-grid" role="group" aria-labelledby="ac-credits-label">
+                {CREDIT_OPTIONS.map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setCreditHours(n)}
+                    disabled={isPending || saved}
+                    aria-pressed={creditHours === n}
+                    className={`ac-credit-btn${creditHours === n ? " ac-credit-btn--active" : ""}`}
+                  >
                     {n}
-                  </option>
+                  </button>
                 ))}
-              </select>
+              </div>
+              <p className="ac-credit-hint">{creditHours} credit hour{creditHours !== 1 ? "s" : ""}</p>
             </div>
+          </div>
+
+          {/* Info note */}
+          <div className="ac-info">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="10" cy="10" r="9" /><path d="M10 13v-3M10 7h.01" />
+            </svg>
+            <span>The course goes live immediately. Assign a lecturer from the course detail page.</span>
           </div>
         </div>
 
-        {/* Actions */}
-        <div
-          style={{
-            display: "flex",
-            gap: "var(--space-3)",
-            marginTop: "var(--space-6)",
-          }}
-        >
+        {/* Footer */}
+        <div className="ac-footer">
           <button
             onClick={handleClose}
+            disabled={isPending}
             className="btn btn-secondary"
             style={{ flex: 1 }}
-            disabled={isPending}
             type="button"
           >
             Cancel
           </button>
-
           <button
             onClick={handleSubmit}
-            className="btn btn-primary"
-            style={{
-              flex: 1,
-              gap: "var(--space-2)",
-              background: saved ? "var(--color-success)" : undefined,
-              borderColor: saved ? "var(--color-success)" : undefined,
-              transition: "background 200ms, border-color 200ms",
-            }}
             disabled={isPending || saved}
+            className={`btn btn-primary ac-save${saved ? " ac-save--done" : ""}`}
+            style={{ flex: 2 }}
             type="button"
           >
             {saved ? (
               <>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M4 10l5 5 7-9" />
                 </svg>
-                Saved
+                Course Added
               </>
             ) : isPending ? (
-              "Saving…"
+              <>
+                <span className="ac-spinner" aria-hidden="true" />
+                Saving…
+              </>
             ) : (
               "Save Course"
             )}
@@ -296,7 +226,172 @@ export function AddCourseClient({ groupId, semesterId }: Props) {
       </div>
 
       <style>{`
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        /* ── Backdrop ── */
+        .ac-backdrop {
+          position: fixed; inset: 0; z-index: 40;
+          background: rgba(0,0,0,0.55);
+          backdrop-filter: blur(3px);
+          -webkit-backdrop-filter: blur(3px);
+          opacity: 0; pointer-events: none;
+          transition: opacity 260ms ease;
+        }
+        .ac-backdrop--open { opacity: 1; pointer-events: auto; }
+
+        /* ── Drawer base (mobile: bottom sheet) ── */
+        .ac-drawer {
+          position: fixed;
+          left: 0; right: 0; bottom: 0;
+          z-index: 50;
+          background: var(--color-surface);
+          border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+          box-shadow: var(--shadow-xl);
+          max-height: 92dvh;
+          display: flex; flex-direction: column;
+          transform: translateY(105%);
+          transition: transform 300ms cubic-bezier(0.22,1,0.36,1);
+          pointer-events: none;
+        }
+        .ac-drawer--open {
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+
+        /* ── Desktop / Tablet: right-side drawer ── */
+        @media (min-width: 768px) {
+          .ac-drawer {
+            top: 0; left: auto; right: 0; bottom: 0;
+            width: 420px;
+            border-radius: var(--radius-2xl) 0 0 var(--radius-2xl);
+            max-height: 100dvh;
+            transform: translateX(105%);
+          }
+          .ac-drawer--open { transform: translateX(0); }
+          .ac-handle { display: none; }
+        }
+
+        /* ── Handle ── */
+        .ac-handle {
+          width: 36px; height: 4px;
+          border-radius: 9999px;
+          background: var(--color-surface-3);
+          margin: 12px auto 0;
+          flex-shrink: 0;
+        }
+
+        /* ── Header ── */
+        .ac-header {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: var(--space-5) var(--space-6) var(--space-4);
+          border-bottom: 1px solid var(--color-border);
+          flex-shrink: 0;
+          gap: var(--space-4);
+        }
+        .ac-title { font-size: var(--text-lg); font-weight: 800; color: var(--color-text); line-height: 1.2; }
+        .ac-subtitle { font-size: var(--text-xs); color: var(--color-text-3); margin-top: 3px; }
+        .ac-close {
+          display: flex; align-items: center; justify-content: center;
+          width: 32px; height: 32px;
+          border-radius: var(--radius-md);
+          background: var(--color-surface-2);
+          border: 1px solid var(--color-border);
+          cursor: pointer; color: var(--color-text-3);
+          transition: all var(--transition-fast);
+          flex-shrink: 0;
+        }
+        .ac-close:hover { background: var(--color-surface-3); color: var(--color-text); }
+        .ac-close:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── Body ── */
+        .ac-body {
+          flex: 1; overflow-y: auto;
+          padding: var(--space-6);
+          display: flex; flex-direction: column;
+          gap: 0;
+        }
+
+        /* ── Fields ── */
+        .ac-field { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-5); }
+        .ac-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+        .ac-label {
+          font-size: 11px; font-weight: 700;
+          color: var(--color-text-3);
+          text-transform: uppercase; letter-spacing: 0.07em;
+        }
+        .ac-input {
+          padding: 0.72rem var(--space-4) !important;
+          font-size: var(--text-sm) !important;
+          background: var(--color-surface-2) !important;
+        }
+        .ac-mono { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.04em; }
+
+        /* ── Credit pill selector ── */
+        .ac-credit-grid {
+          display: grid; grid-template-columns: repeat(6,1fr);
+          gap: 3px; padding: 3px;
+          background: var(--color-surface-2);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-md);
+        }
+        .ac-credit-btn {
+          padding: 7px 0;
+          border-radius: calc(var(--radius-md) - 1px);
+          font-size: var(--text-sm); font-weight: 700;
+          border: none; cursor: pointer;
+          background: transparent;
+          color: var(--color-text-3);
+          transition: all 140ms ease;
+          line-height: 1;
+        }
+        .ac-credit-btn:hover:not(:disabled) {
+          background: var(--color-surface-3);
+          color: var(--color-text);
+        }
+        .ac-credit-btn--active {
+          background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)) !important;
+          color: #fff !important;
+          box-shadow: 0 2px 8px var(--color-primary-glow);
+        }
+        .ac-credit-hint {
+          font-size: 11px; color: var(--color-text-3); margin-top: 5px;
+        }
+
+        /* ── Info note ── */
+        .ac-info {
+          display: flex; align-items: flex-start; gap: var(--space-3);
+          padding: var(--space-3) var(--space-4);
+          border-radius: var(--radius-lg);
+          background: var(--color-info-bg);
+          border: 1px solid rgba(6,182,212,0.2);
+          color: var(--color-info);
+          font-size: var(--text-xs); line-height: 1.6;
+          margin-top: var(--space-2);
+        }
+        .ac-info svg { flex-shrink: 0; margin-top: 1px; }
+
+        /* ── Footer ── */
+        .ac-footer {
+          display: flex; gap: var(--space-3);
+          padding: var(--space-4) var(--space-6);
+          padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+          border-top: 1px solid var(--color-border);
+          flex-shrink: 0;
+          background: var(--color-surface);
+        }
+
+        /* Save button done state */
+        .ac-save--done {
+          background: linear-gradient(135deg,#16a34a,#15803d) !important;
+          box-shadow: 0 4px 15px rgba(22,163,74,0.35) !important;
+        }
+
+        /* Spinner */
+        .ac-spinner {
+          display: inline-block; width: 14px; height: 14px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: #fff; border-radius: 50%;
+          animation: spin 0.6s linear infinite;
+          margin-right: 4px;
+        }
       `}</style>
     </>
   );

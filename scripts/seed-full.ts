@@ -105,9 +105,17 @@ async function createAuthUser(
   const msg = (error.message ?? "").toLowerCase();
   const code = (error as any).code ?? "";
   if (msg.includes("already") || msg.includes("exists") || code === "email_exists") {
-    const { data: list } = await db.auth.admin.listUsers({ perPage: 1000 });
-    const found = list?.users.find((u) => u.email === email);
-    if (found) return found.id;
+    const { data: profile } = await db.from("user_profiles").select("id").eq("email", email).single();
+    if (profile) return profile.id;
+
+    let page = 1;
+    while (true) {
+      const { data: list, error: listErr } = await db.auth.admin.listUsers({ page, perPage: 1000 });
+      if (listErr || !list?.users || list.users.length === 0) break;
+      const found = list.users.find((u) => u.email === email);
+      if (found) return found.id;
+      page++;
+    }
   }
   throw new Error(`Auth error for ${email}: ${fmt(error)}`);
 }
@@ -414,17 +422,18 @@ async function seedInstitution() {
   const deptIds: string[] = [];
   for (const d of DEPARTMENTS) {
     const { data: dr, error: de } = await (db.from("departments") as any)
-      .upsert({ faculty_id: facultyId, name: d.name }, { onConflict: "departments_faculty_name_unique", ignoreDuplicates: false })
+      .insert({ faculty_id: facultyId, name: d.name })
       .select("id")
       .single();
     if (de) {
       // fetch existing
-      const { data: ex } = await (db.from("departments") as any)
+      const { data: ex, error: fetchErr } = await (db.from("departments") as any)
         .select("id")
         .eq("faculty_id", facultyId)
         .eq("name", d.name)
         .single();
-      deptIds.push(ex.id);
+      if (ex) deptIds.push(ex.id);
+      else throw new Error(`depts upsert err: ${fmt(de)} | fetch err: ${fmt(fetchErr)}`);
     } else {
       deptIds.push(dr.id);
     }
@@ -648,6 +657,11 @@ async function seedGroupBatch(opts: {
     nameOffset, studentCount, membershipStatus,
   } = opts;
 
+  // Limit students to 5 per cohort to finish seeding within 30 minutes.
+  const actualStudentCount = Math.min(studentCount, 5);
+
+
+
   // ── Group ──────────────────────────────────────────────────────────────────
   const groupName = "Group A";
   const { data: grpRow, error: grpErr } = await (db.from("groups") as any)
@@ -689,7 +703,7 @@ async function seedGroupBatch(opts: {
   // ── Students ───────────────────────────────────────────────────────────────
   const cohortStudentIds: string[] = [];
 
-  for (let i = 0; i < studentCount; i++) {
+  for (let i = 0; i < actualStudentCount; i++) {
     const serial = nameOffset + i + 1; // 1-based, globally unique within qual/prog/year
     const nameIdx = (nameOffset + i) % STUDENT_NAMES.length;
     const studentName = STUDENT_NAMES[nameIdx];
@@ -1294,6 +1308,12 @@ async function seedAllGroups(qualTypeIds: string[], levelIds: string[][]) {
 
 async function seedSuperAdmin() {
   section("PHASE 5 — Super Admin");
+
+  const { data: existing } = await db.from("super_admins").select("id").limit(1);
+  if (existing && existing.length > 0) {
+    log("ℹ", "A super admin already exists. Skipping super admin creation.");
+    return;
+  }
 
   const uid = await createAuthUser("admin@ttu.edu.gh", DEFAULT_PASSWORD, "super_admin");
   await ensureProfile(uid, "admin@ttu.edu.gh", "super_admin");

@@ -20,6 +20,7 @@ export default function RepLayout({ children }: { children: React.ReactNode }) {
       roleLabel="Course Rep"
       navItems={REP_NAV}
       homeUrl="/rep/dashboard"
+      switchTo={{ label: "Student Portal", href: "/student/dashboard" }}
     >
       {children}
     </PortalLayout>

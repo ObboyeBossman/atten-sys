@@ -53,12 +53,19 @@ interface NavItem {
   icon: NavIcon;
 }
 
+interface SwitchTarget {
+  label: string;
+  href: string;
+}
+
 interface PortalLayoutProps {
   role: "lecturer" | "rep" | "student";
   roleLabel: string;
   navItems: readonly NavItem[];
   homeUrl: string;
   children: React.ReactNode;
+  /** When set, shows a portal-switcher button in the sidebar/bottom-nav */
+  switchTo?: SwitchTarget;
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -73,7 +80,7 @@ const ROLE_INITIALS: Record<string, string> = {
   student: "S",
 };
 
-export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: PortalLayoutProps) {
+export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, switchTo }: PortalLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
@@ -158,6 +165,16 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
           );
         })}
       </nav>
+      {switchTo && (
+        <div className={styles.switcherWrap}>
+          <Link href={switchTo.href} className={styles.switcherBtn}>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 10h12M10 4l6 6-6 6" />
+            </svg>
+            {switchTo.label}
+          </Link>
+        </div>
+      )}
       <div className={styles.sidebarFooter}>
         <div
           className={styles.avatar}
@@ -252,7 +269,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
 
       {/* ── Bottom nav (mobile quick-access) ─────────────────────── */}
       <nav className={styles.bottomNav} aria-label="Mobile navigation">
-        {navItems.slice(0, 5).map((item) => {
+        {navItems.slice(0, switchTo ? 4 : 5).map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
@@ -266,6 +283,19 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
             </Link>
           );
         })}
+        {switchTo && (
+          <Link
+            href={switchTo.href}
+            className={styles.bottomNavItem}
+            style={{ "--role-color": "#f59e0b" } as React.CSSProperties}
+            title={switchTo.label}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 10h12M10 4l6 6-6 6" />
+            </svg>
+            <span>Switch</span>
+          </Link>
+        )}
       </nav>
 
       {/* ── Sign-out confirmation dialog ─────────────────────────── */}

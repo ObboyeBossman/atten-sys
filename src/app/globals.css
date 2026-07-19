@@ -550,13 +550,13 @@ tbody td {
     scroll-snap-type: x mandatory;
     padding-bottom: var(--space-2);
     margin-bottom: var(--space-6);
-    /* Hide scrollbar but keep scroll behaviour */
     scrollbar-width: none;
   }
   .stats-scroll-wrap::-webkit-scrollbar { display: none; }
 
+  /* Cards wide enough to read comfortably; ~two visible at once on 384px */
   .stats-scroll-card {
-    flex: 0 0 180px;
+    flex: 0 0 clamp(160px, 55vw, 220px);
     scroll-snap-align: start;
   }
 
@@ -564,6 +564,21 @@ tbody td {
   .dashboard-lower-grid {
     grid-template-columns: 1fr;
   }
+
+  /* Sidebar (quick actions) comes below main content on mobile */
+  .dashboard-lower-grid > :first-child { order: 1; }
+  .dashboard-lower-grid > :last-child  { order: 2; }
+}
+
+@media (max-width: 640px) {
+  /* Tighten page header on small screens */
+  .page-header { margin-bottom: var(--space-5); }
+  .page-title  { font-size: var(--text-xl); }
+
+  /* Stat cards: slightly narrower on very small screens */
+  .stats-scroll-card { flex: 0 0 clamp(150px, 60vw, 200px); }
+  .stat-card         { padding: var(--space-4) var(--space-5); }
+  .stat-card-value   { font-size: var(--text-2xl); }
 }
 
 /* ── Audit log ───────────────────────────────────────────── */

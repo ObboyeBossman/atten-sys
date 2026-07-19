@@ -270,7 +270,7 @@ export default async function RepDashboard() {
           </p>
         </div>
         {d.pendingDisputes > 0 && (
-          <Link href="/rep/disputes" className="btn btn-danger btn-sm">
+          <Link href="/rep/disputes" className="btn btn-danger btn-sm dashboard-disputes-btn">
             <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 2v12h8l4-4V2H4zM12 14v4" />
             </svg>
@@ -296,7 +296,7 @@ export default async function RepDashboard() {
           )}
 
           {/* Recent sessions */}
-          <div className="card" style={{ marginTop: "var(--space-6)" }}>
+          <div className="card" style={{ marginTop: "var(--space-6)", minWidth: 0, overflow: "hidden" }}>
             <h2 style={{
               fontSize: "var(--text-base)",
               fontWeight: 700,
@@ -382,7 +382,7 @@ export default async function RepDashboard() {
         </div>
 
         {/* ── Quick actions sidebar ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", minWidth: 0 }}>
           {/* Quick actions */}
           <div className="card">
             <h2 style={{
@@ -489,6 +489,9 @@ export default async function RepDashboard() {
       {/* Hover style for recent session rows */}
       <style>{`
         .recent-session-row:hover { background: var(--color-surface-2); }
+        @media (max-width: 640px) {
+          .dashboard-disputes-btn { display: none; }
+        }
       `}</style>
     </div>
   );
@@ -512,6 +515,8 @@ function LiveSessionCard({
       style={{
         border: "1px solid rgba(34,197,94,0.35)",
         background: "linear-gradient(135deg, rgba(34,197,94,0.06), transparent)",
+        minWidth: 0,
+        overflow: "hidden",
       }}
     >
       {/* Live pulse header */}
@@ -535,8 +540,8 @@ function LiveSessionCard({
       </div>
 
       {/* Course info */}
-      <div style={{ marginBottom: "var(--space-4)" }}>
-        <div style={{ fontWeight: 800, fontSize: "var(--text-xl)", color: "var(--color-text)" }}>
+      <div style={{ marginBottom: "var(--space-4)", minWidth: 0 }}>
+        <div style={{ fontWeight: 800, fontSize: "var(--text-xl)", color: "var(--color-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {session.courses?.name ?? "Unknown Course"}
         </div>
         <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginTop: 2 }}>
@@ -547,8 +552,8 @@ function LiveSessionCard({
       </div>
 
       {/* Check-in progress */}
-      <div style={{ marginBottom: "var(--space-5)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "var(--space-2)" }}>
+      <div style={{ marginBottom: "var(--space-5)", minWidth: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "var(--space-2)", gap: "var(--space-2)" }}>
           <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", fontWeight: 600 }}>
             Check-ins
           </span>

@@ -6,10 +6,17 @@ import { revalidatePath } from "next/cache";
 export type ActionResult = { success: true } | { error: string };
 
 /* ── Auth guard ─────────────────────────────────────────────────────────── */
-async function requireSuperAdmin() {
+type GuardResult =
+  | { supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>; error: null }
+  | { supabase: null; error: string };
+
+async function requireSuperAdmin(): Promise<GuardResult> {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { supabase, admin: null, error: "Unauthorized." };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { supabase: null, error: "Unauthorized." };
 
   const { data: profile } = await supabase
     .from("user_profiles")
@@ -19,18 +26,18 @@ async function requireSuperAdmin() {
 
   const p = profile as { role: string; is_active: boolean } | null;
   if (!p || p.role !== "super_admin" || !p.is_active) {
-    return { supabase, admin: null, error: "Unauthorized." };
+    return { supabase: null, error: "Unauthorized." };
   }
 
-  return { supabase, admin: user, error: null };
+  return { supabase, error: null };
 }
 
 /* ── Deactivate student ─────────────────────────────────────────────────── */
 export async function deactivateStudent(studentId: string): Promise<ActionResult> {
-  const { supabase, error } = await requireSuperAdmin();
-  if (error) return { error };
+  const guard = await requireSuperAdmin();
+  if (guard.error) return { error: guard.error };
 
-  const { error: dbError } = await supabase
+  const { error: dbError } = await guard.supabase
     .from("user_profiles")
     .update({ is_active: false })
     .eq("id", studentId);
@@ -46,10 +53,10 @@ export async function deactivateStudent(studentId: string): Promise<ActionResult
 
 /* ── Reactivate student ─────────────────────────────────────────────────── */
 export async function reactivateStudent(studentId: string): Promise<ActionResult> {
-  const { supabase, error } = await requireSuperAdmin();
-  if (error) return { error };
+  const guard = await requireSuperAdmin();
+  if (guard.error) return { error: guard.error };
 
-  const { error: dbError } = await supabase
+  const { error: dbError } = await guard.supabase
     .from("user_profiles")
     .update({ is_active: true, must_change_password: true })
     .eq("id", studentId);
@@ -68,8 +75,8 @@ export async function resetStudentPassword(
   studentId: string,
   newPassword: string
 ): Promise<ActionResult> {
-  const { error: authError } = await requireSuperAdmin();
-  if (authError) return { error: authError };
+  const guard = await requireSuperAdmin();
+  if (guard.error) return { error: guard.error };
 
   if (!newPassword || newPassword.length < 8) {
     return { error: "Password must be at least 8 characters." };
@@ -77,22 +84,25 @@ export async function resetStudentPassword(
 
   // Uses service role key — server action only, never exposed to client
   const adminClient = await createSupabaseAdminClient();
-  const { error: resetError } = await adminClient.auth.admin.updateUserById(
-    studentId,
-    { password: newPassword }
-  );
+  const { error: resetError } = await adminClient.auth.admin.updateUserById(studentId, {
+    password: newPassword,
+  });
 
   if (resetError) {
     console.error("Reset password error:", resetError);
     return { error: "Failed to reset password. Please try again." };
   }
 
-  // Force password change on next login
-  const supabase = await createSupabaseServerClient();
-  await supabase
+  // Force password change on next login — reuse the already-authenticated client
+  const { error: flagError } = await guard.supabase
     .from("user_profiles")
     .update({ must_change_password: true })
     .eq("id", studentId);
+
+  if (flagError) {
+    console.error("Flag must_change_password error:", flagError);
+    // Password was reset successfully; flag failure is non-fatal but worth logging
+  }
 
   revalidatePath("/admin/users/students");
   return { success: true };

@@ -146,41 +146,40 @@ export default function ProgrammesPage() {
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
-    const [
-      { data: rawProgs, error: pErr },
-      { data: depts,    error: dErr },
-      { data: facs,     error: fErr },
-      { data: quals },
-    ] = await Promise.all([
-      supabase.from("programmes").select("id, department_id, name, code, created_at").order("name"),
-      supabase.from("departments").select("id, name, faculty_id").order("name"),
-      supabase.from("faculties").select("id, name").order("name"),
-      supabase.from("qualification_types").select("programme_id"),
-    ]);
 
-    if (pErr || dErr || fErr) {
-      setError((pErr ?? dErr ?? fErr)!.message);
+    const progsRes = await supabase.from("programmes").select("id, department_id, name, code, created_at").order("name");
+    const deptsRes = await supabase.from("departments").select("id, name, faculty_id").order("name");
+    const facsRes  = await supabase.from("faculties").select("id, name").order("name");
+    const qualsRes = await supabase.from("qualification_types").select("programme_id");
+
+    if (progsRes.error || deptsRes.error || facsRes.error) {
+      setError((progsRes.error ?? deptsRes.error ?? facsRes.error)!.message);
       setLoading(false);
       return;
     }
 
+    const rawProgs = progsRes.data ?? [];
+    const depts    = deptsRes.data ?? [];
+    const facs     = facsRes.data  ?? [];
+    const quals    = qualsRes.data ?? [];
+
     const facMap: Record<string, string> = {};
-    (facs ?? []).forEach((f) => { facMap[f.id] = f.name; });
+    facs.forEach((f) => { facMap[f.id] = f.name; });
 
     const deptMap: Record<string, Department> = {};
-    (depts ?? []).forEach((d) => {
+    depts.forEach((d) => {
       deptMap[d.id] = { ...d, faculty_name: facMap[d.faculty_id] ?? "Unknown Faculty" };
     });
 
     const qualCount: Record<string, number> = {};
-    (quals ?? []).forEach((q) => { qualCount[q.programme_id] = (qualCount[q.programme_id] ?? 0) + 1; });
+    quals.forEach((q) => { qualCount[q.programme_id] = (qualCount[q.programme_id] ?? 0) + 1; });
 
     setDepartments(Object.values(deptMap));
     setProgrammes(
-      (rawProgs ?? []).map((p) => ({
+      rawProgs.map((p) => ({
         ...p,
         qual_count:   qualCount[p.id] ?? 0,
-        dept_name:    deptMap[p.department_id]?.name        ?? "Unknown Department",
+        dept_name:    deptMap[p.department_id]?.name         ?? "Unknown Department",
         faculty_name: deptMap[p.department_id]?.faculty_name ?? "Unknown Faculty",
       }))
     );

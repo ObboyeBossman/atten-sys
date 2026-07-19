@@ -94,22 +94,30 @@ export default function DepartmentsPage() {
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
-    const [{ data: depts, error: dErr }, { data: facs, error: fErr }, { data: progs }] = await Promise.all([
-      supabase.from("departments").select("id, faculty_id, name, created_at").order("name"),
-      supabase.from("faculties").select("id, name").order("name"),
-      supabase.from("programmes").select("department_id"),
-    ]);
-    if (dErr || fErr) { setError((dErr ?? fErr)!.message); setLoading(false); return; }
+
+    const deptsRes = await supabase.from("departments").select("id, faculty_id, name, created_at").order("name");
+    const facsRes  = await supabase.from("faculties").select("id, name").order("name");
+    const progsRes = await supabase.from("programmes").select("department_id");
+
+    if (deptsRes.error || facsRes.error) {
+      setError((deptsRes.error ?? facsRes.error)!.message);
+      setLoading(false);
+      return;
+    }
+
+    const depts = deptsRes.data ?? [];
+    const facs  = facsRes.data  ?? [];
+    const progs = progsRes.data  ?? [];
 
     const facMap: Record<string, string> = {};
-    (facs ?? []).forEach((f) => { facMap[f.id] = f.name; });
+    facs.forEach((f) => { facMap[f.id] = f.name; });
 
     const progCount: Record<string, number> = {};
-    (progs ?? []).forEach((p) => { progCount[p.department_id] = (progCount[p.department_id] ?? 0) + 1; });
+    progs.forEach((p) => { progCount[p.department_id] = (progCount[p.department_id] ?? 0) + 1; });
 
-    setFaculties(facs ?? []);
+    setFaculties(facs);
     setDepartments(
-      (depts ?? []).map((d) => ({
+      depts.map((d) => ({
         ...d,
         faculty_name: facMap[d.faculty_id] ?? "Unknown Faculty",
         prog_count: progCount[d.id] ?? 0,

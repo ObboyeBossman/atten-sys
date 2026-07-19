@@ -74,14 +74,18 @@ export default function FacultiesPage() {
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
-    const [{ data: facs, error: fErr }, { data: depts }] = await Promise.all([
-      supabase.from("faculties").select("id, name, created_at").order("name"),
-      supabase.from("departments").select("faculty_id"),
-    ]);
-    if (fErr) { setError(fErr.message); setLoading(false); return; }
+
+    const facsRes  = await supabase.from("faculties").select("id, name, created_at").order("name");
+    const deptsRes = await supabase.from("departments").select("faculty_id");
+
+    if (facsRes.error) { setError(facsRes.error.message); setLoading(false); return; }
+
+    const facs  = facsRes.data  ?? [];
+    const depts = deptsRes.data ?? [];
+
     const countMap: Record<string, number> = {};
-    (depts ?? []).forEach((d) => { countMap[d.faculty_id] = (countMap[d.faculty_id] ?? 0) + 1; });
-    setFaculties((facs ?? []).map((f) => ({ ...f, dept_count: countMap[f.id] ?? 0 })));
+    depts.forEach((d) => { countMap[d.faculty_id] = (countMap[d.faculty_id] ?? 0) + 1; });
+    setFaculties(facs.map((f) => ({ ...f, dept_count: countMap[f.id] ?? 0 })));
     setLoading(false);
   }, [supabase]);
 

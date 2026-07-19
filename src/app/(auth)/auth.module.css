@@ -1,5 +1,6 @@
 /* ============================================================
-   ATTEN-SYS — Auth Layout (PHP replica, mobile-first)
+   ATTEN-SYS — Auth Layout
+   Matches login.php design exactly
    ============================================================ */
 
 /* ── Page shell ─────────────────────────────────────────── */
@@ -8,53 +9,10 @@
   min-height: 100dvh;
   width: 100%;
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
-  background: #f8fafc;
-  flex-direction: column;
-  overflow: hidden; /* prevent horizontal bleed */
+  overflow-x: hidden;
 }
 
-/* ── Mobile top bar (visible < lg) ─────────────────────── */
-.mobileBar {
-  display: none; /* hidden on mobile — formPanel fills full screen */
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  width: 100%;
-  padding: 0.75rem 1.25rem;
-  align-items: center;
-  gap: 0.75rem;
-  background: rgba(6, 12, 24, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.mobileBarLogo {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  object-fit: contain;
-}
-
-.mobileBarTitle {
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9375rem;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-}
-
-.mobileBarSub {
-  color: #c5a059;
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  display: block;
-  margin-top: 0.125rem;
-}
-
-/* ── Hero panel (left — desktop only) ───────────────────── */
+/* ── Left hero panel (desktop only, hidden on mobile) ───── */
 .heroPanel {
   display: none;
   position: relative;
@@ -68,7 +26,7 @@
   left: 15%;
   width: 24rem;
   height: 24rem;
-  background: rgba(127, 29, 29, 0.12);
+  background: rgba(127, 29, 29, 0.10);
   border-radius: 9999px;
   filter: blur(100px);
   animation: pulse 4s ease-in-out infinite;
@@ -81,7 +39,7 @@
   right: 10%;
   width: 28rem;
   height: 28rem;
-  background: rgba(30, 58, 138, 0.12);
+  background: rgba(30, 58, 138, 0.10);
   border-radius: 9999px;
   filter: blur(120px);
   animation: pulse 8s ease-in-out infinite;
@@ -208,35 +166,39 @@
   flex-shrink: 0;
 }
 
-/* ── Form panel (right) ─────────────────────────────────── */
+/* ── Right form panel ───────────────────────────────────── */
+/* This is the full-screen panel on mobile, right half on desktop.
+   The background image (lecture hall photo) lives here. */
 .formPanel {
   flex: 1;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* On mobile: fill the full viewport exactly, no overflow */
-  min-height: 100dvh;
-  padding: 1.5rem 1rem;
-  background: #f8fafc;
+  /* px-4 py-12 on mobile, padded below top of mobileBar */
+  padding: calc(56px + 2.5rem) 1rem 3rem; /* top clears mobile bar */
+  background-color: #f8fafc; /* fallback if image missing */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
-  overflow: hidden; /* clip glow and bg from spilling out */
+  overflow: hidden;
   box-sizing: border-box;
 }
 
+/* bg-white/30 backdrop-blur-[6px] — exactly from PHP */
 .formPanelOverlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.30);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   pointer-events: none;
   z-index: 0;
 }
 
+/* Red glow blob — centre of panel */
 .formPanelGlow {
   position: absolute;
   top: 50%;
@@ -244,13 +206,58 @@
   transform: translate(-50%, -50%);
   width: min(500px, 100%);
   height: min(500px, 100%);
-  background: rgba(254, 202, 202, 0.15);
+  background: rgba(254, 202, 202, 0.20);
   border-radius: 9999px;
   filter: blur(80px);
   pointer-events: none;
   z-index: 0;
 }
 
+/* ── Mobile app bar — absolutely over the bg image (lg: hidden) */
+.mobileBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(6, 12, 24, 0.70);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 20;
+  box-sizing: border-box;
+}
+
+.mobileBarLogo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.mobileBarTitle {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.mobileBarSub {
+  color: #c5a059;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  display: block;
+  margin-top: 0.125rem;
+}
+
+/* ── Form wrap + card ───────────────────────────────────── */
 .formWrap {
   width: 100%;
   max-width: 420px;
@@ -260,15 +267,17 @@
   box-sizing: border-box;
 }
 
-/* Desktop card */
+/* bg-white/80 backdrop-blur-2xl — exactly from PHP */
 .formCard {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.80);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-radius: 1.5rem;
   padding: 2rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255,255,255,0.6);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.60);
+  border: 1px solid rgba(255, 255, 255, 0.60);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -285,7 +294,7 @@
   justify-content: center;
   margin-bottom: 1.5rem;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
-  border: 1px solid rgba(254, 202, 202, 0.5);
+  border: 1px solid rgba(254, 202, 202, 0.50);
   flex-shrink: 0;
 }
 
@@ -356,7 +365,6 @@
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
-  font-size: 0.875rem;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -374,22 +382,20 @@
   font-size: 0.9375rem;
   color: #1e293b;
   outline: none;
-  transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-appearance: none;
+  box-sizing: border-box;
 }
 
-.fieldInput::placeholder {
-  color: #94a3b8;
-}
+.fieldInput::placeholder { color: #94a3b8; }
 
 .fieldInput:focus {
   border-color: #9d0a12;
   box-shadow: 0 0 0 4px rgba(157, 10, 18, 0.08);
 }
 
-.fieldInputPassword {
-  padding-right: 3rem;
-}
+.fieldInputPassword { padding-right: 3rem; }
 
 .pwToggle {
   position: absolute;
@@ -410,10 +416,9 @@
   justify-content: center;
   transition: color 0.15s ease;
 }
-
 .pwToggle:hover { color: #334155; }
 
-/* ── Remember / Forgot row ───────────────────────────────── */
+/* ── Remember / Forgot ───────────────────────────────────── */
 .rememberRow {
   display: flex;
   align-items: center;
@@ -472,7 +477,6 @@
   display: flex;
   align-items: center;
 }
-
 .forgotLink:hover { text-decoration: underline; }
 
 /* ── Submit button ───────────────────────────────────────── */
@@ -489,14 +493,13 @@
   letter-spacing: 0.03em;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 4px 14px rgba(157, 10, 18, 0.2);
+  box-shadow: 0 4px 14px rgba(157, 10, 18, 0.20);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
-
 .submitBtn:hover { background: #7f1d1d; }
 .submitBtn:active { transform: scale(0.98); }
 .submitBtn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
@@ -532,7 +535,6 @@
   align-items: center;
   transition: color 0.15s ease;
 }
-
 .footerLink:hover { color: #9d0a12; }
 
 .footerSep {
@@ -574,8 +576,7 @@
   border-radius: 0.75rem;
   flex-shrink: 0;
 }
-
-.alertIconWrap.error { background: #fef2f2; color: #dc2626; }
+.alertIconWrap.error   { background: #fef2f2; color: #dc2626; }
 .alertIconWrap.success { background: #ecfdf5; color: #059669; }
 
 .alertTitle {
@@ -607,7 +608,6 @@
   transition: color 0.15s ease;
   flex-shrink: 0;
 }
-
 .alertClose:hover { color: #334155; }
 
 /* ── Contact modal ───────────────────────────────────────── */
@@ -615,7 +615,7 @@
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.40);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
@@ -644,9 +644,7 @@
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.modalOverlay.open .modalBox {
-  transform: translateY(0);
-}
+.modalOverlay.open .modalBox { transform: translateY(0); }
 
 .modalHeader {
   display: flex;
@@ -676,7 +674,6 @@
   border-radius: 0.5rem;
   transition: color 0.15s ease;
 }
-
 .modalClose:hover { color: #1e293b; }
 
 .modalDesc {
@@ -686,9 +683,7 @@
   margin-bottom: 1.25rem;
 }
 
-.contactSection {
-  margin-bottom: 1.25rem;
-}
+.contactSection { margin-bottom: 1.25rem; }
 
 .contactName {
   font-size: 0.8125rem;
@@ -715,7 +710,6 @@
   transition: background 0.15s ease;
   min-height: 44px;
 }
-
 .contactLink:hover { background: #f1f5f9; }
 
 .contactLinkIcon {
@@ -723,9 +717,8 @@
   text-align: center;
   flex-shrink: 0;
 }
-
-.contactLinkIcon.email { color: #9d0a12; }
-.contactLinkIcon.phone { color: #9d0a12; }
+.contactLinkIcon.email    { color: #9d0a12; }
+.contactLinkIcon.phone    { color: #9d0a12; }
 .contactLinkIcon.whatsapp { color: #059669; }
 
 .contactLinkText {
@@ -750,10 +743,9 @@
   margin-top: 1.25rem;
   transition: background 0.2s ease;
 }
-
 .modalCloseBtn:hover { background: #7f1d1d; }
 
-/* ── Error message inline ─────────────────────────────────── */
+/* ── Inline error ────────────────────────────────────────── */
 .errorMsg {
   display: flex;
   align-items: center;
@@ -773,17 +765,14 @@
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
-
 @keyframes ping {
   0% { transform: scale(1); opacity: 1; }
   75%, 100% { transform: scale(1.8); opacity: 0; }
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -798,30 +787,22 @@
   flex-shrink: 0;
 }
 
-/* ── Responsive: tablet (640px–1023px) ──────────────────── */
+/* ── Tablet (640px+) ─────────────────────────────────────── */
 @media (min-width: 640px) {
-  .mobileBar {
-    display: flex; /* show on tablet only (hidden on desktop below) */
+  .formPanel {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
   .formCard {
     padding: 2.5rem;
   }
-
-  .formPanel {
-    padding: 3rem 1.5rem;
-  }
 }
 
-/* ── Responsive: desktop ─────────────────────────────────── */
+/* ── Desktop (1024px+) ───────────────────────────────────── */
 @media (min-width: 1024px) {
   .authRoot {
     flex-direction: row;
-    overflow: visible;
-  }
-
-  .mobileBar {
-    display: none;
   }
 
   .heroPanel {
@@ -830,13 +811,19 @@
     min-height: 100dvh;
   }
 
+  /* On desktop: no top bar so reset top padding to centred */
   .formPanel {
     flex: 1;
     min-height: 100dvh;
     padding: 3rem 2rem;
-    overflow: visible;
   }
 
+  /* Hide mobile bar on desktop */
+  .mobileBar {
+    display: none;
+  }
+
+  /* Desktop: modal centred, not bottom sheet */
   .modalOverlay {
     align-items: center;
     padding: 1rem;
@@ -855,9 +842,7 @@
 }
 
 @media (min-width: 1280px) {
-  .heroContent {
-    padding: 4rem;
-  }
+  .heroContent { padding: 4rem; }
 }
 
 /* ── Reduced motion ──────────────────────────────────────── */

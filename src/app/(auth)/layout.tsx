@@ -13,21 +13,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className={styles.authRoot}>
 
-      {/* ── Mobile top bar (hidden on lg+) ─────────────────── */}
-      <div className={styles.mobileBar}>
-        <Image
-          src="/ttu_logo.png"
-          alt="TTU Logo"
-          width={36}
-          height={36}
-          className={styles.mobileBarLogo}
-        />
-        <div>
-          <span className={styles.mobileBarTitle}>Takoradi Technical University</span>
-          <span className={styles.mobileBarSub}>ATTEN SYS</span>
-        </div>
-      </div>
-
       {/* ── Left hero panel (desktop only) ─────────────────── */}
       <section className={styles.heroPanel} aria-hidden="true">
         <div className={styles.heroBlob1} />
@@ -77,13 +62,32 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </section>
 
-      {/* ── Right form panel ───────────────────────────────── */}
+      {/* ── Right form panel — background image fills this ─── */}
       <section
         className={styles.formPanel}
         style={{ backgroundImage: "url('/background.png')" }}
       >
+        {/* White/blur overlay on top of photo */}
         <div className={styles.formPanelOverlay} />
+        {/* Soft red glow centred */}
         <div className={styles.formPanelGlow} />
+
+        {/* Mobile app bar — sits over the background image (lg: hidden) */}
+        <div className={styles.mobileBar}>
+          <Image
+            src="/ttu_logo.png"
+            alt="TTU Logo"
+            width={40}
+            height={40}
+            className={styles.mobileBarLogo}
+          />
+          <div>
+            <span className={styles.mobileBarTitle}>Takoradi Technical University</span>
+            <span className={styles.mobileBarSub}>ATTEN SYS</span>
+          </div>
+        </div>
+
+        {/* Form card */}
         <div className={styles.formWrap}>
           {children}
         </div>

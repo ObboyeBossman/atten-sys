@@ -566,6 +566,9 @@ tbody td {
   }
 }
 
+/* ── Audit log ───────────────────────────────────────────── */
+.audit-row:hover { background: var(--color-surface-2); }
+
 /* ── Animations ──────────────────────────────────────────── */
 @keyframes spin {
   to { transform: rotate(360deg); }

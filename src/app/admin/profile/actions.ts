@@ -37,7 +37,8 @@ export async function updateAdminName(name: string): Promise<ActionResult> {
 
   const { supabase, user } = ctx;
 
-  const { error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
     .from("super_admins")
     .update({ name: trimmed })
     .eq("id", user.id);

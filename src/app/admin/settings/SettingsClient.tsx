@@ -145,136 +145,162 @@ function SettingRow({ setting }: { setting: Setting }) {
   if (!meta) return null;
 
   return (
-    <div
-      style={{
-        padding: "var(--space-6)",
-        borderBottom: "1px solid var(--color-border)",
-        transition: "background var(--transition-fast)",
-        background: editing ? "var(--color-surface-2)" : "transparent",
-      }}
-    >
-      {/* Top row: label + action */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: "var(--space-4)",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Left: icon + label + description */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "var(--space-3)",
-            flex: 1,
-            minWidth: 0,
-          }}
-        >
-          {/* Icon badge */}
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: "var(--radius-lg)",
-              background: editing
-                ? "rgba(157,10,18,0.12)"
-                : "var(--color-surface-3)",
-              border: editing
-                ? "1px solid rgba(157,10,18,0.25)"
-                : "1px solid var(--color-border)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: editing ? "var(--color-primary)" : "var(--color-text-3)",
-              flexShrink: 0,
-              transition: "all var(--transition-base)",
-              marginTop: 2,
-            }}
-          >
+    <>
+      {/* Scoped mobile styles */}
+      <style>{`
+        .setting-row { padding: var(--space-5) var(--space-5); border-bottom: 1px solid var(--color-border); transition: background var(--transition-fast); }
+        .setting-row.is-editing { background: var(--color-surface-2); }
+
+        /* Top section: icon + content + actions in one line on desktop */
+        .setting-top { display: flex; align-items: flex-start; gap: var(--space-3); }
+
+        /* Icon badge */
+        .setting-icon {
+          width: 36px; height: 36px; border-radius: var(--radius-lg);
+          background: var(--color-surface-3); border: 1px solid var(--color-border);
+          display: flex; align-items: center; justify-content: center;
+          color: var(--color-text-3); flex-shrink: 0; margin-top: 2px;
+          transition: all var(--transition-base);
+        }
+        .setting-icon.is-editing {
+          background: rgba(157,10,18,0.12); border-color: rgba(157,10,18,0.25);
+          color: var(--color-primary);
+        }
+
+        /* Content block grows */
+        .setting-content { flex: 1; min-width: 0; }
+
+        /* Label row: label + unit badge + key pill */
+        .setting-label-row {
+          display: flex; align-items: center; gap: var(--space-2);
+          flex-wrap: wrap; margin-bottom: var(--space-1);
+        }
+        .setting-label {
+          font-size: var(--text-sm); font-weight: 700;
+          color: var(--color-text); letter-spacing: -0.01em;
+        }
+        .setting-unit-badge {
+          font-size: 10px; font-weight: 600; color: var(--color-text-3);
+          text-transform: uppercase; letter-spacing: 0.06em;
+          padding: 1px 6px; background: var(--color-surface-3);
+          border-radius: var(--radius-full);
+        }
+        .setting-key-pill {
+          font-size: 10px; font-family: var(--font-mono); color: var(--color-text-3);
+          background: var(--color-surface-3); padding: 1px 6px;
+          border-radius: var(--radius-sm);
+          /* truncate on very small screens */
+          max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* Description */
+        .setting-desc {
+          font-size: var(--text-xs); color: var(--color-text-3);
+          line-height: 1.55; margin: 0 0 var(--space-1) 0;
+        }
+
+        /* Updated line */
+        .setting-meta {
+          font-size: 10px; color: var(--color-text-3);
+          display: flex; align-items: center; gap: var(--space-1);
+          flex-wrap: wrap;
+        }
+
+        /* Value + Edit button — default: inline on the right */
+        .setting-actions {
+          display: flex; align-items: center; gap: var(--space-2);
+          flex-shrink: 0; margin-top: 2px;
+        }
+
+        .setting-value-display {
+          font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600;
+          color: var(--color-text); background: var(--color-surface-2);
+          border: 1px solid var(--color-border); border-radius: var(--radius-md);
+          padding: 6px 12px; min-width: 60px; text-align: center;
+          transition: all var(--transition-base);
+          display: flex; align-items: center; gap: var(--space-2);
+        }
+        .setting-value-display.is-saved {
+          color: var(--color-success); background: var(--color-success-bg);
+          border-color: rgba(34,197,94,0.3);
+        }
+
+        /* Edit form */
+        .setting-edit-form {
+          margin-top: var(--space-4);
+          padding-left: calc(36px + var(--space-3));
+        }
+        .setting-edit-controls {
+          display: flex; align-items: flex-start; gap: var(--space-2); flex-wrap: wrap;
+        }
+        .setting-edit-input {
+          width: 220px;
+          font-weight: 600;
+        }
+
+        /* ── Mobile: ≤ 480px ─────────────────────────────────────────────── */
+        @media (max-width: 480px) {
+          .setting-row { padding: var(--space-4) var(--space-4); }
+
+          /* Stack: top row has no separate actions column — actions move below */
+          .setting-top { flex-wrap: wrap; }
+          .setting-actions {
+            /* Break to its own row, aligned under the content (after icon) */
+            order: 3;
+            width: 100%;
+            padding-left: calc(36px + var(--space-3));
+            margin-top: var(--space-3);
+          }
+
+          /* Value pill takes remaining width, edit button shrinks */
+          .setting-value-display {
+            flex: 1;
+            justify-content: center;
+          }
+
+          /* Key pill can be wider on small screens since there's more vertical room */
+          .setting-key-pill { max-width: 140px; }
+
+          /* Edit form goes full-width, no left padding offset */
+          .setting-edit-form { padding-left: 0; margin-top: var(--space-3); }
+
+          /* Input stretches full width */
+          .setting-edit-input { width: 100%; }
+
+          /* Save/Cancel stack naturally */
+          .setting-edit-controls { gap: var(--space-2); }
+          .setting-edit-controls .btn { flex: 1; justify-content: center; min-width: 0; }
+          .setting-edit-controls .btn-ghost { flex: 0 0 auto; }
+        }
+      `}</style>
+
+      <div className={`setting-row${editing ? " is-editing" : ""}`}>
+
+        {/* Top section */}
+        <div className="setting-top">
+
+          {/* Icon */}
+          <div className={`setting-icon${editing ? " is-editing" : ""}`}>
             {meta.icon}
           </div>
 
-          {/* Text */}
-          <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-2)",
-                flexWrap: "wrap",
-                marginBottom: "var(--space-1)",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "var(--text-sm)",
-                  fontWeight: 700,
-                  color: "var(--color-text)",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {meta.label}
-              </span>
+          {/* Content */}
+          <div className="setting-content">
+            <div className="setting-label-row">
+              <span className="setting-label">{meta.label}</span>
               {meta.unit && (
-                <span
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: 600,
-                    color: "var(--color-text-3)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    padding: "1px 6px",
-                    background: "var(--color-surface-3)",
-                    borderRadius: "var(--radius-full)",
-                  }}
-                >
-                  {meta.unit}
-                </span>
+                <span className="setting-unit-badge">{meta.unit}</span>
               )}
-              {/* Mono key label */}
-              <span
-                style={{
-                  fontSize: "10px",
-                  fontFamily: "var(--font-mono)",
-                  color: "var(--color-text-3)",
-                  background: "var(--color-surface-3)",
-                  padding: "1px 6px",
-                  borderRadius: "var(--radius-sm)",
-                }}
-              >
+              <span className="setting-key-pill" title={setting.key}>
                 {setting.key}
               </span>
             </div>
 
-            {/* Description */}
             {setting.description && (
-              <p
-                style={{
-                  fontSize: "var(--text-xs)",
-                  color: "var(--color-text-3)",
-                  lineHeight: 1.55,
-                  margin: 0,
-                  maxWidth: 560,
-                }}
-              >
-                {setting.description}
-              </p>
+              <p className="setting-desc">{setting.description}</p>
             )}
 
-            {/* Last updated */}
-            <div
-              style={{
-                fontSize: "10px",
-                color: "var(--color-text-3)",
-                marginTop: "var(--space-1)",
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-1)",
-              }}
-            >
+            <div className="setting-meta">
               <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
                 <circle cx="7" cy="7" r="6" />
                 <path d="M7 4v3l2 2" />
@@ -285,40 +311,11 @@ function SettingRow({ setting }: { setting: Setting }) {
               )}
             </div>
           </div>
-        </div>
 
-        {/* Right: value display + edit trigger */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--space-2)",
-            flexShrink: 0,
-          }}
-        >
+          {/* Value + Edit — moves below content on mobile */}
           {!editing && (
-            <>
-              {/* Current value display */}
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "var(--text-sm)",
-                  fontWeight: 600,
-                  color: saved ? "var(--color-success)" : "var(--color-text)",
-                  background: saved
-                    ? "var(--color-success-bg)"
-                    : "var(--color-surface-2)",
-                  border: `1px solid ${saved ? "rgba(34,197,94,0.3)" : "var(--color-border)"}`,
-                  borderRadius: "var(--radius-md)",
-                  padding: "6px 12px",
-                  minWidth: 80,
-                  textAlign: "center",
-                  transition: "all var(--transition-base)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-2)",
-                }}
-              >
+            <div className="setting-actions">
+              <div className={`setting-value-display${saved ? " is-saved" : ""}`}>
                 {saved && (
                   <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 7l3.5 3.5L12 4" />
@@ -331,72 +328,47 @@ function SettingRow({ setting }: { setting: Setting }) {
                 onClick={handleEdit}
                 className="btn btn-secondary btn-sm"
                 title={`Edit ${meta.label}`}
-                style={{ display: "flex", alignItems: "center", gap: 6 }}
+                style={{ display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}
               >
                 <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M10 2l2 2-8 8H2v-2l8-8z" />
                 </svg>
                 Edit
               </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Inline edit form */}
-      {editing && (
-        <div
-          style={{
-            marginTop: "var(--space-4)",
-            paddingLeft: "calc(36px + var(--space-3))",
-          }}
-        >
-          {/* Domain-change warning */}
-          {meta.warning && (
-            <div
-              className="alert alert-warning"
-              style={{
-                marginBottom: "var(--space-3)",
-                fontSize: "var(--text-xs)",
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <path d="M8 1l7 13H1L8 1z" />
-                <path d="M8 6v4M8 11.5v.5" />
-              </svg>
-              {meta.warning}
             </div>
           )}
+        </div>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "var(--space-2)",
-              flexWrap: "wrap",
-            }}
-          >
-            {/* Input */}
-            <div style={{ position: "relative", flex: "0 0 auto" }}>
+        {/* Inline edit form */}
+        {editing && (
+          <div className="setting-edit-form">
+            {meta.warning && (
+              <div
+                className="alert alert-warning"
+                style={{ marginBottom: "var(--space-3)", fontSize: "var(--text-xs)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M8 1l7 13H1L8 1z" />
+                  <path d="M8 6v4M8 11.5v.5" />
+                </svg>
+                {meta.warning}
+              </div>
+            )}
+
+            <div className="setting-edit-controls">
               <input
                 ref={inputRef}
                 type={meta.inputType}
                 value={inputVal}
-                onChange={(e) => {
-                  setInputVal(e.target.value);
-                  setError(null);
-                }}
+                onChange={(e) => { setInputVal(e.target.value); setError(null); }}
                 onKeyDown={handleKeyDown}
                 min={meta.min}
                 placeholder={meta.placeholder}
-                className="input"
+                className="input setting-edit-input"
                 style={{
-                  width: 220,
                   fontFamily: meta.inputType === "text" ? "var(--font-mono)" : "var(--font-sans)",
                   fontWeight: 600,
-                  boxShadow: error
-                    ? "0 0 0 3px rgba(239,68,68,0.2)"
-                    : undefined,
+                  boxShadow: error ? "0 0 0 3px rgba(239,68,68,0.2)" : undefined,
                   borderColor: error ? "var(--color-danger)" : undefined,
                 }}
                 aria-label={`New value for ${meta.label}`}
@@ -404,76 +376,63 @@ function SettingRow({ setting }: { setting: Setting }) {
                 aria-describedby={error ? `${setting.key}-error` : undefined}
                 disabled={isPending}
               />
+
+              <button
+                onClick={handleSave}
+                disabled={isPending || inputVal.trim() === ""}
+                className="btn btn-primary btn-sm"
+                style={{ minWidth: 80 }}
+              >
+                {isPending ? (
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ animation: "spin 0.6s linear infinite" }}>
+                      <path d="M7 1a6 6 0 1 0 6 6" />
+                    </svg>
+                    Saving…
+                  </>
+                ) : (
+                  "Save change"
+                )}
+              </button>
+
+              <button
+                onClick={handleCancel}
+                disabled={isPending}
+                className="btn btn-ghost btn-sm"
+              >
+                Cancel
+              </button>
             </div>
 
-            {/* Save */}
-            <button
-              onClick={handleSave}
-              disabled={isPending || inputVal.trim() === ""}
-              className="btn btn-primary btn-sm"
-              style={{ minWidth: 80 }}
-            >
-              {isPending ? (
-                <>
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    style={{ animation: "spin 0.6s linear infinite" }}
-                  >
-                    <path d="M7 1a6 6 0 1 0 6 6" />
-                  </svg>
-                  Saving…
-                </>
-              ) : (
-                "Save change"
-              )}
-            </button>
-
-            {/* Cancel */}
-            <button
-              onClick={handleCancel}
-              disabled={isPending}
-              className="btn btn-ghost btn-sm"
-            >
-              Cancel
-            </button>
+            {error && (
+              <p
+                id={`${setting.key}-error`}
+                role="alert"
+                style={{
+                  fontSize: "var(--text-xs)",
+                  color: "var(--color-danger)",
+                  marginTop: "var(--space-2)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1)",
+                }}
+              >
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <circle cx="7" cy="7" r="6" />
+                  <path d="M7 4v4M7 9.5v.5" />
+                </svg>
+                {error}
+              </p>
+            )}
           </div>
-
-          {/* Error message */}
-          {error && (
-            <p
-              id={`${setting.key}-error`}
-              role="alert"
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--color-danger)",
-                marginTop: "var(--space-2)",
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-1)",
-              }}
-            >
-              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="7" cy="7" r="6" />
-                <path d="M7 4v4M7 9.5v.5" />
-              </svg>
-              {error}
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
 
 /* ── Main export ─────────────────────────────────────────────────────────── */
 export function SettingsClient({ settings }: { settings: Setting[] }) {
-  // Sort by a defined order
   const ORDER = [
     "institution_email_domain",
     "late_threshold_minutes",
@@ -488,10 +447,7 @@ export function SettingsClient({ settings }: { settings: Setting[] }) {
   });
 
   return (
-    <div
-      className="card"
-      style={{ padding: 0, overflow: "hidden" }}
-    >
+    <div className="card" style={{ padding: 0, overflow: "hidden" }}>
       {sorted.length === 0 ? (
         <div
           style={{

@@ -245,12 +245,12 @@ export function LiveSessionClient({ sessionId, entries: initialEntries, checkins
         <button
           onClick={() => { setShowEndConfirm(true); setEndStep(1); setEndError(null); }}
           className="btn btn-danger"
-          style={{ flexShrink: 0 }}
+          style={{ flexShrink: 0, whiteSpace: "nowrap", minWidth: 44 }}
         >
           <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="3" y="3" width="14" height="14" rx="1.5" />
           </svg>
-          End Session
+          <span className="hide-mobile-xs">End Session</span>
         </button>
       </div>
 

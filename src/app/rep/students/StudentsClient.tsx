@@ -296,6 +296,47 @@ export function StudentsClient({ students, total, groupName, searchQuery }: Prop
           background: var(--color-surface-2);
           border: 1px solid rgba(239,68,68,0.3); color: var(--color-danger);
         }
+
+        /* ── Responsive: hide table on small screens, show cards ── */
+        .roster-card-list { display: none; }
+
+        @media (max-width: 600px) {
+          .roster-toolbar { gap: var(--space-2); }
+          .roster-search { max-width: 100%; }
+
+          /* Hide the table, show cards */
+          .roster-table-wrap { display: none; }
+          .roster-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+          }
+          .roster-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--color-border);
+          }
+          .roster-card:last-child { border-bottom: none; }
+          .roster-card-info { flex: 1; min-width: 0; }
+          .roster-card-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-top: 3px;
+            flex-wrap: wrap;
+          }
+          .roster-card-action { flex-shrink: 0; }
+
+          /* Toast stays above bottom nav */
+          .toast {
+            bottom: 80px;
+            right: var(--space-4);
+            left: var(--space-4);
+            justify-content: center;
+          }
+        }
       `}</style>
 
       {/* Summary bar */}
@@ -405,69 +446,110 @@ export function StudentsClient({ students, total, groupName, searchQuery }: Prop
             )}
           </div>
         ) : (
-          <div className="roster-table-wrap">
-            <table className="roster-table">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>Index No.</th>
-                  <th>Status</th>
-                  <th>Joined</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((s) => (
-                  <tr key={s.id}>
-                    <td>
-                      <div className="student-name-cell">
-                        <div className="student-avatar" aria-hidden="true">
-                          {initials(s.name)}
-                        </div>
-                        <div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-                            <span className="student-name">{s.name}</span>
-                            {s.is_course_rep && <RepBadge />}
+          <>
+            {/* ── Desktop / tablet table ── */}
+            <div className="roster-table-wrap">
+              <table className="roster-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Index No.</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((s) => (
+                    <tr key={s.id}>
+                      <td>
+                        <div className="student-name-cell">
+                          <div className="student-avatar" aria-hidden="true">
+                            {initials(s.name)}
+                          </div>
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                              <span className="student-name">{s.name}</span>
+                              {s.is_course_rep && <RepBadge />}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="student-index">{s.index_number}</span>
-                    </td>
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-                        <StatusDot active={s.is_active} />
+                      </td>
+                      <td>
+                        <span className="student-index">{s.index_number}</span>
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                          <StatusDot active={s.is_active} />
+                          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
+                            {s.is_active ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
                         <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
-                          {s.is_active ? "Active" : "Inactive"}
+                          {fmtJoined(s.joined_at)}
                         </span>
-                      </div>
-                    </td>
-                    <td>
+                      </td>
+                      <td>
+                        <div className="row-actions">
+                          <button
+                            className="btn btn-danger btn-sm"
+                            style={{ padding: "4px 10px", display: "flex", alignItems: "center", gap: 4 }}
+                            onClick={() => setModal({ type: "remove", student: s })}
+                            title="Remove from group"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                              <path d="M2 4h12M6 4V2h4v2M13 4l-.8 9.2A1.5 1.5 0 0 1 10.7 14H5.3a1.5 1.5 0 0 1-1.5-1.4L3 4" />
+                            </svg>
+                            Remove
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── Mobile card list (≤600px) ── */}
+            <div className="roster-card-list">
+              {students.map((s) => (
+                <div key={s.id} className="roster-card">
+                  <div className="student-avatar" aria-hidden="true">
+                    {initials(s.name)}
+                  </div>
+                  <div className="roster-card-info">
+                    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
+                      <span className="student-name" style={{ fontSize: "var(--text-sm)" }}>{s.name}</span>
+                      {s.is_course_rep && <RepBadge />}
+                    </div>
+                    <div className="roster-card-meta">
+                      <span className="student-index">{s.index_number}</span>
+                      <span style={{ color: "var(--color-border)", fontSize: 10 }}>·</span>
+                      <StatusDot active={s.is_active} />
                       <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
-                        {fmtJoined(s.joined_at)}
+                        {s.is_active ? "Active" : "Inactive"}
                       </span>
-                    </td>
-                    <td>
-                      <div className="row-actions">
-                        <button
-                          className="btn btn-danger btn-sm"
-                          style={{ padding: "4px 10px", display: "flex", alignItems: "center", gap: 4 }}
-                          onClick={() => setModal({ type: "remove", student: s })}
-                          title="Remove from group"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
-                            <path d="M2 4h12M6 4V2h4v2M13 4l-.8 9.2A1.5 1.5 0 0 1 10.7 14H5.3a1.5 1.5 0 0 1-1.5-1.4L3 4" />
-                          </svg>
-                          Remove
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+                  <div className="roster-card-action">
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      style={{ padding: "6px", color: "var(--color-danger)" }}
+                      onClick={() => setModal({ type: "remove", student: s })}
+                      title={`Remove ${s.name}`}
+                      aria-label={`Remove ${s.name} from group`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                        <path d="M2 4h12M6 4V2h4v2M13 4l-.8 9.2A1.5 1.5 0 0 1 10.7 14H5.3a1.5 1.5 0 0 1-1.5-1.4L3 4" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

@@ -625,12 +625,22 @@ tbody td {
     --space-8: 1.75rem;
   }
 
-  .modal-box { padding: var(--space-6); }
+  .modal-box { padding: var(--space-5); }
   .hide-mobile { display: none !important; }
+}
+
+@media (max-width: 400px) {
+  /* Very small phones: tighten modals further */
+  .modal-box { padding: var(--space-4); }
 }
 
 @media (min-width: 769px) {
   .hide-desktop { display: none !important; }
+}
+
+/* ≤380px phones: hide text labels that don't fit next to icons */
+@media (max-width: 380px) {
+  .hide-mobile-xs { display: none !important; }
 }
 
 /* ── Print styles ────────────────────────────────────────── */

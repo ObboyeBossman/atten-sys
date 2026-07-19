@@ -282,6 +282,35 @@ export default async function RepDashboard() {
       {/* Stats */}
       <DashboardStats stats={stats} />
 
+      {/* Mobile-only disputes banner (header button hidden on ≤640px) */}
+      {d.pendingDisputes > 0 && (
+        <Link
+          href="/rep/disputes"
+          className="dashboard-disputes-mobile"
+          style={{
+            display: "none", // shown via CSS on ≤640px
+            alignItems: "center",
+            gap: "var(--space-3)",
+            padding: "var(--space-3) var(--space-4)",
+            marginBottom: "var(--space-4)",
+            borderRadius: "var(--radius-lg)",
+            background: "var(--color-danger-bg)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            textDecoration: "none",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ color: "var(--color-danger)", flexShrink: 0 }}>
+            <path d="M10 3L2 17h16L10 3z" /><path d="M10 10v3M10 15h.01" />
+          </svg>
+          <span style={{ fontSize: "var(--text-sm)", fontWeight: 700, color: "var(--color-danger)" }}>
+            {d.pendingDisputes} pending dispute{d.pendingDisputes !== 1 ? "s" : ""} — tap to review
+          </span>
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" style={{ color: "var(--color-danger)", marginLeft: "auto", flexShrink: 0 }}>
+            <path d="M7 5l5 5-5 5" />
+          </svg>
+        </Link>
+      )}
+
       <div className="dashboard-lower-grid">
         {/* ── Active / No session card ── */}
         <div>
@@ -486,11 +515,16 @@ export default async function RepDashboard() {
         </div>
       </div>
 
-      {/* Hover style for recent session rows */}
+      {/* Hover style for recent session rows + mobile tweaks */}
       <style>{`
         .recent-session-row:hover { background: var(--color-surface-2); }
         @media (max-width: 640px) {
+          /* Hide the header button — the disputes callout card in the grid is the CTA */
           .dashboard-disputes-btn { display: none; }
+          /* Show the mobile disputes banner below stats */
+          .dashboard-disputes-mobile { display: flex !important; }
+          /* Tighter recent session row on small screens */
+          .recent-session-row { padding-left: var(--space-2) !important; padding-right: var(--space-2) !important; }
         }
       `}</style>
     </div>

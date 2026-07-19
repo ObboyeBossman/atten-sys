@@ -134,32 +134,32 @@ export function AttendanceClient({ sessionId, rows: initialRows, totalStudents, 
   return (
     <>
       {/* Toolbar */}
-      <div style={{ display: "flex", gap: "var(--space-3)", marginBottom: "var(--space-4)", flexWrap: "wrap", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: "var(--space-2)", marginBottom: "var(--space-4)", flexWrap: "wrap", alignItems: "center" }}>
         <input
           type="search"
           className="input"
           placeholder="Search student…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ flex: "1 1 200px", maxWidth: 280 }}
+          style={{ flex: "1 1 160px", minWidth: 0 }}
         />
-        <div style={{ display: "flex", gap: "var(--space-2)", flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: "var(--space-1)", flexShrink: 0, flexWrap: "wrap" }}>
           {(["all", "present", "late", "absent"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`btn btn-sm ${filter === f ? "btn-primary" : "btn-secondary"}`}
-              style={{ textTransform: "capitalize" }}
+              style={{ textTransform: "capitalize", padding: "0.375rem 0.625rem" }}
             >
               {f === "all" ? `All (${totalStudents})` : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
-        <button onClick={handleExport} className="btn btn-secondary btn-sm" style={{ marginLeft: "auto", flexShrink: 0 }}>
+        <button onClick={handleExport} className="btn btn-secondary btn-sm" style={{ flexShrink: 0, whiteSpace: "nowrap" }} title="Export CSV">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M10 2v10M6 8l4 4 4-4M3 16h14" />
           </svg>
-          Export CSV
+          <span className="hide-mobile-xs">Export CSV</span>
         </button>
       </div>
 

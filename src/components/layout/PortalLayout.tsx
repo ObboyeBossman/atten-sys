@@ -214,6 +214,12 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
             <path d="M3 5h14M3 10h14M3 15h14" />
           </svg>
         </button>
+        <div className={styles.mobileTopbarBrand}>
+          <div>
+            <div className={styles.mobileTopbarTitle}>ATTEN-SYS</div>
+            <div className={styles.mobileTopbarRole} style={{ color: roleColor }}>{roleLabel}</div>
+          </div>
+        </div>
       </header>
 
       {/* ── Mobile drawer overlay ─────────────────────────────────── */}

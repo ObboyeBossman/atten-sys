@@ -197,25 +197,6 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
             <path d="M3 5h14M3 10h14M3 15h14" />
           </svg>
         </button>
-        <div className={styles.mobileTopbarBrand}>
-          {/* Lean topbar brand — raw SVG, no background box */}
-          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-            <defs>
-              <linearGradient id="brandGradTopbarPortal" x1="0" y1="0" x2="28" y2="28">
-                <stop stopColor="#ef4444" />
-                <stop offset="1" stopColor="#3b82f6" />
-              </linearGradient>
-            </defs>
-            <rect width="28" height="28" rx="8" fill="url(#brandGradTopbarPortal)" />
-            <path d="M7 10h14M7 14h10M7 18h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-            <circle cx="21" cy="18" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
-            <path d="M19.5 18l1 1 2-2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <div>
-            <div className={styles.brandName}>ATTEN-SYS</div>
-            <div className={styles.brandRole} style={{ color: roleColor }}>{roleLabel}</div>
-          </div>
-        </div>
       </header>
 
       {/* ── Mobile drawer overlay ─────────────────────────────────── */}
@@ -232,8 +213,24 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
         aria-hidden={!drawerOpen}
       >
         <div className={styles.drawerHeader}>
-          <div className={styles.brand} style={{ border: "none", padding: 0 }}>
-            <BrandMark />
+          {/* Logo on the left inside the drawer */}
+          <div className={styles.drawerBrand}>
+            <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+              <defs>
+                <linearGradient id="brandGradDrawer" x1="0" y1="0" x2="28" y2="28">
+                  <stop stopColor="#ef4444" />
+                  <stop offset="1" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+              <rect width="28" height="28" rx="8" fill="url(#brandGradDrawer)" />
+              <path d="M7 10h14M7 14h10M7 18h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="21" cy="18" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
+              <path d="M19.5 18l1 1 2-2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div>
+              <div className={styles.brandName}>ATTEN-SYS</div>
+              <div className={styles.brandRole} style={{ color: roleColor }}>{roleLabel}</div>
+            </div>
           </div>
           <button
             className={styles.drawerClose}

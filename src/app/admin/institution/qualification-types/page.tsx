@@ -1,8 +1,8 @@
 "use client";
 
-import type { Metadata } from "next";
 import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { InstitutionCard, DetailPanel, DetailRow, DetailSection } from "@/components/layout/InstitutionCard";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -41,15 +41,7 @@ function validateCode(code: string): string | null {
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
 
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
@@ -79,56 +71,48 @@ function Modal({
   );
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
+// ── Icons ─────────────────────────────────────────────────────────────────────
 
-function SkeletonGroup() {
-  return (
-    <div style={{ marginBottom: "var(--space-6)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-3)" }}>
-        <div className="skeleton" style={{ width: 28, height: 28, borderRadius: "var(--radius-md)" }} />
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div className="skeleton" style={{ width: 70, height: 9, borderRadius: "var(--radius-sm)" }} />
-          <div className="skeleton" style={{ width: 140, height: 12, borderRadius: "var(--radius-sm)" }} />
-        </div>
-        <div style={{ flex: 1 }} />
-        <div className="skeleton" style={{ width: 24, height: 22, borderRadius: "var(--radius-sm)" }} />
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-3)" }}>
-        {[1, 2].map((i) => (
-          <div key={i} className="card" style={{ padding: "var(--space-4) var(--space-5)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-              <div className="skeleton" style={{ width: 40, height: 40, borderRadius: "var(--radius-md)", flexShrink: 0 }} />
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                <div className="skeleton" style={{ height: 13, width: "55%", borderRadius: "var(--radius-sm)" }} />
-                <div className="skeleton" style={{ height: 10, width: "35%", borderRadius: "var(--radius-sm)" }} />
-              </div>
-              <div className="skeleton" style={{ width: 34, height: 22, borderRadius: "var(--radius-sm)" }} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+const QualIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-7 10 7-10 7-10-7z" />
+    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+  </svg>
+);
 
 // ── Code hint ─────────────────────────────────────────────────────────────────
 
 function CodeHint({ code }: { code: string }) {
   const len = code.length;
   const valid = /^[A-Z]{1,6}$/.test(code);
-  const color = len === 0
-    ? "var(--color-text-3)"
-    : valid
-      ? "var(--color-success)"
-      : "var(--color-warning)";
+  const color = len === 0 ? "var(--color-text-3)" : valid ? "var(--color-success)" : "var(--color-warning)";
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "var(--space-1)" }}>
-      <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
-        1–6 uppercase letters only. Auto-uppercased.
-      </span>
-      <span style={{ fontSize: "var(--text-xs)", color, fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-        {len}/6
-      </span>
+      <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>1–6 uppercase letters only. Auto-uppercased.</span>
+      <span style={{ fontSize: "var(--text-xs)", color, fontFamily: "var(--font-mono)", fontWeight: 600 }}>{len}/6</span>
+    </div>
+  );
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+
+function SkeletonCard() {
+  return (
+    <div className="card" style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-3)" }}>
+        <div className="skeleton" style={{ width: 44, height: 44, borderRadius: "var(--radius-lg)", flexShrink: 0 }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--space-2)", paddingTop: 4 }}>
+          <div className="skeleton" style={{ height: 14, width: "60%", borderRadius: "var(--radius-sm)" }} />
+          <div className="skeleton" style={{ height: 10, width: "40%", borderRadius: "var(--radius-sm)" }} />
+        </div>
+        <div className="skeleton" style={{ width: 52, height: 22, borderRadius: "var(--radius-full)" }} />
+      </div>
+      <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <div className="skeleton" style={{ width: 36, height: 20, borderRadius: "var(--radius-full)" }} />
+        <div className="skeleton" style={{ width: 36, height: 20, borderRadius: "var(--radius-full)" }} />
+      </div>
+      <div className="skeleton" style={{ height: 1 }} />
+      <div className="skeleton" style={{ height: 10, width: "28%", borderRadius: "var(--radius-sm)" }} />
     </div>
   );
 }
@@ -138,15 +122,16 @@ function CodeHint({ code }: { code: string }) {
 export default function QualificationTypesPage() {
   const supabase = createSupabaseBrowserClient();
 
-  const [qualTypes, setQualTypes]     = useState<QualType[]>([]);
-  const [programmes, setProgrammes]   = useState<Programme[]>([]);
-  const [filterProg, setFilterProg]   = useState<string>("all");
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState<string | null>(null);
+  const [qualTypes, setQualTypes]   = useState<QualType[]>([]);
+  const [programmes, setProgrammes] = useState<Programme[]>([]);
+  const [filterProg, setFilterProg] = useState<string>("all");
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState<string | null>(null);
 
   const [showAdd, setShowAdd]           = useState(false);
   const [editTarget, setEditTarget]     = useState<QualType | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<QualType | null>(null);
+  const [detailTarget, setDetailTarget] = useState<QualType | null>(null);
 
   const [formName,   setFormName]   = useState("");
   const [formCode,   setFormCode]   = useState("");
@@ -173,26 +158,21 @@ export default function QualificationTypesPage() {
 
     const rawQuals: { id: string; programme_id: string; name: string; code: string; created_at: string }[] = qualsRes.data ?? [];
     const rawProgs: { id: string; name: string; code: string; department_id: string }[] = progsRes.data ?? [];
-    const depts: { id: string; name: string; faculty_id: string }[] = deptsRes.data ?? [];
-    const facs: { id: string; name: string }[] = facsRes.data ?? [];
-    const levels: { qualification_type_id: string }[] = levelsRes.data ?? [];
+    const depts:    { id: string; name: string; faculty_id: string }[] = deptsRes.data ?? [];
+    const facs:     { id: string; name: string }[] = facsRes.data ?? [];
+    const levels:   { qualification_type_id: string }[] = levelsRes.data ?? [];
 
-    // Build lookup maps
     const facMap: Record<string, string> = {};
     facs.forEach((f) => { facMap[f.id] = f.name; });
 
     const deptMap: Record<string, { name: string; faculty_name: string }> = {};
-    depts.forEach((d) => {
-      deptMap[d.id] = { name: d.name, faculty_name: facMap[d.faculty_id] ?? "Unknown Faculty" };
-    });
+    depts.forEach((d) => { deptMap[d.id] = { name: d.name, faculty_name: facMap[d.faculty_id] ?? "Unknown Faculty" }; });
 
     const progMap: Record<string, Programme> = {};
     rawProgs.forEach((p) => {
       progMap[p.id] = {
-        id: p.id,
-        name: p.name,
-        code: p.code,
-        dept_name: deptMap[p.department_id]?.name ?? "Unknown Department",
+        id: p.id, name: p.name, code: p.code,
+        dept_name:    deptMap[p.department_id]?.name         ?? "Unknown Department",
         faculty_name: deptMap[p.department_id]?.faculty_name ?? "Unknown Faculty",
       };
     });
@@ -246,9 +226,7 @@ export default function QualificationTypesPage() {
     const { error: err } = await (supabase.from("qualification_types") as any).insert({ name, code, programme_id: formProgId });
     setBusy(false);
     if (err) {
-      if (err.message.includes("unique")) setFormError("A qualification type with this name or code already exists in that programme.");
-      else if (err.message.includes("code_format") || err.message.includes("qual_types_code")) setFormError("Code must be 1–6 uppercase letters only.");
-      else setFormError(err.message);
+      setFormError(err.message.includes("unique") ? "A qualification type with this name or code already exists in that programme." : err.message);
       return;
     }
     closeModals(); load();
@@ -264,12 +242,9 @@ export default function QualificationTypesPage() {
     setBusy(true); setFormError(null);
     const { error: err } = await (supabase.from("qualification_types") as any).update({ name, code }).eq("id", editTarget.id);
     setBusy(false);
-    if (err) {
-      if (err.message.includes("unique")) setFormError("A qualification type with this name or code already exists in that programme.");
-      else if (err.message.includes("code_format") || err.message.includes("qual_types_code")) setFormError("Code must be 1–6 uppercase letters only.");
-      else setFormError(err.message);
-      return;
-    }
+    if (err) { setFormError(err.message); return; }
+    // Sync detail panel if it's showing the edited item
+    if (detailTarget?.id === editTarget.id) setDetailTarget({ ...detailTarget, name, code });
     closeModals(); load();
   }
 
@@ -279,23 +254,17 @@ export default function QualificationTypesPage() {
     const { error: err } = await (supabase.from("qualification_types") as any).delete().eq("id", deleteTarget.id);
     setBusy(false);
     if (err) {
-      setError(
-        err.message.includes("foreign")
-          ? `"${deleteTarget.name}" can't be removed — remove its levels first.`
-          : err.message
-      );
+      setError(err.message.includes("foreign") ? `"${deleteTarget.name}" can't be removed — remove its levels first.` : err.message);
       closeModals(); return;
     }
+    if (detailTarget?.id === deleteTarget.id) setDetailTarget(null);
     closeModals(); load();
   }
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
-  const filtered = filterProg === "all"
-    ? qualTypes
-    : qualTypes.filter((q) => q.programme_id === filterProg);
+  const filtered = filterProg === "all" ? qualTypes : qualTypes.filter((q) => q.programme_id === filterProg);
 
-  // Group by "Faculty|||Department|||Programme name (CODE)"
   const grouped = filtered.reduce<Record<string, QualType[]>>((acc, q) => {
     const key = `${q.faculty_name}|||${q.dept_name}|||${q.prog_name}|||${q.programme_id}`;
     if (!acc[key]) acc[key] = [];
@@ -303,7 +272,7 @@ export default function QualificationTypesPage() {
     return acc;
   }, {});
 
-  // ── Shared form body ──────────────────────────────────────────────────────
+  // ── Form body ─────────────────────────────────────────────────────────────
 
   const formBody = (isEdit: boolean) => (
     <>
@@ -312,14 +281,12 @@ export default function QualificationTypesPage() {
           <label className="label">Programme</label>
           {programmes.length === 0 ? (
             <div className="alert alert-warning" style={{ fontSize: "var(--text-sm)" }}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0 }}>
-                <circle cx="7" cy="7" r="6" /><path d="M7 4v3M7 9v.5" />
-              </svg>
               No programmes found. Add a programme first.
             </div>
           ) : (
             <select
-              className="select input"
+              className="input"
+              style={{ appearance: "auto" }}
               value={formProgId}
               onChange={(e) => setFormProgId(e.target.value)}
             >
@@ -357,7 +324,6 @@ export default function QualificationTypesPage() {
           placeholder="e.g. HN"
           value={formCode}
           onChange={(e) => { setFormCode(sanitiseCode(e.target.value)); setFormError(null); }}
-          onKeyDown={(e) => { if (e.key === "Enter") isEdit ? handleEdit() : handleAdd(); }}
           maxLength={6}
           style={{ fontFamily: "var(--font-mono)", letterSpacing: "0.08em" }}
           disabled={!isEdit && programmes.length === 0}
@@ -387,15 +353,11 @@ export default function QualificationTypesPage() {
             {loading
               ? "Loading…"
               : qualTypes.length === 0
-                ? "No qualification types yet — add one below"
+                ? "No qualification types yet"
                 : `${qualTypes.length} qualification type${qualTypes.length === 1 ? "" : "s"} across ${programmes.length} programme${programmes.length === 1 ? "" : "s"}`}
           </p>
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={openAdd}
-          disabled={loading || programmes.length === 0}
-        >
+        <button className="btn btn-primary" onClick={openAdd} disabled={loading || programmes.length === 0}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
             <path d="M7 1v12M1 7h12" />
           </svg>
@@ -417,7 +379,7 @@ export default function QualificationTypesPage() {
       {/* ── Error banner ── */}
       {error && (
         <div className="alert alert-error" style={{ marginBottom: "var(--space-5)" }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0 }}>
             <circle cx="8" cy="8" r="7" /><path d="M8 5v3M8 10v.5" />
           </svg>
           <span style={{ flex: 1 }}>{error}</span>
@@ -428,10 +390,7 @@ export default function QualificationTypesPage() {
       {/* ── Programme filter tabs ── */}
       {!loading && programmes.length > 0 && qualTypes.length > 0 && (
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", marginBottom: "var(--space-6)" }}>
-          <button
-            className={`btn btn-sm ${filterProg === "all" ? "btn-primary" : "btn-secondary"}`}
-            onClick={() => setFilterProg("all")}
-          >
+          <button className={`btn btn-sm ${filterProg === "all" ? "btn-primary" : "btn-secondary"}`} onClick={() => setFilterProg("all")}>
             All ({qualTypes.length})
           </button>
           {programmes
@@ -440,78 +399,62 @@ export default function QualificationTypesPage() {
             .map((p) => {
               const count = qualTypes.filter((q) => q.programme_id === p.id).length;
               return (
-                <button
-                  key={p.id}
-                  className={`btn btn-sm ${filterProg === p.id ? "btn-primary" : "btn-secondary"}`}
-                  onClick={() => setFilterProg(p.id)}
-                >
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700 }}>{p.code}</span>
-                  &nbsp;({count})
+                <button key={p.id} className={`btn btn-sm ${filterProg === p.id ? "btn-primary" : "btn-secondary"}`} onClick={() => setFilterProg(p.id)}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700 }}>{p.code}</span>&nbsp;({count})
                 </button>
               );
             })}
         </div>
       )}
 
-      {/* ── Content area ── */}
+      {/* ── Content ── */}
       {loading ? (
-        <div>{[1, 2].map((i) => <SkeletonGroup key={i} />)}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
+          {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
+        </div>
 
       ) : qualTypes.length === 0 ? (
         <div className="card" style={{ textAlign: "center", padding: "var(--space-16) var(--space-8)" }}>
           <div style={{
             width: 64, height: 64, borderRadius: "var(--radius-xl)",
-            background: "var(--color-surface-2)", border: "1px solid var(--color-border)",
+            background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto var(--space-5)",
+            margin: "0 auto var(--space-5)", color: "var(--color-warning)",
           }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 10v6M2 10l10-7 10 7-10 7-10-7z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
-            </svg>
+            <QualIcon />
           </div>
           <h3 style={{ fontWeight: 700, fontSize: "var(--text-lg)", marginBottom: "var(--space-2)" }}>No qualification types yet</h3>
           <p style={{ color: "var(--color-text-3)", fontSize: "var(--text-sm)", maxWidth: 400, margin: "0 auto var(--space-6)" }}>
-            Qualification types sit under programmes — e.g.{" "}
-            <em>Higher National Diploma</em> (code:{" "}
-            <span style={{ fontFamily: "var(--font-mono)" }}>HN</span>) or{" "}
-            <em>Bachelor of Technology</em> (code:{" "}
-            <span style={{ fontFamily: "var(--font-mono)" }}>BC</span>) under{" "}
-            <em>Information Technology</em>.
+            Qualification types sit under programmes — e.g. <em>Higher National Diploma</em>{" "}
+            (<span style={{ fontFamily: "var(--font-mono)" }}>HN</span>) or{" "}
+            <em>Bachelor of Technology</em> (<span style={{ fontFamily: "var(--font-mono)" }}>BC</span>).
           </p>
-          <button className="btn btn-primary" onClick={openAdd} disabled={programmes.length === 0}>
-            Add First Qualification Type
-          </button>
+          <button className="btn btn-primary" onClick={openAdd} disabled={programmes.length === 0}>Add First Qualification Type</button>
         </div>
 
       ) : filtered.length === 0 ? (
-        <p style={{ color: "var(--color-text-3)", fontSize: "var(--text-sm)" }}>
-          No qualification types under this programme yet.
-        </p>
+        <p style={{ color: "var(--color-text-3)", fontSize: "var(--text-sm)" }}>No qualification types under this programme yet.</p>
 
       ) : (
-        /* ── Grouped by programme, with breadcrumb ── */
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
           {Object.entries(grouped)
             .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, groupItems]) => {
+            .map(([key, items]) => {
               const [facultyName, deptName, progName, progId] = key.split("|||");
               const prog = programmes.find((p) => p.id === progId);
               return (
                 <div key={key}>
                   {/* Section header */}
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-3)" }}>
-                    {/* Icon */}
                     <div style={{
                       width: 28, height: 28, borderRadius: "var(--radius-md)", flexShrink: 0,
-                      background: "rgba(157,10,18,0.08)", border: "1px solid rgba(157,10,18,0.2)",
+                      background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)",
                       display: "flex", alignItems: "center", justifyContent: "center",
                     }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round">
-                        <path d="M22 10v6M2 10l10-7 10 7-10 7-10-7z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" strokeWidth="2" strokeLinecap="round">
+                        <path d="M22 10v6M2 10l10-7 10 7-10 7-10-7z" />
                       </svg>
                     </div>
-
-                    {/* Breadcrumb */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
                       <span style={{ fontSize: 9, fontWeight: 600, color: "var(--color-text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                         {facultyName} › {deptName}
@@ -520,102 +463,58 @@ export default function QualificationTypesPage() {
                         {progName}
                       </span>
                     </div>
-
-                    {/* Programme code pill */}
                     {prog && (
                       <span style={{
                         fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
                         letterSpacing: "0.06em", padding: "2px 7px",
                         borderRadius: "var(--radius-sm)",
-                        background: "rgba(59,130,246,0.1)",
-                        border: "1px solid rgba(59,130,246,0.2)",
-                        color: "var(--color-secondary)",
-                        flexShrink: 0,
+                        background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
+                        color: "var(--color-secondary)", flexShrink: 0,
                       }}>
                         {prog.code}
                       </span>
                     )}
-
-                    <span className="badge badge-neutral" style={{ fontSize: 10 }}>{groupItems.length}</span>
+                    <span className="badge badge-neutral" style={{ fontSize: 10 }}>{items.length}</span>
                     <div style={{ flex: 1, height: 1, background: "var(--color-border)" }} />
                   </div>
 
-                  {/* Qualification type cards */}
+                  {/* Card grid */}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-3)" }}>
-                    {groupItems.map((q) => {
+                    {items.map((q) => {
                       const canDelete = q.level_count === 0;
                       return (
-                        <div
+                        <InstitutionCard
                           key={q.id}
-                          className="card"
-                          style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-4) var(--space-5)" }}
-                        >
-                          {/* Icon */}
-                          <div style={{
-                            width: 40, height: 40, borderRadius: "var(--radius-md)", flexShrink: 0,
-                            background: "var(--color-surface-2)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                          }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-2)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M22 10v6M2 10l10-7 10 7-10 7-10-7z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
-                            </svg>
-                          </div>
-
-                          {/* Info */}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{
-                              fontWeight: 600, fontSize: "var(--text-sm)",
-                              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                              marginBottom: 3,
-                            }}>
-                              {q.name}
-                            </div>
-                            <div style={{ fontSize: 10, color: "var(--color-text-3)" }}>
-                              {q.level_count === 0
-                                ? "No levels"
-                                : `${q.level_count} level${q.level_count === 1 ? "" : "s"}`}
-                            </div>
-                          </div>
-
-                          {/* Code badge */}
-                          <span style={{
-                            fontFamily: "var(--font-mono)",
-                            fontSize: 11, fontWeight: 700,
-                            letterSpacing: "0.06em",
-                            padding: "3px 8px",
-                            borderRadius: "var(--radius-sm)",
-                            background: "rgba(157,10,18,0.08)",
-                            border: "1px solid rgba(157,10,18,0.2)",
-                            color: "var(--color-primary)",
-                            flexShrink: 0,
-                          }}>
-                            {q.code}
-                          </span>
-
-                          {/* Actions */}
-                          <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                            <button
-                              className="btn btn-ghost btn-icon btn-sm"
-                              onClick={() => openEdit(q)}
-                              title="Edit qualification type"
-                            >
-                              <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M9.5 1.5l3 3-8 8H1.5v-3l8-8z" />
-                              </svg>
-                            </button>
-                            <button
-                              className="btn btn-ghost btn-icon btn-sm"
-                              onClick={() => canDelete && setDeleteTarget(q)}
-                              title={canDelete ? "Remove qualification type" : "Remove levels before deleting"}
-                              disabled={!canDelete}
-                              style={{ color: canDelete ? "var(--color-danger)" : undefined }}
-                            >
-                              <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
-                                <path d="M2 3.5h10M5 3.5V2h4v1.5M5.5 6v4M8.5 6v4M3 3.5l.7 8h6.6l.7-8" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
+                          accent="amber"
+                          icon={<QualIcon />}
+                          title={q.name}
+                          meta={`${q.faculty_name} › ${q.dept_name} › ${q.prog_name}`}
+                          badge={q.level_count === 0 ? "No levels" : `${q.level_count} level${q.level_count === 1 ? "" : "s"}`}
+                          badgeVariant={q.level_count === 0 ? "neutral" : "warning"}
+                          tags={[{ label: q.code, mono: true }, { label: q.prog_code, mono: true }]}
+                          footer={`Added ${new Date(q.created_at).toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" })}`}
+                          onClick={() => setDetailTarget(q)}
+                          actions={
+                            <>
+                              <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(q)} title="Edit">
+                                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M9.5 1.5l3 3-8 8H1.5v-3l8-8z" />
+                                </svg>
+                              </button>
+                              <button
+                                className="btn btn-ghost btn-icon btn-sm"
+                                onClick={() => canDelete && setDeleteTarget(q)}
+                                title={canDelete ? "Remove" : "Remove levels first"}
+                                disabled={!canDelete}
+                                style={{ color: canDelete ? "var(--color-danger)" : undefined }}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                                  <path d="M2 3.5h10M5 3.5V2h4v1.5M5.5 6v4M8.5 6v4M3 3.5l.7 8h6.6l.7-8" />
+                                </svg>
+                              </button>
+                            </>
+                          }
+                        />
                       );
                     })}
                   </div>
@@ -625,11 +524,61 @@ export default function QualificationTypesPage() {
         </div>
       )}
 
+      {/* ── Detail drawer ── */}
+      <DetailPanel
+        open={!!detailTarget}
+        onClose={() => setDetailTarget(null)}
+        title={detailTarget?.name ?? ""}
+        subtitle={detailTarget ? `${detailTarget.faculty_name} › ${detailTarget.dept_name} › ${detailTarget.prog_name}` : ""}
+        accent="amber"
+        icon={<QualIcon />}
+      >
+        {detailTarget && (
+          <>
+            <DetailSection title="Details">
+              <DetailRow label="Code" value={detailTarget.code} mono />
+              <DetailRow label="Programme" value={`${detailTarget.prog_name} (${detailTarget.prog_code})`} />
+              <DetailRow label="Department" value={detailTarget.dept_name} />
+              <DetailRow label="Faculty" value={detailTarget.faculty_name} />
+              <DetailRow
+                label="Levels"
+                value={detailTarget.level_count === 0 ? "None" : `${detailTarget.level_count} level${detailTarget.level_count === 1 ? "" : "s"}`}
+              />
+              <DetailRow
+                label="Added"
+                value={new Date(detailTarget.created_at).toLocaleDateString("en-GH", { day: "numeric", month: "long", year: "numeric" })}
+              />
+            </DetailSection>
+
+            <div style={{ display: "flex", gap: "var(--space-3)", paddingTop: "var(--space-2)" }}>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => openEdit(detailTarget)}>
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9.5 1.5l3 3-8 8H1.5v-3l8-8z" />
+                </svg>
+                Edit
+              </button>
+              <button
+                className="btn btn-danger"
+                style={{ flex: 1 }}
+                disabled={detailTarget.level_count > 0}
+                title={detailTarget.level_count > 0 ? "Remove levels first" : "Remove"}
+                onClick={() => { setDeleteTarget(detailTarget); setDetailTarget(null); }}
+              >
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                  <path d="M2 3.5h10M5 3.5V2h4v1.5M5.5 6v4M8.5 6v4M3 3.5l.7 8h6.6l.7-8" />
+                </svg>
+                {detailTarget.level_count > 0 ? "Has levels" : "Remove"}
+              </button>
+            </div>
+          </>
+        )}
+      </DetailPanel>
+
       {/* ── Add modal ── */}
       {showAdd && (
         <Modal title="Add Qualification Type" onClose={closeModals}>
           <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginBottom: "var(--space-5)", lineHeight: 1.6 }}>
-            Qualification types sit under a programme. The code (e.g. <span style={{ fontFamily: "var(--font-mono)" }}>HN</span>,{" "}
+            The code (e.g. <span style={{ fontFamily: "var(--font-mono)" }}>HN</span>,{" "}
             <span style={{ fontFamily: "var(--font-mono)" }}>BC</span>) is used to build group names and student index numbers.
           </p>
           {formBody(false)}
@@ -645,37 +594,26 @@ export default function QualificationTypesPage() {
       {/* ── Edit modal ── */}
       {editTarget && (
         <Modal title="Edit Qualification Type" onClose={closeModals}>
-          {/* Programme is not editable on an existing qualification type */}
           <div style={{
             display: "flex", alignItems: "center", gap: "var(--space-2)",
             padding: "var(--space-3) var(--space-4)",
-            background: "var(--color-surface-2)",
-            borderRadius: "var(--radius-md)",
-            marginBottom: "var(--space-5)",
-            fontSize: "var(--text-xs)",
-            color: "var(--color-text-3)",
+            background: "var(--color-surface-2)", borderRadius: "var(--radius-md)",
+            marginBottom: "var(--space-5)", fontSize: "var(--text-xs)", color: "var(--color-text-3)",
           }}>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0 }}>
               <circle cx="6" cy="6" r="5" /><path d="M6 4v2.5M6 8v.5" />
             </svg>
-            Programme:{" "}
-            <strong style={{ color: "var(--color-text-2)" }}>
-              {editTarget.prog_name}
-            </strong>
+            Programme: <strong style={{ color: "var(--color-text-2)" }}>{editTarget.prog_name}</strong>
             <span style={{
               fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
               padding: "1px 6px", borderRadius: "var(--radius-sm)",
               background: "rgba(59,130,246,0.1)", color: "var(--color-secondary)",
-            }}>
-              {editTarget.prog_code}
-            </span>
+            }}>{editTarget.prog_code}</span>
           </div>
           {formBody(true)}
           <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end" }}>
             <button className="btn btn-secondary" onClick={closeModals} disabled={busy}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleEdit} disabled={busy}>
-              {busy ? "Saving…" : "Save Changes"}
-            </button>
+            <button className="btn btn-primary" onClick={handleEdit} disabled={busy}>{busy ? "Saving…" : "Save Changes"}</button>
           </div>
         </Modal>
       )}
@@ -685,27 +623,21 @@ export default function QualificationTypesPage() {
         <Modal title="Remove Qualification Type" onClose={closeModals}>
           <div style={{
             padding: "var(--space-4)",
-            background: "var(--color-danger-bg)",
-            border: "1px solid rgba(239,68,68,0.25)",
-            borderRadius: "var(--radius-lg)",
-            marginBottom: "var(--space-5)",
+            background: "var(--color-danger-bg)", border: "1px solid rgba(239,68,68,0.25)",
+            borderRadius: "var(--radius-lg)", marginBottom: "var(--space-5)",
             display: "flex", gap: "var(--space-3)", alignItems: "flex-start",
           }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--color-danger)" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}>
               <path d="M8 2L1 14h14L8 2zM8 6v4M8 11.5v.5" />
             </svg>
             <p style={{ fontSize: "var(--text-sm)", color: "var(--color-danger)", lineHeight: 1.6, margin: 0 }}>
-              This will permanently remove{" "}
-              <strong>{deleteTarget.name}</strong>{" "}
-              (<span style={{ fontFamily: "var(--font-mono)" }}>{deleteTarget.code}</span>).
-              This cannot be undone.
+              This will permanently remove <strong>{deleteTarget.name}</strong>{" "}
+              (<span style={{ fontFamily: "var(--font-mono)" }}>{deleteTarget.code}</span>). This cannot be undone.
             </p>
           </div>
           <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end" }}>
             <button className="btn btn-secondary" onClick={closeModals} disabled={busy}>Keep It</button>
-            <button className="btn btn-danger" onClick={handleDelete} disabled={busy}>
-              {busy ? "Removing…" : "Yes, Remove"}
-            </button>
+            <button className="btn btn-danger" onClick={handleDelete} disabled={busy}>{busy ? "Removing…" : "Yes, Remove"}</button>
           </div>
         </Modal>
       )}

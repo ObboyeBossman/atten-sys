@@ -209,11 +209,6 @@
   gap: var(--space-3);
 }
 
-.mobileTopbarBrand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
 
 .hamburger {
   background: none;
@@ -289,6 +284,12 @@
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
+}
+
+.drawerBrand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .drawerClose {

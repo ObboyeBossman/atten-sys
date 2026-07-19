@@ -6,17 +6,12 @@ import { revalidatePath } from "next/cache";
 export type ActionResult = { success: true } | { error: string };
 
 /* ── Auth guard ─────────────────────────────────────────────────────────── */
-type GuardResult =
-  | { supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>; error: null }
-  | { supabase: null; error: string };
-
-async function requireSuperAdmin(): Promise<GuardResult> {
+async function getAdminContext() {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  if (!user) return { supabase: null, error: "Unauthorized." };
+  if (!user) return null;
 
   const { data: profile } = await supabase
     .from("user_profiles")
@@ -25,19 +20,18 @@ async function requireSuperAdmin(): Promise<GuardResult> {
     .single();
 
   const p = profile as { role: string; is_active: boolean } | null;
-  if (!p || p.role !== "super_admin" || !p.is_active) {
-    return { supabase: null, error: "Unauthorized." };
-  }
+  if (!p || p.role !== "super_admin" || !p.is_active) return null;
 
-  return { supabase, error: null };
+  return { supabase, user };
 }
 
 /* ── Deactivate student ─────────────────────────────────────────────────── */
 export async function deactivateStudent(studentId: string): Promise<ActionResult> {
-  const guard = await requireSuperAdmin();
-  if (guard.error) return { error: guard.error };
+  const ctx = await getAdminContext();
+  if (!ctx) return { error: "Unauthorized." };
 
-  const { error: dbError } = await guard.supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: dbError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ is_active: false })
     .eq("id", studentId);
@@ -53,10 +47,11 @@ export async function deactivateStudent(studentId: string): Promise<ActionResult
 
 /* ── Reactivate student ─────────────────────────────────────────────────── */
 export async function reactivateStudent(studentId: string): Promise<ActionResult> {
-  const guard = await requireSuperAdmin();
-  if (guard.error) return { error: guard.error };
+  const ctx = await getAdminContext();
+  if (!ctx) return { error: "Unauthorized." };
 
-  const { error: dbError } = await guard.supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: dbError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ is_active: true, must_change_password: true })
     .eq("id", studentId);
@@ -75,8 +70,8 @@ export async function resetStudentPassword(
   studentId: string,
   newPassword: string
 ): Promise<ActionResult> {
-  const guard = await requireSuperAdmin();
-  if (guard.error) return { error: guard.error };
+  const ctx = await getAdminContext();
+  if (!ctx) return { error: "Unauthorized." };
 
   if (!newPassword || newPassword.length < 8) {
     return { error: "Password must be at least 8 characters." };
@@ -94,7 +89,8 @@ export async function resetStudentPassword(
   }
 
   // Force password change on next login — reuse the already-authenticated client
-  const { error: flagError } = await guard.supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: flagError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ must_change_password: true })
     .eq("id", studentId);

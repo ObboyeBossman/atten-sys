@@ -80,8 +80,8 @@ export default function FacultiesPage() {
 
     if (facsRes.error) { setError(facsRes.error.message); setLoading(false); return; }
 
-    const facs  = (facsRes.data  ?? []) as Array<{ id: string; name: string; created_at: string }>;
-    const depts = (deptsRes.data ?? []) as Array<{ faculty_id: string }>;
+    const facs  = facsRes.data  ?? [];
+    const depts = deptsRes.data ?? [];
 
     const countMap: Record<string, number> = {};
     depts.forEach((d) => { countMap[d.faculty_id] = (countMap[d.faculty_id] ?? 0) + 1; });

@@ -158,10 +158,10 @@ export default function ProgrammesPage() {
       return;
     }
 
-    const rawProgs = (progsRes.data ?? []) as Array<{ id: string; department_id: string; name: string; code: string; created_at: string }>;
-    const depts    = (deptsRes.data ?? []) as Array<{ id: string; name: string; faculty_id: string }>;
-    const facs     = (facsRes.data  ?? []) as Array<{ id: string; name: string }>;
-    const quals    = (qualsRes.data ?? []) as Array<{ programme_id: string }>;
+    const rawProgs = progsRes.data ?? [];
+    const depts    = deptsRes.data ?? [];
+    const facs     = facsRes.data  ?? [];
+    const quals    = qualsRes.data ?? [];
 
     const facMap: Record<string, string> = {};
     facs.forEach((f) => { facMap[f.id] = f.name; });

@@ -1,6 +1,8 @@
 // ============================================================
 // Supabase Database types — generated from 0001_schema.sql
 // These mirror the actual DB schema. Update if schema changes.
+// All Insert/Update types are written as explicit flat objects
+// (no Omit/Pick self-references) to satisfy Vercel's strict TS.
 // ============================================================
 
 export type UserRole = 'super_admin' | 'student' | 'lecturer'
@@ -22,13 +24,24 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['user_profiles']['Row'], 'created_at' | 'updated_at'>
-        Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>
+        Insert: {
+          id: string
+          role: UserRole
+          phone?: string | null
+          is_active?: boolean
+          must_change_password?: boolean
+        }
+        Update: {
+          role?: UserRole
+          phone?: string | null
+          is_active?: boolean
+          must_change_password?: boolean
+        }
       }
       super_admins: {
         Row: { id: string; name: string }
         Insert: { id: string; name: string }
-        Update: Partial<{ name: string }>
+        Update: { name?: string }
       }
       students: {
         Row: {
@@ -38,8 +51,16 @@ export interface Database {
           photo_path: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['students']['Row'], 'created_at'>
-        Update: Partial<Pick<Database['public']['Tables']['students']['Row'], 'name' | 'photo_path'>>
+        Insert: {
+          id: string
+          name: string
+          index_number: string
+          photo_path?: string | null
+        }
+        Update: {
+          name?: string
+          photo_path?: string | null
+        }
       }
       lecturers: {
         Row: {
@@ -50,33 +71,42 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['lecturers']['Row'], 'created_at' | 'updated_at'>
-        Update: Partial<Pick<Database['public']['Tables']['lecturers']['Row'], 'name' | 'staff_id' | 'phone'>>
+        Insert: {
+          id: string
+          name: string
+          staff_id: string
+          phone?: string | null
+        }
+        Update: {
+          name?: string
+          staff_id?: string
+          phone?: string | null
+        }
       }
       faculties: {
         Row: { id: string; name: string; created_at: string; updated_at: string }
         Insert: { id?: string; name: string }
-        Update: Partial<{ name: string }>
+        Update: { name?: string }
       }
       departments: {
         Row: { id: string; faculty_id: string; name: string; created_at: string; updated_at: string }
         Insert: { id?: string; faculty_id: string; name: string }
-        Update: Partial<{ faculty_id: string; name: string }>
+        Update: { faculty_id?: string; name?: string }
       }
       programmes: {
         Row: { id: string; department_id: string; name: string; code: string; created_at: string; updated_at: string }
         Insert: { id?: string; department_id: string; name: string; code: string }
-        Update: Partial<{ name: string; code: string }>
+        Update: { name?: string; code?: string }
       }
       qualification_types: {
         Row: { id: string; programme_id: string; name: string; code: string; created_at: string; updated_at: string }
         Insert: { id?: string; programme_id: string; name: string; code: string }
-        Update: Partial<{ name: string; code: string }>
+        Update: { name?: string; code?: string }
       }
       levels: {
         Row: { id: string; qualification_type_id: string; name: string; sort_order: number; created_at: string; updated_at: string }
         Insert: { id?: string; qualification_type_id: string; name: string; sort_order: number }
-        Update: Partial<{ name: string; sort_order: number }>
+        Update: { name?: string; sort_order?: number }
       }
       academic_years: {
         Row: {
@@ -89,8 +119,19 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['academic_years']['Row'], 'id' | 'is_current' | 'created_at' | 'updated_at'> & { id?: string; is_current?: boolean }
-        Update: Partial<Pick<Database['public']['Tables']['academic_years']['Row'], 'name' | 'start_date' | 'end_date'>>
+        Insert: {
+          id?: string
+          name: string
+          year_code: string
+          start_date: string
+          end_date: string
+          is_current?: boolean
+        }
+        Update: {
+          name?: string
+          start_date?: string
+          end_date?: string
+        }
       }
       app_semesters: {
         Row: {
@@ -104,8 +145,21 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['app_semesters']['Row'], 'id' | 'status' | 'created_at' | 'updated_at'> & { id?: string; status?: SemesterStatus }
-        Update: Partial<Pick<Database['public']['Tables']['app_semesters']['Row'], 'name' | 'start_date' | 'end_date' | 'auto_open'>>
+        Insert: {
+          id?: string
+          academic_year_id: string
+          name: string
+          start_date: string
+          end_date: string
+          status?: SemesterStatus
+          auto_open: boolean
+        }
+        Update: {
+          name?: string
+          start_date?: string
+          end_date?: string
+          auto_open?: boolean
+        }
       }
       groups: {
         Row: {
@@ -119,13 +173,23 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['groups']['Row'], 'id' | 'is_archived' | 'archived_at' | 'created_at' | 'updated_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['groups']['Row'], 'group_name' | 'is_archived' | 'archived_at'>>
+        Insert: {
+          id?: string
+          qualification_type_id: string
+          level_id: string
+          academic_year_id: string
+          group_name: string
+        }
+        Update: {
+          group_name?: string
+          is_archived?: boolean
+          archived_at?: string | null
+        }
       }
       groups_secrets: {
         Row: { group_id: string; default_password: string; updated_at: string }
         Insert: { group_id: string; default_password: string }
-        Update: Partial<{ default_password: string }>
+        Update: { default_password?: string }
       }
       group_memberships: {
         Row: {
@@ -137,8 +201,19 @@ export interface Database {
           joined_at: string
           exited_at: string | null
         }
-        Insert: Omit<Database['public']['Tables']['group_memberships']['Row'], 'id' | 'joined_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['group_memberships']['Row'], 'status' | 'is_course_rep' | 'exited_at'>>
+        Insert: {
+          id?: string
+          student_id: string
+          group_id: string
+          status: MembershipStatus
+          is_course_rep: boolean
+          exited_at?: string | null
+        }
+        Update: {
+          status?: MembershipStatus
+          is_course_rep?: boolean
+          exited_at?: string | null
+        }
       }
       courses: {
         Row: {
@@ -153,8 +228,21 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['courses']['Row'], 'id' | 'lecturer_assigned_at' | 'created_at' | 'updated_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['courses']['Row'], 'name' | 'code' | 'credit_hours' | 'lecturer_id'>>
+        Insert: {
+          id?: string
+          group_id: string
+          semester_id: string
+          name: string
+          code: string
+          credit_hours: number
+          lecturer_id?: string | null
+        }
+        Update: {
+          name?: string
+          code?: string
+          credit_hours?: number
+          lecturer_id?: string | null
+        }
       }
       timetables: {
         Row: {
@@ -167,8 +255,21 @@ export interface Database {
           venue: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['timetables']['Row'], 'id' | 'created_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['timetables']['Row'], 'day_of_week' | 'start_time' | 'end_time' | 'venue'>>
+        Insert: {
+          id?: string
+          course_id: string
+          group_id: string
+          day_of_week: number
+          start_time: string
+          end_time: string
+          venue?: string | null
+        }
+        Update: {
+          day_of_week?: number
+          start_time?: string
+          end_time?: string
+          venue?: string | null
+        }
       }
       class_sessions: {
         Row: {
@@ -185,8 +286,21 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['class_sessions']['Row'], 'id' | 'started_at' | 'created_at' | 'updated_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['class_sessions']['Row'], 'ended_at' | 'notes' | 'venue'>>
+        Insert: {
+          id?: string
+          course_id: string
+          semester_id: string
+          timetable_id?: string | null
+          duration_minutes: number
+          venue?: string | null
+          notes?: string | null
+          created_by?: string | null
+        }
+        Update: {
+          ended_at?: string | null
+          notes?: string | null
+          venue?: string | null
+        }
       }
       attendance: {
         Row: {
@@ -204,8 +318,22 @@ export interface Database {
           created_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['attendance']['Row'], 'id' | 'created_at' | 'updated_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['attendance']['Row'], 'status'>>
+        Insert: {
+          id?: string
+          session_id: string
+          student_id: string
+          status: ArrivalStatus
+          checked_in_at?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          gps_accuracy?: number | null
+          geo_verified?: boolean
+          selfie_path?: string | null
+          device_token?: string | null
+        }
+        Update: {
+          status?: ArrivalStatus
+        }
       }
       attendance_disputes: {
         Row: {
@@ -219,8 +347,18 @@ export interface Database {
           resolution_note: string | null
           raised_at: string
         }
-        Insert: Omit<Database['public']['Tables']['attendance_disputes']['Row'], 'id' | 'status' | 'resolved_by' | 'resolved_at' | 'resolution_note' | 'raised_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['attendance_disputes']['Row'], 'status' | 'resolved_by' | 'resolved_at' | 'resolution_note'>>
+        Insert: {
+          id?: string
+          attendance_id: string
+          raised_by: string
+          reason: string
+        }
+        Update: {
+          status?: DisputeStatus
+          resolved_by?: string | null
+          resolved_at?: string | null
+          resolution_note?: string | null
+        }
       }
       notifications: {
         Row: {
@@ -233,8 +371,17 @@ export interface Database {
           is_dismissed: boolean
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['notifications']['Row'], 'id' | 'is_read' | 'is_dismissed' | 'created_at'> & { id?: string }
-        Update: Partial<Pick<Database['public']['Tables']['notifications']['Row'], 'is_read' | 'is_dismissed'>>
+        Insert: {
+          id?: string
+          user_id: string
+          session_id?: string | null
+          title: string
+          body?: string | null
+        }
+        Update: {
+          is_read?: boolean
+          is_dismissed?: boolean
+        }
       }
       audit_log: {
         Row: {
@@ -259,7 +406,7 @@ export interface Database {
           updated_at: string
         }
         Insert: never
-        Update: Partial<Pick<Database['public']['Tables']['system_settings']['Row'], 'value'>>
+        Update: { value?: string }
       }
       course_lecturer_history: {
         Row: {

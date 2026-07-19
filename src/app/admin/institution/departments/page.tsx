@@ -105,9 +105,9 @@ export default function DepartmentsPage() {
       return;
     }
 
-    const depts = (deptsRes.data ?? []) as Array<{ id: string; faculty_id: string; name: string; created_at: string }>;
-    const facs  = (facsRes.data  ?? []) as Array<{ id: string; name: string }>;
-    const progs = (progsRes.data ?? []) as Array<{ department_id: string }>;
+    const depts = deptsRes.data ?? [];
+    const facs  = facsRes.data  ?? [];
+    const progs = progsRes.data ?? [];
 
     const facMap: Record<string, string> = {};
     facs.forEach((f) => { facMap[f.id] = f.name; });

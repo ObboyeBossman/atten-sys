@@ -167,7 +167,7 @@ async function getData(params: Awaited<SearchParams>) {
     .from("system_settings")
     .select("value")
     .eq("key", "institution_email_domain")
-    .maybeSingle();
+    .maybeSingle() as unknown as { data: { value: string } | null };
   const domain = settingRow?.value ?? "ttu.edu.gh";
 
   // Step 5: get active group memberships for these students

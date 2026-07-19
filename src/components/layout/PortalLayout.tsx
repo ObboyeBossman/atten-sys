@@ -85,19 +85,31 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
     setDrawerOpen(false);
   }, [pathname]);
 
-  // Lock body scroll when drawer is open
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  // Lock body scroll when drawer or dialog is open
   useEffect(() => {
-    if (drawerOpen) {
+    if (drawerOpen || confirmSignOut) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
     return () => { document.body.style.overflow = ""; };
-  }, [drawerOpen]);
+  }, [drawerOpen, confirmSignOut]);
+
+  // Close dialog on Escape
+  useEffect(() => {
+    if (!confirmSignOut) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setConfirmSignOut(false); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [confirmSignOut]);
 
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   async function handleLogout() {
+    setSigningOut(true);
     await supabase.auth.signOut();
     router.replace("/login");
   }
@@ -153,7 +165,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
         >
           {ROLE_INITIALS[role]}
         </div>
-        <button onClick={handleLogout} className={styles.logoutBtn} title="Sign out">
+        <button onClick={() => setConfirmSignOut(true)} className={styles.logoutBtn} title="Sign out">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
           </svg>
@@ -258,6 +270,54 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children }: P
           );
         })}
       </nav>
+
+      {/* ── Sign-out confirmation dialog ─────────────────────────── */}
+      {confirmSignOut && (
+        <div
+          className={styles.dialogOverlay}
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmSignOut(false); }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signout-title"
+        >
+          <div className={styles.dialog}>
+            <div className={styles.dialogIcon} aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </div>
+            <h2 className={styles.dialogTitle} id="signout-title">Sign out?</h2>
+            <p className={styles.dialogBody}>
+              You'll be returned to the login screen. Any unsaved work will be lost.
+            </p>
+            <div className={styles.dialogActions}>
+              <button
+                className={styles.dialogCancel}
+                onClick={() => setConfirmSignOut(false)}
+                disabled={signingOut}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.dialogConfirm}
+                onClick={handleLogout}
+                disabled={signingOut}
+              >
+                {signingOut ? (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" style={{ animation: "spin 0.6s linear infinite" }}>
+                      <path d="M7 1a6 6 0 1 0 6 6" />
+                    </svg>
+                    Signing out…
+                  </>
+                ) : "Sign out"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

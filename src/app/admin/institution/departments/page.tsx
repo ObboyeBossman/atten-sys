@@ -95,9 +95,9 @@ export default function DepartmentsPage() {
   const load = useCallback(async () => {
     setLoading(true); setError(null);
 
-    const deptsRes = await supabase.from("departments").select("id, faculty_id, name, created_at").order("name");
-    const facsRes  = await supabase.from("faculties").select("id, name").order("name");
-    const progsRes = await supabase.from("programmes").select("department_id");
+    const deptsRes = await (supabase.from("departments") as any).select("id, faculty_id, name, created_at").order("name");
+    const facsRes  = await (supabase.from("faculties") as any).select("id, name").order("name");
+    const progsRes = await (supabase.from("programmes") as any).select("department_id");
 
     if (deptsRes.error || facsRes.error) {
       setError((deptsRes.error ?? facsRes.error)!.message);
@@ -105,9 +105,9 @@ export default function DepartmentsPage() {
       return;
     }
 
-    const depts = deptsRes.data ?? [];
-    const facs  = facsRes.data  ?? [];
-    const progs = progsRes.data ?? [];
+    const depts: { id: string; faculty_id: string; name: string; created_at: string }[] = deptsRes.data ?? [];
+    const facs: { id: string; name: string }[] = facsRes.data ?? [];
+    const progs: { department_id: string }[] = progsRes.data ?? [];
 
     const facMap: Record<string, string> = {};
     facs.forEach((f) => { facMap[f.id] = f.name; });
@@ -150,7 +150,7 @@ export default function DepartmentsPage() {
     if (!name) { setFormError("Please enter a department name."); return; }
     if (!formFacultyId) { setFormError("Please select a faculty."); return; }
     setBusy(true); setFormError(null);
-    const { error: err } = await supabase.from("departments").insert({ name, faculty_id: formFacultyId });
+    const { error: err } = await (supabase.from("departments") as any).insert({ name, faculty_id: formFacultyId });
     setBusy(false);
     if (err) {
       setFormError(err.message.includes("unique") ? "This department already exists under that faculty." : err.message);
@@ -165,7 +165,7 @@ export default function DepartmentsPage() {
     if (!name) { setFormError("Please enter a department name."); return; }
     if (!formFacultyId) { setFormError("Please select a faculty."); return; }
     setBusy(true); setFormError(null);
-    const { error: err } = await supabase.from("departments").update({ name, faculty_id: formFacultyId }).eq("id", editTarget.id);
+    const { error: err } = await (supabase.from("departments") as any).update({ name, faculty_id: formFacultyId }).eq("id", editTarget.id);
     setBusy(false);
     if (err) {
       setFormError(err.message.includes("unique") ? "This department already exists under that faculty." : err.message);
@@ -177,7 +177,7 @@ export default function DepartmentsPage() {
   async function handleDelete() {
     if (!deleteTarget) return;
     setBusy(true);
-    const { error: err } = await supabase.from("departments").delete().eq("id", deleteTarget.id);
+    const { error: err } = await (supabase.from("departments") as any).delete().eq("id", deleteTarget.id);
     setBusy(false);
     if (err) {
       setError(

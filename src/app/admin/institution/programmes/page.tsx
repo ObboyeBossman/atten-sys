@@ -147,10 +147,10 @@ export default function ProgrammesPage() {
   const load = useCallback(async () => {
     setLoading(true); setError(null);
 
-    const progsRes = await supabase.from("programmes").select("id, department_id, name, code, created_at").order("name");
-    const deptsRes = await supabase.from("departments").select("id, name, faculty_id").order("name");
-    const facsRes  = await supabase.from("faculties").select("id, name").order("name");
-    const qualsRes = await supabase.from("qualification_types").select("programme_id");
+    const progsRes = await (supabase.from("programmes") as any).select("id, department_id, name, code, created_at").order("name");
+    const deptsRes = await (supabase.from("departments") as any).select("id, name, faculty_id").order("name");
+    const facsRes  = await (supabase.from("faculties") as any).select("id, name").order("name");
+    const qualsRes = await (supabase.from("qualification_types") as any).select("programme_id");
 
     if (progsRes.error || deptsRes.error || facsRes.error) {
       setError((progsRes.error ?? deptsRes.error ?? facsRes.error)!.message);
@@ -158,10 +158,10 @@ export default function ProgrammesPage() {
       return;
     }
 
-    const rawProgs = progsRes.data ?? [];
-    const depts    = deptsRes.data ?? [];
-    const facs     = facsRes.data  ?? [];
-    const quals    = qualsRes.data ?? [];
+    const rawProgs: { id: string; department_id: string; name: string; code: string; created_at: string }[] = progsRes.data ?? [];
+    const depts: { id: string; name: string; faculty_id: string }[] = deptsRes.data ?? [];
+    const facs: { id: string; name: string }[] = facsRes.data ?? [];
+    const quals: { programme_id: string }[] = qualsRes.data ?? [];
 
     const facMap: Record<string, string> = {};
     facs.forEach((f) => { facMap[f.id] = f.name; });
@@ -215,7 +215,7 @@ export default function ProgrammesPage() {
     if (codeErr) { setFormError(codeErr); return; }
     if (!formDeptId) { setFormError("Please select a department."); return; }
     setBusy(true); setFormError(null);
-    const { error: err } = await supabase.from("programmes").insert({ name, code, department_id: formDeptId });
+    const { error: err } = await (supabase.from("programmes") as any).insert({ name, code, department_id: formDeptId });
     setBusy(false);
     if (err) {
       if (err.message.includes("programmes_dept_name_unique")) setFormError("A programme with this name already exists in that department.");
@@ -235,7 +235,7 @@ export default function ProgrammesPage() {
     const codeErr = validateCode(code);
     if (codeErr) { setFormError(codeErr); return; }
     setBusy(true); setFormError(null);
-    const { error: err } = await supabase.from("programmes").update({ name, code }).eq("id", editTarget.id);
+    const { error: err } = await (supabase.from("programmes") as any).update({ name, code }).eq("id", editTarget.id);
     setBusy(false);
     if (err) {
       if (err.message.includes("programmes_dept_name_unique")) setFormError("A programme with this name already exists in that department.");
@@ -250,7 +250,7 @@ export default function ProgrammesPage() {
   async function handleDelete() {
     if (!deleteTarget) return;
     setBusy(true);
-    const { error: err } = await supabase.from("programmes").delete().eq("id", deleteTarget.id);
+    const { error: err } = await (supabase.from("programmes") as any).delete().eq("id", deleteTarget.id);
     setBusy(false);
     if (err) {
       setError(

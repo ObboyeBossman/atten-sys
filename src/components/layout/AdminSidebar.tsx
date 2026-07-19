@@ -259,24 +259,10 @@ export function AdminSidebar() {
             <path d="M3 5h14M3 10h14M3 15h14" />
           </svg>
         </button>
-        {/* Lean topbar brand — no background box, just icon + text */}
+        {/* Mobile topbar brand — text only, no logo */}
         <div className={styles.mobileTopbarBrand}>
-          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-            <defs>
-              <linearGradient id="brandGradTopbar" x1="0" y1="0" x2="28" y2="28">
-                <stop stopColor="#ef4444" />
-                <stop offset="1" stopColor="#3b82f6" />
-              </linearGradient>
-            </defs>
-            <rect width="28" height="28" rx="8" fill="url(#brandGradTopbar)" />
-            <path d="M7 10h14M7 14h10M7 18h6" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-            <circle cx="21" cy="18" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
-            <path d="M19.5 18l1 1 2-2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <div>
-            <div className={styles.brandName}>ATTEN-SYS</div>
-            <div className={styles.brandRole}>Super Admin</div>
-          </div>
+          <div className={styles.brandName}>ATTEN-SYS</div>
+          <div className={styles.brandRole}>Super Admin</div>
         </div>
       </header>
 

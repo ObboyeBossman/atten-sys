@@ -235,7 +235,26 @@ export default function LoginPage() {
         student: "/student/dashboard",
       };
 
-      router.replace(portalMap[p.role] ?? "/login");
+      let destination = portalMap[p.role] ?? "/login";
+
+      // Reps share the 'student' role — check if they're an active course rep
+      // and route them to the rep portal instead
+      if (p.role === "student") {
+        const { data: repMembership } = await supabase
+          .from("group_memberships")
+          .select("id")
+          .eq("student_id", user.id)
+          .eq("is_course_rep", true)
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle();
+
+        if (repMembership) {
+          destination = "/rep/dashboard";
+        }
+      }
+
+      router.replace(destination);
       router.refresh();
     } finally {
       setLoading(false);

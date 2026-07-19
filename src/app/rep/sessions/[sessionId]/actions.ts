@@ -30,8 +30,8 @@ export async function closeSession(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any).rpc("close_session", {
-    session_id: sessionId,
-    force: false,
+    p_session_id: sessionId,
+    p_auto_ended: false,
   });
 
   if (error) {

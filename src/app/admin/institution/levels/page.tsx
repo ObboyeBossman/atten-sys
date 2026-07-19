@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { InstitutionCard, DetailPanel, DetailRow, DetailSection } from "@/components/layout/InstitutionCard";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -41,15 +42,7 @@ function validateSortOrder(raw: string): string | null {
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
 
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
@@ -79,54 +72,41 @@ function Modal({
   );
 }
 
+// ── Icons ─────────────────────────────────────────────────────────────────────
+
+const LevelIcon = ({ order, isFinal }: { order: number; isFinal: boolean }) => (
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+    <span style={{
+      fontFamily: "var(--font-mono)", fontSize: 15, fontWeight: 800, lineHeight: 1,
+      color: isFinal ? "var(--color-warning)" : "var(--color-success)",
+    }}>
+      {order}
+    </span>
+    <span style={{ fontSize: 7, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "currentColor", opacity: 0.7 }}>
+      {isFinal ? "FINAL" : "LVL"}
+    </span>
+  </div>
+);
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
-function SkeletonGroup() {
+function SkeletonCard() {
   return (
-    <div style={{ marginBottom: "var(--space-6)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-3)" }}>
-        <div className="skeleton" style={{ width: 28, height: 28, borderRadius: "var(--radius-md)" }} />
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div className="skeleton" style={{ width: 100, height: 9, borderRadius: "var(--radius-sm)" }} />
-          <div className="skeleton" style={{ width: 160, height: 12, borderRadius: "var(--radius-sm)" }} />
+    <div className="card" style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-3)" }}>
+        <div className="skeleton" style={{ width: 44, height: 44, borderRadius: "var(--radius-lg)", flexShrink: 0 }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--space-2)", paddingTop: 4 }}>
+          <div className="skeleton" style={{ height: 14, width: "55%", borderRadius: "var(--radius-sm)" }} />
+          <div className="skeleton" style={{ height: 10, width: "75%", borderRadius: "var(--radius-sm)" }} />
         </div>
-        <div style={{ flex: 1 }} />
-        <div className="skeleton" style={{ width: 28, height: 22, borderRadius: "var(--radius-sm)" }} />
+        <div className="skeleton" style={{ width: 56, height: 22, borderRadius: "var(--radius-full)" }} />
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="card" style={{ padding: "var(--space-3) var(--space-5)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <div className="skeleton" style={{ width: 32, height: 32, borderRadius: "var(--radius-md)", flexShrink: 0 }} />
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-              <div className="skeleton" style={{ height: 13, width: "40%", borderRadius: "var(--radius-sm)" }} />
-              <div className="skeleton" style={{ height: 10, width: "25%", borderRadius: "var(--radius-sm)" }} />
-            </div>
-            <div className="skeleton" style={{ width: 44, height: 26, borderRadius: "var(--radius-sm)" }} />
-          </div>
-        ))}
+      <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <div className="skeleton" style={{ width: 40, height: 20, borderRadius: "var(--radius-full)" }} />
+        <div className="skeleton" style={{ width: 60, height: 20, borderRadius: "var(--radius-full)" }} />
       </div>
-    </div>
-  );
-}
-
-// ── Sort order badge ──────────────────────────────────────────────────────────
-
-function SortBadge({ order, isFinal }: { order: number; isFinal: boolean }) {
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", justifyContent: "center",
-      width: 32, height: 32, borderRadius: "var(--radius-md)", flexShrink: 0,
-      background: isFinal ? "rgba(245,158,11,0.1)" : "rgba(34,197,94,0.08)",
-      border: `1px solid ${isFinal ? "rgba(245,158,11,0.25)" : "rgba(34,197,94,0.2)"}`,
-    }}>
-      <span style={{
-        fontFamily: "var(--font-mono)",
-        fontSize: 13, fontWeight: 800,
-        color: isFinal ? "var(--color-warning)" : "var(--color-success)",
-        lineHeight: 1,
-      }}>
-        {order}
-      </span>
+      <div className="skeleton" style={{ height: 1 }} />
+      <div className="skeleton" style={{ height: 10, width: "30%", borderRadius: "var(--radius-sm)" }} />
     </div>
   );
 }
@@ -145,6 +125,7 @@ export default function LevelsPage() {
   const [showAdd, setShowAdd]           = useState(false);
   const [editTarget, setEditTarget]     = useState<Level | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Level | null>(null);
+  const [detailTarget, setDetailTarget] = useState<Level | null>(null);
 
   const [formName,      setFormName]      = useState("");
   const [formSortOrder, setFormSortOrder] = useState("");
@@ -259,24 +240,16 @@ export default function LevelsPage() {
   async function handleAdd() {
     const name = formName.trim();
     const soErr = validateSortOrder(formSortOrder);
-    if (!name)  { setFormError("Please enter a level name."); return; }
-    if (soErr)  { setFormError(soErr); return; }
+    if (!name) { setFormError("Please enter a level name."); return; }
+    if (soErr) { setFormError(soErr); return; }
     if (!formQualId) { setFormError("Please select a qualification type."); return; }
     const sort_order = Number(formSortOrder);
-
     const duplicate = levels.find((l) => l.qualification_type_id === formQualId && l.sort_order === sort_order);
-    if (duplicate) {
-      setFormError(`Sort order ${sort_order} is already used by "${duplicate.name}" in this qualification type.`);
-      return;
-    }
-
+    if (duplicate) { setFormError(`Sort order ${sort_order} is already used by "${duplicate.name}" in this qualification type.`); return; }
     setBusy(true); setFormError(null);
     const { error: err } = await (supabase.from("levels") as any).insert({ name, sort_order, qualification_type_id: formQualId });
     setBusy(false);
-    if (err) {
-      setFormError(err.message.includes("unique") ? "A level with this name or sort order already exists in that qualification type." : err.message);
-      return;
-    }
+    if (err) { setFormError(err.message.includes("unique") ? "A level with this name or sort order already exists in that qualification type." : err.message); return; }
     closeModals(); load();
   }
 
@@ -284,26 +257,19 @@ export default function LevelsPage() {
     if (!editTarget) return;
     const name = formName.trim();
     const soErr = validateSortOrder(formSortOrder);
-    if (!name)  { setFormError("Please enter a level name."); return; }
-    if (soErr)  { setFormError(soErr); return; }
+    if (!name) { setFormError("Please enter a level name."); return; }
+    if (soErr) { setFormError(soErr); return; }
     const sort_order = Number(formSortOrder);
-
     const conflict = levels.find(
-      (l) => l.qualification_type_id === editTarget.qualification_type_id &&
-             l.sort_order === sort_order && l.id !== editTarget.id
+      (l) => l.qualification_type_id === editTarget.qualification_type_id && l.sort_order === sort_order && l.id !== editTarget.id
     );
-    if (conflict) {
-      setFormError(`Sort order ${sort_order} is already used by "${conflict.name}". Each level in a qualification type must have a unique sort order.`);
-      return;
-    }
-
+    if (conflict) { setFormError(`Sort order ${sort_order} is already used by "${conflict.name}".`); return; }
     setBusy(true); setFormError(null);
     const { error: err } = await (supabase.from("levels") as any).update({ name, sort_order }).eq("id", editTarget.id);
     setBusy(false);
-    if (err) {
-      setFormError(err.message.includes("unique") ? "A level with this name or sort order already exists in that qualification type." : err.message);
-      return;
-    }
+    if (err) { setFormError(err.message); return; }
+    // Sync detail panel
+    if (detailTarget?.id === editTarget.id) setDetailTarget({ ...detailTarget, name, sort_order });
     closeModals(); load();
   }
 
@@ -313,21 +279,16 @@ export default function LevelsPage() {
     const { error: err } = await (supabase.from("levels") as any).delete().eq("id", deleteTarget.id);
     setBusy(false);
     if (err) {
-      setError(
-        err.message.includes("foreign")
-          ? `"${deleteTarget.name}" can't be removed — groups are assigned to this level. Reassign or remove those groups first.`
-          : err.message
-      );
+      setError(err.message.includes("foreign") ? `"${deleteTarget.name}" can't be removed — reassign or remove its groups first.` : err.message);
       closeModals(); return;
     }
+    if (detailTarget?.id === deleteTarget.id) setDetailTarget(null);
     closeModals(); load();
   }
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
-  const filtered = filterQual === "all"
-    ? levels
-    : levels.filter((l) => l.qualification_type_id === filterQual);
+  const filtered = filterQual === "all" ? levels : levels.filter((l) => l.qualification_type_id === filterQual);
 
   const grouped = filtered.reduce<Record<string, Level[]>>((acc, l) => {
     const key = `${l.faculty_name}|||${l.dept_name}|||${l.prog_name}|||${l.qual_name}|||${l.qualification_type_id}`;
@@ -338,7 +299,7 @@ export default function LevelsPage() {
 
   Object.values(grouped).forEach((grp) => grp.sort((a, b) => a.sort_order - b.sort_order));
 
-  // ── Shared form body ──────────────────────────────────────────────────────
+  // ── Form body ─────────────────────────────────────────────────────────────
 
   const formBody = (isEdit: boolean) => (
     <>
@@ -346,10 +307,8 @@ export default function LevelsPage() {
       <div style={{
         display: "flex", gap: "var(--space-3)", alignItems: "flex-start",
         padding: "var(--space-3) var(--space-4)",
-        background: "rgba(34,197,94,0.06)",
-        border: "1px solid rgba(34,197,94,0.18)",
-        borderRadius: "var(--radius-md)",
-        marginBottom: "var(--space-5)",
+        background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.18)",
+        borderRadius: "var(--radius-md)", marginBottom: "var(--space-5)",
         fontSize: "var(--text-xs)", color: "var(--color-text-2)", lineHeight: 1.6,
       }}>
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--color-success)" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}>
@@ -369,14 +328,12 @@ export default function LevelsPage() {
           <label className="label">Qualification Type</label>
           {qualTypes.length === 0 ? (
             <div className="alert alert-warning" style={{ fontSize: "var(--text-sm)" }}>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0 }}>
-                <circle cx="7" cy="7" r="6" /><path d="M7 4v3M7 9v.5" />
-              </svg>
               No qualification types found. Add one first.
             </div>
           ) : (
             <select
-              className="select input"
+              className="input"
+              style={{ appearance: "auto" }}
               value={formQualId}
               onChange={(e) => handleQualChange(e.target.value)}
             >
@@ -394,7 +351,7 @@ export default function LevelsPage() {
         </div>
       )}
 
-      {/* Name + sort order side by side */}
+      {/* Name + sort order */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: "var(--space-4)", marginBottom: "var(--space-4)" }}>
         <div className="input-group">
           <label className="label">Level name</label>
@@ -448,15 +405,11 @@ export default function LevelsPage() {
             {loading
               ? "Loading…"
               : levels.length === 0
-                ? "No levels yet — add one below"
+                ? "No levels yet"
                 : `${levels.length} level${levels.length === 1 ? "" : "s"} across ${qualTypes.filter((q) => levels.some((l) => l.qualification_type_id === q.id)).length} qualification type${qualTypes.length === 1 ? "" : "s"}`}
           </p>
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={openAdd}
-          disabled={loading || qualTypes.length === 0}
-        >
+        <button className="btn btn-primary" onClick={openAdd} disabled={loading || qualTypes.length === 0}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
             <path d="M7 1v12M1 7h12" />
           </svg>
@@ -478,7 +431,7 @@ export default function LevelsPage() {
       {/* ── Error banner ── */}
       {error && (
         <div className="alert alert-error" style={{ marginBottom: "var(--space-5)" }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0 }}>
             <circle cx="8" cy="8" r="7" /><path d="M8 5v3M8 10v.5" />
           </svg>
           <span style={{ flex: 1 }}>{error}</span>
@@ -486,13 +439,10 @@ export default function LevelsPage() {
         </div>
       )}
 
-      {/* ── Qual type filter tabs ── */}
+      {/* ── Qualification type filter tabs ── */}
       {!loading && qualTypes.length > 0 && levels.length > 0 && (
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", marginBottom: "var(--space-6)" }}>
-          <button
-            className={`btn btn-sm ${filterQual === "all" ? "btn-primary" : "btn-secondary"}`}
-            onClick={() => setFilterQual("all")}
-          >
+          <button className={`btn btn-sm ${filterQual === "all" ? "btn-primary" : "btn-secondary"}`} onClick={() => setFilterQual("all")}>
             All ({levels.length})
           </button>
           {qualTypes
@@ -501,32 +451,29 @@ export default function LevelsPage() {
             .map((q) => {
               const count = levels.filter((l) => l.qualification_type_id === q.id).length;
               return (
-                <button
-                  key={q.id}
-                  className={`btn btn-sm ${filterQual === q.id ? "btn-primary" : "btn-secondary"}`}
-                  onClick={() => setFilterQual(q.id)}
-                >
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700 }}>{q.code}</span>
-                  &nbsp;({count})
+                <button key={q.id} className={`btn btn-sm ${filterQual === q.id ? "btn-primary" : "btn-secondary"}`} onClick={() => setFilterQual(q.id)}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700 }}>{q.code}</span>&nbsp;({count})
                 </button>
               );
             })}
         </div>
       )}
 
-      {/* ── Content area ── */}
+      {/* ── Content ── */}
       {loading ? (
-        <div>{[1, 2].map((i) => <SkeletonGroup key={i} />)}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-4)" }}>
+          {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
+        </div>
 
       ) : levels.length === 0 ? (
         <div className="card" style={{ textAlign: "center", padding: "var(--space-16) var(--space-8)" }}>
           <div style={{
             width: 64, height: 64, borderRadius: "var(--radius-xl)",
-            background: "var(--color-surface-2)", border: "1px solid var(--color-border)",
+            background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto var(--space-5)",
+            margin: "0 auto var(--space-5)", color: "var(--color-success)",
           }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-3)" strokeWidth="1.5" strokeLinecap="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <path d="M3 6h18M3 12h18M3 18h18" />
             </svg>
           </div>
@@ -536,24 +483,20 @@ export default function LevelsPage() {
             For example, a <em>Higher National Diploma</em> might have{" "}
             <strong>HND 1</strong> (sort order 1) and <strong>HND 2</strong> (sort order 2).
           </p>
-          <button className="btn btn-primary" onClick={openAdd} disabled={qualTypes.length === 0}>
-            Add First Level
-          </button>
+          <button className="btn btn-primary" onClick={openAdd} disabled={qualTypes.length === 0}>Add First Level</button>
         </div>
 
       ) : filtered.length === 0 ? (
-        <p style={{ color: "var(--color-text-3)", fontSize: "var(--text-sm)" }}>
-          No levels under this qualification type yet.
-        </p>
+        <p style={{ color: "var(--color-text-3)", fontSize: "var(--text-sm)" }}>No levels under this qualification type yet.</p>
 
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
           {Object.entries(grouped)
             .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, groupItems]) => {
+            .map(([key, items]) => {
               const [facultyName, deptName, progName, qualName, qualId] = key.split("|||");
               const qual = qualTypes.find((q) => q.id === qualId);
-              const maxOrder = Math.max(...groupItems.map((l) => l.sort_order));
+              const maxOrder = Math.max(...items.map((l) => l.sort_order));
 
               return (
                 <div key={key}>
@@ -568,7 +511,6 @@ export default function LevelsPage() {
                         <path d="M3 6h18M3 12h18M3 18h18" />
                       </svg>
                     </div>
-
                     <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
                       <span style={{ fontSize: 9, fontWeight: 600, color: "var(--color-text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                         {facultyName} › {deptName} › {progName}
@@ -577,79 +519,48 @@ export default function LevelsPage() {
                         {qualName}
                       </span>
                     </div>
-
                     {qual && (
                       <span style={{
                         fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
                         letterSpacing: "0.06em", padding: "2px 7px",
                         borderRadius: "var(--radius-sm)",
-                        background: "rgba(157,10,18,0.08)",
-                        border: "1px solid rgba(157,10,18,0.2)",
-                        color: "var(--color-primary)", flexShrink: 0,
+                        background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)",
+                        color: "var(--color-warning)", flexShrink: 0,
                       }}>
                         {qual.code}
                       </span>
                     )}
-
-                    <span className="badge badge-neutral" style={{ fontSize: 10 }}>{groupItems.length}</span>
+                    <span className="badge badge-neutral" style={{ fontSize: 10 }}>{items.length}</span>
                     <div style={{ flex: 1, height: 1, background: "var(--color-border)" }} />
                   </div>
 
-                  {/* Level list */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                    {groupItems.map((l, idx) => {
+                  {/* Card grid — levels sorted by sort_order */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "var(--space-3)" }}>
+                    {items.map((l) => {
                       const isFinal   = l.sort_order === maxOrder;
                       const canDelete = l.group_count === 0;
-                      const hasNext   = idx + 1 < groupItems.length;
-
                       return (
-                        <div key={l.id} style={{ position: "relative" }}>
-                          <div
-                            className="card"
-                            style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", padding: "var(--space-3) var(--space-5)" }}
-                          >
-                            <SortBadge order={l.sort_order} isFinal={isFinal} />
-
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, fontSize: "var(--text-sm)", marginBottom: 2 }}>
-                                {l.name}
-                              </div>
-                              <div style={{ fontSize: 10, color: "var(--color-text-3)" }}>
-                                {l.group_count === 0
-                                  ? "No groups assigned"
-                                  : `${l.group_count} group${l.group_count === 1 ? "" : "s"} assigned`}
-                              </div>
-                            </div>
-
-                            {isFinal ? (
-                              <span style={{
-                                fontSize: 10, fontWeight: 600, color: "var(--color-warning)",
-                                padding: "3px 8px", borderRadius: "var(--radius-sm)",
-                                background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)",
-                                flexShrink: 0,
-                              }}>
-                                Final — graduates
-                              </span>
-                            ) : (
-                              <span style={{
-                                fontSize: 10, fontWeight: 600, color: "var(--color-success)",
-                                padding: "3px 8px", borderRadius: "var(--radius-sm)",
-                                background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.18)",
-                                flexShrink: 0, display: "flex", alignItems: "center", gap: 4,
-                              }}>
-                                → order {l.sort_order + 1}
-                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
-                                  <path d="M2 5h6M5 2l3 3-3 3" />
-                                </svg>
-                              </span>
-                            )}
-
-                            <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                              <button
-                                className="btn btn-ghost btn-icon btn-sm"
-                                onClick={() => openEdit(l)}
-                                title="Edit level"
-                              >
+                        <InstitutionCard
+                          key={l.id}
+                          accent={isFinal ? "amber" : "green"}
+                          icon={<LevelIcon order={l.sort_order} isFinal={isFinal} />}
+                          title={l.name}
+                          meta={`${l.qual_name} (${l.qual_code}) · ${l.prog_name}`}
+                          badge={
+                            isFinal
+                              ? "Final — graduates"
+                              : `→ order ${l.sort_order + 1}`
+                          }
+                          badgeVariant={isFinal ? "warning" : "success"}
+                          tags={[
+                            { label: `#${l.sort_order}`, mono: true },
+                            { label: l.group_count === 0 ? "No groups" : `${l.group_count} group${l.group_count === 1 ? "" : "s"}`, mono: false },
+                          ]}
+                          footer={`Added ${new Date(l.created_at).toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" })}`}
+                          onClick={() => setDetailTarget(l)}
+                          actions={
+                            <>
+                              <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(l)} title="Edit">
                                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M9.5 1.5l3 3-8 8H1.5v-3l8-8z" />
                                 </svg>
@@ -657,7 +568,7 @@ export default function LevelsPage() {
                               <button
                                 className="btn btn-ghost btn-icon btn-sm"
                                 onClick={() => canDelete && setDeleteTarget(l)}
-                                title={canDelete ? "Remove level" : "Reassign groups before deleting"}
+                                title={canDelete ? "Remove" : "Reassign groups before removing"}
                                 disabled={!canDelete}
                                 style={{ color: canDelete ? "var(--color-danger)" : undefined }}
                               >
@@ -665,18 +576,9 @@ export default function LevelsPage() {
                                   <path d="M2 3.5h10M5 3.5V2h4v1.5M5.5 6v4M8.5 6v4M3 3.5l.7 8h6.6l.7-8" />
                                 </svg>
                               </button>
-                            </div>
-                          </div>
-
-                          {/* Connector between levels */}
-                          {hasNext && (
-                            <div style={{
-                              position: "absolute", left: 29, bottom: -9,
-                              width: 2, height: 9,
-                              background: "var(--color-border)",
-                            }} />
-                          )}
-                        </div>
+                            </>
+                          }
+                        />
                       );
                     })}
                   </div>
@@ -685,6 +587,59 @@ export default function LevelsPage() {
             })}
         </div>
       )}
+
+      {/* ── Detail drawer ── */}
+      <DetailPanel
+        open={!!detailTarget}
+        onClose={() => setDetailTarget(null)}
+        title={detailTarget?.name ?? ""}
+        subtitle={detailTarget ? `${detailTarget.qual_name} (${detailTarget.qual_code}) · ${detailTarget.prog_name}` : ""}
+        accent={detailTarget ? (detailTarget.sort_order === Math.max(...levels.filter((l) => l.qualification_type_id === detailTarget.qualification_type_id).map((l) => l.sort_order)) ? "amber" : "green") : "green"}
+        icon={detailTarget ? <LevelIcon order={detailTarget.sort_order} isFinal={detailTarget.sort_order === Math.max(...levels.filter((l) => l.qualification_type_id === detailTarget.qualification_type_id).map((l) => l.sort_order))} /> : undefined}
+      >
+        {detailTarget && (() => {
+          const siblingSortOrders = levels.filter((l) => l.qualification_type_id === detailTarget.qualification_type_id).map((l) => l.sort_order);
+          const isFinal = detailTarget.sort_order === Math.max(...siblingSortOrders);
+          return (
+            <>
+              <DetailSection title="Level Details">
+                <DetailRow label="Sort Order" value={`#${detailTarget.sort_order}`} mono />
+                <DetailRow label="Status" value={isFinal ? "Final — graduates" : `Promotes to order ${detailTarget.sort_order + 1}`} />
+                <DetailRow label="Groups Assigned" value={detailTarget.group_count === 0 ? "None" : `${detailTarget.group_count} group${detailTarget.group_count === 1 ? "" : "s"}`} />
+              </DetailSection>
+
+              <DetailSection title="Hierarchy">
+                <DetailRow label="Qualification Type" value={`${detailTarget.qual_name} (${detailTarget.qual_code})`} />
+                <DetailRow label="Programme" value={`${detailTarget.prog_name} (${detailTarget.prog_code})`} />
+                <DetailRow label="Department" value={detailTarget.dept_name} />
+                <DetailRow label="Faculty" value={detailTarget.faculty_name} />
+                <DetailRow label="Added" value={new Date(detailTarget.created_at).toLocaleDateString("en-GH", { day: "numeric", month: "long", year: "numeric" })} />
+              </DetailSection>
+
+              <div style={{ display: "flex", gap: "var(--space-3)", paddingTop: "var(--space-2)" }}>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => openEdit(detailTarget)}>
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9.5 1.5l3 3-8 8H1.5v-3l8-8z" />
+                  </svg>
+                  Edit
+                </button>
+                <button
+                  className="btn btn-danger"
+                  style={{ flex: 1 }}
+                  disabled={detailTarget.group_count > 0}
+                  title={detailTarget.group_count > 0 ? "Reassign groups before removing" : "Remove"}
+                  onClick={() => { setDeleteTarget(detailTarget); setDetailTarget(null); }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                    <path d="M2 3.5h10M5 3.5V2h4v1.5M5.5 6v4M8.5 6v4M3 3.5l.7 8h6.6l.7-8" />
+                  </svg>
+                  {detailTarget.group_count > 0 ? "Has groups" : "Remove"}
+                </button>
+              </div>
+            </>
+          );
+        })()}
+      </DetailPanel>
 
       {/* ── Add modal ── */}
       {showAdd && (
@@ -708,30 +663,23 @@ export default function LevelsPage() {
           <div style={{
             display: "flex", alignItems: "center", gap: "var(--space-2)",
             padding: "var(--space-3) var(--space-4)",
-            background: "var(--color-surface-2)",
-            borderRadius: "var(--radius-md)",
-            marginBottom: "var(--space-5)",
-            fontSize: "var(--text-xs)", color: "var(--color-text-3)",
+            background: "var(--color-surface-2)", borderRadius: "var(--radius-md)",
+            marginBottom: "var(--space-5)", fontSize: "var(--text-xs)", color: "var(--color-text-3)",
           }}>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0 }}>
               <circle cx="6" cy="6" r="5" /><path d="M6 4v2.5M6 8v.5" />
             </svg>
-            Qualification type:{" "}
-            <strong style={{ color: "var(--color-text-2)" }}>{editTarget.qual_name}</strong>
+            Qualification type: <strong style={{ color: "var(--color-text-2)" }}>{editTarget.qual_name}</strong>
             <span style={{
               fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
               padding: "1px 6px", borderRadius: "var(--radius-sm)",
-              background: "rgba(157,10,18,0.08)", color: "var(--color-primary)",
-            }}>
-              {editTarget.qual_code}
-            </span>
+              background: "rgba(245,158,11,0.08)", color: "var(--color-warning)",
+            }}>{editTarget.qual_code}</span>
           </div>
           {formBody(true)}
           <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end" }}>
             <button className="btn btn-secondary" onClick={closeModals} disabled={busy}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleEdit} disabled={busy}>
-              {busy ? "Saving…" : "Save Changes"}
-            </button>
+            <button className="btn btn-primary" onClick={handleEdit} disabled={busy}>{busy ? "Saving…" : "Save Changes"}</button>
           </div>
         </Modal>
       )}
@@ -741,27 +689,21 @@ export default function LevelsPage() {
         <Modal title="Remove Level" onClose={closeModals}>
           <div style={{
             padding: "var(--space-4)",
-            background: "var(--color-danger-bg)",
-            border: "1px solid rgba(239,68,68,0.25)",
-            borderRadius: "var(--radius-lg)",
-            marginBottom: "var(--space-5)",
+            background: "var(--color-danger-bg)", border: "1px solid rgba(239,68,68,0.25)",
+            borderRadius: "var(--radius-lg)", marginBottom: "var(--space-5)",
             display: "flex", gap: "var(--space-3)", alignItems: "flex-start",
           }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--color-danger)" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}>
               <path d="M8 2L1 14h14L8 2zM8 6v4M8 11.5v.5" />
             </svg>
             <p style={{ fontSize: "var(--text-sm)", color: "var(--color-danger)", lineHeight: 1.6, margin: 0 }}>
-              This will permanently remove{" "}
-              <strong>{deleteTarget.name}</strong>{" "}
-              (sort order {deleteTarget.sort_order}).
-              This cannot be undone and will break the promotion sequence if other levels remain.
+              This will permanently remove <strong>{deleteTarget.name}</strong>{" "}
+              (sort order {deleteTarget.sort_order}). This cannot be undone and will break the promotion sequence if other levels remain.
             </p>
           </div>
           <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end" }}>
             <button className="btn btn-secondary" onClick={closeModals} disabled={busy}>Keep It</button>
-            <button className="btn btn-danger" onClick={handleDelete} disabled={busy}>
-              {busy ? "Removing…" : "Yes, Remove"}
-            </button>
+            <button className="btn btn-danger" onClick={handleDelete} disabled={busy}>{busy ? "Removing…" : "Yes, Remove"}</button>
           </div>
         </Modal>
       )}

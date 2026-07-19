@@ -38,40 +38,64 @@ function attendanceRate(present: number, total: number) {
   return `${Math.round((present / total) * 100)}%`;
 }
 
+/* ── explicit result types (avoid Supabase never inference) ── */
+type LiveSessionRow = {
+  id: string;
+  started_at: string;
+  venue: string | null;
+  courses: { id: string; name: string; code: string } | null;
+};
+
+type RecentSessionRow = {
+  id: string;
+  started_at: string;
+  ended_at: string | null;
+  venue: string | null;
+  courses: { name: string; code: string } | null;
+  attendance: { id: string; status: string }[];
+};
+
 /* ── data fetching ───────────────────────────────────────── */
 async function getRepDashboard() {
   const supabase = await createSupabaseServerClient();
 
-  // Resolve rep's identity + group
+  // Resolve rep's identity
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase
+  // Fetch membership — split from group fetch to avoid never inference
+  const membershipResult = await supabase
     .from("group_memberships")
-    .select("group_id, groups(group_name, qualification_types(name))")
+    .select("group_id")
     .eq("student_id", user.id)
     .eq("is_course_rep", true)
     .eq("status", "active")
     .maybeSingle();
 
-  if (!membership) redirect("/student/dashboard");
+  // Cast explicitly; TypeScript can't narrow after redirect()
+  const membershipData = membershipResult.data as { group_id: string } | null;
+  if (!membershipData) redirect("/student/dashboard");
 
-  const groupId = membership.group_id;
-  const group = membership.groups as {
-    group_name: string;
-    qualification_types: { name: string } | null;
-  } | null;
+  const groupId = (membershipData as { group_id: string }).group_id;
+
+  // Fetch group name separately
+  const groupResult = await supabase
+    .from("groups")
+    .select("group_name")
+    .eq("id", groupId)
+    .maybeSingle();
+  const groupData = groupResult.data as { group_name: string } | null;
 
   // Active semester
-  const { data: semester } = await supabase
+  const semesterResult = await supabase
     .from("app_semesters")
     .select("id, name")
     .eq("status", "active")
     .maybeSingle();
-
-  const semesterId = semester?.id ?? null;
+  const semesterData = semesterResult.data as { id: string; name: string } | null;
+  const semesterId = semesterData?.id ?? null;
 
   // All parallel fetches
   const [
@@ -100,10 +124,7 @@ async function getRepDashboard() {
     // Any live session for this group
     supabase
       .from("class_sessions")
-      .select(
-        `id, started_at, venue,
-         courses!inner ( id, name, code, group_id )`
-      )
+      .select("id, started_at, venue, courses!inner(id, name, code, group_id)")
       .eq("courses.group_id", groupId)
       .is("ended_at", null)
       .limit(1)
@@ -112,24 +133,20 @@ async function getRepDashboard() {
     // Last 5 ended sessions
     supabase
       .from("class_sessions")
-      .select(
-        `id, started_at, ended_at, venue,
-         courses!inner ( name, code, group_id ),
-         attendance ( id, status )`
-      )
+      .select("id, started_at, ended_at, venue, courses!inner(name, code, group_id), attendance(id, status)")
       .eq("courses.group_id", groupId)
       .not("ended_at", "is", null)
       .order("started_at", { ascending: false })
       .limit(5),
 
-    // Pending disputes for this group
+    // Pending disputes
     supabase
       .from("attendance_disputes")
       .select("id", { count: "exact", head: true })
       .eq("status", "pending"),
   ]);
 
-  // Sessions held this semester
+  // Sessions held this semester (scoped to group)
   const sessionsHeld = semesterId
     ? await supabase
         .from("class_sessions")
@@ -141,30 +158,25 @@ async function getRepDashboard() {
   // Attendance stats for group overall this semester
   let overallRate = "—";
   if (semesterId) {
-    const { data: attData } = await supabase
+    const attResult = await supabase
       .from("attendance")
       .select("status, class_sessions!inner(course_id, courses!inner(group_id, semester_id))")
       .eq("class_sessions.courses.group_id", groupId)
       .eq("class_sessions.courses.semester_id", semesterId);
 
-    if (attData && attData.length > 0) {
+    const attData = (attResult.data ?? []) as { status: string }[];
+    if (attData.length > 0) {
       const present = attData.filter(
-        (a) => (a as { status: string }).status === "present" || (a as { status: string }).status === "late"
+        (a) => a.status === "present" || a.status === "late"
       ).length;
       overallRate = attendanceRate(present, attData.length);
     }
   }
 
-  // Live session: checkin count
+  // Live session + checkin count
+  const liveSession = (liveSessionRes.data as unknown as LiveSessionRow) ?? null;
   let liveCheckins = 0;
-  const liveSession = liveSessionRes.data as {
-    id: string;
-    started_at: string;
-    venue: string | null;
-    courses: { id: string; name: string; code: string } | null;
-  } | null;
-
-  if (liveSession) {
+  if (liveSession?.id) {
     const { count } = await supabase
       .from("attendance")
       .select("id", { count: "exact", head: true })
@@ -177,37 +189,27 @@ async function getRepDashboard() {
   const totalSessions = sessionsHeld.count ?? 0;
   const pendingDisputes = disputesRes.count ?? 0;
 
-  // Shape recent sessions
-  type RawSession = {
-    id: string;
-    started_at: string;
-    ended_at: string | null;
-    venue: string | null;
-    courses: { name: string; code: string } | null;
-    attendance: { id: string; status: string }[];
-  };
-
-  const recentSessions = ((recentSessionsRes.data ?? []) as RawSession[]).map(
-    (s) => {
-      const att = s.attendance ?? [];
-      const checkedIn = att.filter(
-        (a) => a.status === "present" || a.status === "late"
-      ).length;
-      return {
-        id: s.id,
-        started_at: s.started_at,
-        courseName: s.courses?.name ?? "Unknown",
-        courseCode: s.courses?.code ?? "",
-        checkedIn,
-        total: totalStudents,
-        rate: attendanceRate(checkedIn, totalStudents),
-      };
-    }
-  );
+  const recentSessions = (
+    (recentSessionsRes.data ?? []) as unknown as RecentSessionRow[]
+  ).map((s) => {
+    const att = s.attendance ?? [];
+    const checkedIn = att.filter(
+      (a) => a.status === "present" || a.status === "late"
+    ).length;
+    return {
+      id: s.id,
+      started_at: s.started_at,
+      courseName: s.courses?.name ?? "Unknown",
+      courseCode: s.courses?.code ?? "",
+      checkedIn,
+      total: totalStudents,
+      rate: attendanceRate(checkedIn, totalStudents),
+    };
+  });
 
   return {
-    groupName: group?.group_name ?? "Your Group",
-    semesterName: semester?.name ?? null,
+    groupName: groupData?.group_name ?? "Your Group",
+    semesterName: semesterData?.name ?? null,
     totalStudents,
     totalCourses,
     totalSessions,

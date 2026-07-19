@@ -90,7 +90,7 @@ function DeactivateModal({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+      <div className="modal" onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()} style={{ maxWidth: 420 }}>
         <div className="modal-header">
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
             <div style={{
@@ -158,7 +158,7 @@ function ReactivateModal({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+      <div className="modal" onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()} style={{ maxWidth: 420 }}>
         <div className="modal-header">
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
             <div style={{
@@ -233,7 +233,7 @@ function ResetPasswordModal({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+      <div className="modal" onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()} style={{ maxWidth: 420 }}>
         <div className="modal-header">
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
             <div style={{
@@ -262,7 +262,7 @@ function ResetPasswordModal({
                 type={show ? "text" : "password"}
                 className="input"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(null); }}
+                onChange={(e: { target: { value: string } }) => { setPassword(e.target.value); setError(null); }}
                 placeholder="Min. 8 characters"
                 style={{ width: "100%", paddingRight: 40 }}
               />
@@ -296,7 +296,7 @@ function ResetPasswordModal({
               type={show ? "text" : "password"}
               className="input"
               value={confirm}
-              onChange={(e) => { setConfirm(e.target.value); setError(null); }}
+              onChange={(e: { target: { value: string } }) => { setConfirm(e.target.value); setError(null); }}
               placeholder="Repeat new password"
               style={{ width: "100%" }}
             />
@@ -468,7 +468,7 @@ export function StudentsClient({
             className="input input-sm"
             placeholder="Search name or index number…"
             defaultValue={searchQuery}
-            onChange={(e) => updateParams({ q: e.target.value })}
+            onChange={(e: { target: { value: string } }) => updateParams({ q: e.target.value })}
           />
         </div>
 
@@ -477,7 +477,7 @@ export function StudentsClient({
           <select
             className="input input-sm"
             value={yearFilter}
-            onChange={(e) => updateParams({ year: e.target.value })}
+            onChange={(e: { target: { value: string } }) => updateParams({ year: e.target.value })}
           >
             <option value="">All years</option>
             {academicYears.map((y) => (
@@ -488,7 +488,7 @@ export function StudentsClient({
           <select
             className="input input-sm"
             value={groupFilter}
-            onChange={(e) => updateParams({ group: e.target.value })}
+            onChange={(e: { target: { value: string } }) => updateParams({ group: e.target.value })}
           >
             <option value="">All groups</option>
             {groups.map((g) => (
@@ -499,7 +499,7 @@ export function StudentsClient({
           <select
             className="input input-sm"
             value={statusFilter}
-            onChange={(e) => updateParams({ status: e.target.value })}
+            onChange={(e: { target: { value: string } }) => updateParams({ status: e.target.value })}
           >
             <option value="">All statuses</option>
             <option value="active">Active</option>

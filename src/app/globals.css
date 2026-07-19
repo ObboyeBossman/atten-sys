@@ -514,6 +514,58 @@ tbody td {
 .stat-card-value { font-size: var(--text-3xl); font-weight: 800; color: var(--color-text); }
 .stat-card-sub   { font-size: var(--text-xs); color: var(--color-text-3); }
 
+/* ── Dashboard stat layouts ──────────────────────────────── */
+
+/* Desktop grid: wraps naturally */
+.stats-grid-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+/* Mobile scroll strip: hidden on desktop */
+.stats-scroll-wrap {
+  display: none;
+}
+
+/* Dashboard lower grid: two columns on desktop */
+.dashboard-lower-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--space-6);
+}
+
+@media (max-width: 1024px) {
+  /* Hide the wrapping grid on mobile/tablet */
+  .stats-grid-wrap { display: none; }
+
+  /* Show the horizontal scroll strip */
+  .stats-scroll-wrap {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-3);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-6);
+    /* Hide scrollbar but keep scroll behaviour */
+    scrollbar-width: none;
+  }
+  .stats-scroll-wrap::-webkit-scrollbar { display: none; }
+
+  .stats-scroll-card {
+    flex: 0 0 180px;
+    scroll-snap-align: start;
+  }
+
+  /* Stack the lower grid */
+  .dashboard-lower-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Animations ──────────────────────────────────────────── */
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -532,6 +584,11 @@ tbody td {
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
+  50%       { box-shadow: 0 0 0 6px rgba(34,197,94,.0); }
 }
 
 @keyframes pulse-glow {

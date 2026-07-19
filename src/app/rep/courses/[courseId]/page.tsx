@@ -135,6 +135,14 @@ async function getData(courseId: string) {
     .eq("group_id", groupId)
     .eq("status", "active");
 
+  // All lecturers (for assignment dropdown)
+  type LecturerOption = { id: string; name: string };
+  const lecturersResult = await supabase
+    .from("lecturers")
+    .select("id, name")
+    .order("name");
+  const lecturers = (lecturersResult.data ?? []) as LecturerOption[];
+
   return {
     course,
     timetable,
@@ -142,6 +150,7 @@ async function getData(courseId: string) {
     liveSessionId,
     totalStudents: totalStudents ?? 0,
     groupId,
+    lecturers,
   };
 }
 
@@ -152,7 +161,7 @@ export default async function CourseDetailPage({
   params: Promise<{ courseId: string }>;
 }) {
   const { courseId } = await params;
-  const { course, timetable, sessions, liveSessionId, totalStudents, groupId } = await getData(courseId);
+  const { course, timetable, sessions, liveSessionId, totalStudents, groupId, lecturers } = await getData(courseId);
 
   const hasLiveSession = !!liveSessionId;
 
@@ -268,7 +277,12 @@ export default async function CourseDetailPage({
         )}
 
         {/* Add timetable entry (client component) */}
-        <CourseDetailClient courseId={courseId} groupId={groupId} />
+        <CourseDetailClient
+          courseId={courseId}
+          groupId={groupId}
+          lecturers={lecturers}
+          currentLecturerId={course.lecturer_id ?? null}
+        />
       </div>
 
       {/* Sessions */}

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AddCourseClient } from "./AddCourseClient";
 
 export const metadata: Metadata = { title: "Courses" };
 export const revalidate = 60;
@@ -55,7 +56,7 @@ async function getData() {
   const groupName = (groupResult.data as { group_name: string } | null)?.group_name ?? "Your Group";
 
   if (!sem) {
-    return { courses: [], groupName, semesterName: null };
+    return { courses: [], groupName, semesterName: null, semesterId: null, groupId };
   }
 
   // Courses for this group + semester, with lecturer
@@ -97,12 +98,12 @@ async function getData() {
     _sessionCount: sessionCounts[c.id] ?? 0,
   }));
 
-  return { courses, groupName, semesterName: sem.name };
+  return { courses, groupName, semesterName: sem.name, semesterId: sem.id, groupId };
 }
 
 /* ── page ───────────────────────────────────────────────── */
 export default async function RepCoursesPage() {
-  const { courses, groupName, semesterName } = await getData();
+  const { courses, groupName, semesterName, semesterId, groupId } = await getData();
 
   return (
     <div>
@@ -113,6 +114,9 @@ export default async function RepCoursesPage() {
             {groupName}{semesterName ? ` · ${semesterName}` : ""}
           </p>
         </div>
+        {semesterId && (
+          <AddCourseClient groupId={groupId} semesterId={semesterId} />
+        )}
       </div>
 
       {!semesterName && (
@@ -141,7 +145,7 @@ export default async function RepCoursesPage() {
             No courses yet
           </div>
           <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)" }}>
-            Courses are assigned by the admin for the current semester.
+            Add your first course using the button above.
           </p>
         </div>
       )}

@@ -112,3 +112,47 @@ export async function openSession(input: {
   revalidatePath("/rep/dashboard");
   return { id: (data as { id: string }).id };
 }
+
+export async function assignLecturer(input: {
+  courseId: string;
+  lecturerId: string | null;
+}): Promise<{ success: true } | { error: string }> {
+  const supabase = await createSupabaseServerClient();
+  const groupId = await getRepGroupId(supabase);
+  if (!groupId) return { error: "Could not resolve your group." };
+
+  // Verify course belongs to rep's group
+  const courseCheck = await supabase
+    .from("courses")
+    .select("id")
+    .eq("id", input.courseId)
+    .eq("group_id", groupId)
+    .maybeSingle();
+
+  if (!courseCheck.data) return { error: "Course not found in your group." };
+
+  // If assigning a lecturer, verify they exist
+  if (input.lecturerId) {
+    const lecturerCheck = await supabase
+      .from("lecturers")
+      .select("id")
+      .eq("id", input.lecturerId)
+      .maybeSingle();
+    if (!lecturerCheck.data) return { error: "Lecturer not found." };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
+    .from("courses")
+    .update({
+      lecturer_id: input.lecturerId,
+      lecturer_assigned_at: input.lecturerId ? new Date().toISOString() : null,
+    })
+    .eq("id", input.courseId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/rep/courses/${input.courseId}`);
+  revalidatePath("/rep/courses");
+  return { success: true };
+}

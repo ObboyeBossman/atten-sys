@@ -10,16 +10,17 @@
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
   background: #f8fafc;
   flex-direction: column;
+  overflow: hidden; /* prevent horizontal bleed */
 }
 
 /* ── Mobile top bar (visible < lg) ─────────────────────── */
 .mobileBar {
+  display: none; /* hidden on mobile — formPanel fills full screen */
   position: sticky;
   top: 0;
   z-index: 40;
   width: 100%;
   padding: 0.75rem 1.25rem;
-  display: flex;
   align-items: center;
   gap: 0.75rem;
   background: rgba(6, 12, 24, 0.75);
@@ -214,12 +215,16 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem 1rem 3rem;
+  /* On mobile: fill the full viewport exactly, no overflow */
+  min-height: 100dvh;
+  padding: 1.5rem 1rem;
   background: #f8fafc;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
+  overflow: hidden; /* clip glow and bg from spilling out */
+  box-sizing: border-box;
 }
 
 .formPanelOverlay {
@@ -237,8 +242,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 500px;
-  height: 500px;
+  width: min(500px, 100%);
+  height: min(500px, 100%);
   background: rgba(254, 202, 202, 0.15);
   border-radius: 9999px;
   filter: blur(80px);
@@ -252,6 +257,7 @@
   position: relative;
   z-index: 10;
   animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-sizing: border-box;
 }
 
 /* Desktop card */
@@ -792,8 +798,12 @@
   flex-shrink: 0;
 }
 
-/* ── Responsive: tablet+ ─────────────────────────────────── */
+/* ── Responsive: tablet (640px–1023px) ──────────────────── */
 @media (min-width: 640px) {
+  .mobileBar {
+    display: flex; /* show on tablet only (hidden on desktop below) */
+  }
+
   .formCard {
     padding: 2.5rem;
   }
@@ -807,6 +817,7 @@
 @media (min-width: 1024px) {
   .authRoot {
     flex-direction: row;
+    overflow: visible;
   }
 
   .mobileBar {
@@ -823,6 +834,7 @@
     flex: 1;
     min-height: 100dvh;
     padding: 3rem 2rem;
+    overflow: visible;
   }
 
   .modalOverlay {

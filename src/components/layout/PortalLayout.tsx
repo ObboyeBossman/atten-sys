@@ -180,9 +180,13 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
   const roleColor = ROLE_COLORS[role];
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Close drawer on route change
+  // Close drawer on route change. This is a legitimate case of syncing
+  // local UI state to an external signal (the URL) rather than deriving
+  // it during render, since drawerOpen must remain independently toggleable
+  // by the menu button between navigations.
   useEffect(() => {
-    setDrawerOpen(false);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDrawerOpen((open) => (open ? false : open));
   }, [pathname]);
 
   const [confirmSignOut, setConfirmSignOut] = useState(false);
@@ -214,9 +218,6 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
     await supabase.auth.signOut();
     router.replace("/login");
   }
-
-  // Suppress intentional side-effect-only setState calls in effects above
-  // (setDrawerOpen in pathname effect is a controlled state reset, not a cascade)
 
   return (
     <div className={styles.root}>

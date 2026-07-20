@@ -417,10 +417,15 @@ $$;
 -- the auth bootstrap step.  If your Supabase project uses DISABLE ROW SECURITY
 -- during migration, the FK can be deferred:
 
--- Temporarily defer the auth.users FK so we can seed student rows before
--- the auth accounts are created.  The admin will run the auth bootstrap script
--- after this migration, which creates the auth.users rows with the same UUIDs.
-SET CONSTRAINTS ALL DEFERRED;
+-- Temporarily drop the auth.users FK on students so we can seed student rows
+-- before auth accounts are created.  The auth bootstrap script (run after this
+-- migration) creates the auth.users rows with the same deterministic UUIDs, at
+-- which point the FK is safe to re-add.
+-- NOTE: SET CONSTRAINTS ALL DEFERRED is intentionally NOT used here because
+-- Supabase's GoTrue-managed auth.users table does not declare its PK as
+-- DEFERRABLE, making deferred FK checks unreliable across environments.
+ALTER TABLE students DISABLE TRIGGER ALL;
+ALTER TABLE students DROP CONSTRAINT IF EXISTS students_id_fkey;
 
 -- We insert students into a temporary staging table first, then reconcile.
 -- This avoids breaking the FK to auth.users during initial migration.
@@ -498,6 +503,12 @@ FROM (VALUES
 -- full INSERT safely without embedding 901 rows of PII in source control.
 
 ) AS raw(idx, name, phone, photo, personal_email, created_at);
+
+
+-- Re-enable triggers now that student staging is complete.
+-- The FK to auth.users is intentionally left dropped here; it is re-added by
+-- the post-migration auth bootstrap script once auth.users rows exist.
+ALTER TABLE students ENABLE TRIGGER ALL;
 
 
 -- ===========================================================================

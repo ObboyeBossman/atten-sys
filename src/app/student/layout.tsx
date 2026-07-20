@@ -6,21 +6,16 @@ export const metadata: Metadata = {
   title: { default: "Student Portal", template: "%s | Student | ATTEN-SYS" },
 };
 
-const STUDENT_NAV = [
-  { label: "Dashboard", href: "/student/dashboard", icon: "dashboard" },
-  { label: "Attendance", href: "/student/attendance", icon: "check" },
-  { label: "Notifications", href: "/student/notifications", icon: "bell" },
-  { label: "Profile", href: "/student/profile", icon: "user" },
-] as const;
-
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
-  // Check if this student is also an active course rep so we can show the portal switcher
   let isRep = false;
+  let unreadCount = 0;
+
   try {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data } = await supabase
+      // Check course-rep status for portal switcher
+      const { data: repData } = await supabase
         .from("group_memberships")
         .select("id")
         .eq("student_id", user.id)
@@ -28,11 +23,26 @@ export default async function StudentLayout({ children }: { children: React.Reac
         .eq("status", "active")
         .limit(1)
         .maybeSingle();
-      isRep = !!data;
+      isRep = !!repData;
+
+      // Fetch unread notification count for nav badge
+      const { count } = await (supabase
+        .from("notifications") as any)
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+      unreadCount = count ?? 0;
     }
   } catch {
-    // If the check fails, silently fall back — student just won't see the switcher
+    // Silently fall back — badge just won't show
   }
+
+  const STUDENT_NAV = [
+    { label: "Dashboard", href: "/student/dashboard", icon: "dashboard" as const },
+    { label: "Attendance", href: "/student/attendance", icon: "check" as const },
+    { label: "Notifications", href: "/student/notifications", icon: "bell" as const, badge: unreadCount },
+    { label: "Profile", href: "/student/profile", icon: "user" as const },
+  ];
 
   return (
     <PortalLayout

@@ -38,7 +38,9 @@ export function CheckinFlow({
   };
 
   useEffect(() => {
-    return () => stopCamera();
+    return () => {
+      stream?.getTracks().forEach((track) => track.stop());
+    };
   }, [stream]);
 
   const handleStartGeolocation = () => {

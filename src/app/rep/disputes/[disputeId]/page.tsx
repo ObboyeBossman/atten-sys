@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -275,11 +276,12 @@ export default async function DisputeDetailPage({
             <h2 style={{ fontSize: "var(--text-base)", fontWeight: 700, marginBottom: "var(--space-4)" }}>
               Check-in selfie
             </h2>
-            <img
+            <Image
               src={attendance.selfiePath}
               alt={`${student.name}'s check-in selfie`}
+              width={120}
+              height={120}
               style={{
-                width: 120, height: 120,
                 borderRadius: "var(--radius-xl)",
                 objectFit: "cover",
                 border: "2px solid var(--color-border)",

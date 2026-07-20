@@ -45,7 +45,12 @@ git merge feat/<feature-name>
 git push origin main
 ```
 
-- Delete the feature branch after a successful merge.
+- Delete both the local and remote feature branch after a successful merge:
+
+```bash
+git branch -d feat/<feature-name>
+git push origin --delete feat/<feature-name>
+```
 - Work directly on `main` **only** for trivial, single-line fixes where a branch would add no value — and only if explicitly agreed.
 
 ---
@@ -97,7 +102,12 @@ git merge feat/<feature-name>
 git push origin main
 ```
 
-6. Delete the feature branch.
+6. Delete the feature branch locally and remotely:
+
+```bash
+git branch -d feat/<feature-name>
+git push origin --delete feat/<feature-name>
+```
 
 ### Summary
 

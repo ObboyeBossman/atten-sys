@@ -163,7 +163,7 @@ export default function DepartmentsPage() {
           placeholder="e.g. Department of Information Technology"
           value={formName}
           onChange={(e) => { setFormName(e.target.value); setFormError(null); }}
-          onKeyDown={(e) => { if (e.key === "Enter") editTarget ? handleEdit() : handleAdd(); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { if (editTarget) { handleEdit(); } else { handleAdd(); } } }}
           autoFocus
           disabled={!editTarget && faculties.length === 0}
         />

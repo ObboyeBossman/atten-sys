@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -175,6 +176,7 @@ export default function PromotePage() {
     setLoadingYears(false);
   }, [supabase, yearId]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadYears(); }, [loadYears]);
 
   // ── Step 1 → 2: load preview ────────────────────────────────────────────────
@@ -323,9 +325,9 @@ export default function PromotePage() {
             ) : years.length === 0 ? (
               <div className="alert alert-warning" style={{ fontSize: "var(--text-sm)" }}>
                 No other academic years found.{" "}
-                <a href="/admin/academic-years" style={{ color: "var(--color-secondary)", fontWeight: 600 }}>
+                <Link href="/admin/academic-years" style={{ color: "var(--color-secondary)", fontWeight: 600 }}>
                   Create one first →
-                </a>
+                </Link>
               </div>
             ) : (
               <select

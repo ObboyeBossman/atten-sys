@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -279,6 +280,7 @@ export default function AcademicYearDetailPage() {
     setLoading(false);
   }, [supabase, yearId]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   const activeGroups   = groups.filter((g) => !g.is_archived);
@@ -387,9 +389,9 @@ export default function AcademicYearDetailPage() {
       <div style={{ marginBottom: "var(--space-8)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-4)" }}>
           <h2 style={{ fontSize: "var(--text-base)", fontWeight: 700, color: "var(--color-text-1)" }}>Semesters</h2>
-          <a href="/admin/semesters" style={{ fontSize: "var(--text-xs)", color: "var(--color-secondary)", textDecoration: "none", fontWeight: 500 }}>
+          <Link href="/admin/semesters" style={{ fontSize: "var(--text-xs)", color: "var(--color-secondary)", textDecoration: "none", fontWeight: 500 }}>
             Manage semesters →
-          </a>
+          </Link>
         </div>
         <div className="card" style={{ overflow: "hidden", padding: 0 }}>
           {loading ? (
@@ -399,7 +401,7 @@ export default function AcademicYearDetailPage() {
               <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, marginBottom: "var(--space-1)" }}>No semesters yet</div>
               <p style={{ fontSize: "var(--text-xs)", margin: 0 }}>
                 Add semesters from the{" "}
-                <a href="/admin/semesters" style={{ color: "var(--color-secondary)" }}>Semesters page</a>
+                <Link href="/admin/semesters" style={{ color: "var(--color-secondary)" }}>Semesters page</Link>
               </p>
             </div>
           ) : semesters.map((sem, idx) => (
@@ -444,9 +446,9 @@ export default function AcademicYearDetailPage() {
       <div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-4)" }}>
           <h2 style={{ fontSize: "var(--text-base)", fontWeight: 700, color: "var(--color-text-1)" }}>Groups</h2>
-          <a href="/admin/groups" style={{ fontSize: "var(--text-xs)", color: "var(--color-secondary)", textDecoration: "none", fontWeight: 500 }}>
+          <Link href="/admin/groups" style={{ fontSize: "var(--text-xs)", color: "var(--color-secondary)", textDecoration: "none", fontWeight: 500 }}>
             Manage groups →
-          </a>
+          </Link>
         </div>
 
         {loading ? (
@@ -458,7 +460,7 @@ export default function AcademicYearDetailPage() {
             <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, marginBottom: "var(--space-1)" }}>No groups in this year</div>
             <p style={{ fontSize: "var(--text-xs)", margin: 0 }}>
               Create groups from the{" "}
-              <a href="/admin/groups" style={{ color: "var(--color-secondary)" }}>Groups page</a>
+              <Link href="/admin/groups" style={{ color: "var(--color-secondary)" }}>Groups page</Link>
             </p>
           </div>
         ) : (

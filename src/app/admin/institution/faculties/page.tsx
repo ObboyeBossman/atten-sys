@@ -78,6 +78,7 @@ export default function FacultiesPage() {
     setLoading(false);
   }, [supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   function openAdd() { setFormName(""); setFormError(null); setShowAdd(true); }

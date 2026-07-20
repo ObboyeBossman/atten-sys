@@ -28,7 +28,7 @@ export async function assignLecturerToCourse(
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (ctx.supabase as any)
     .from("courses")
     .update({ lecturer_id: lecturerId })

@@ -22,7 +22,7 @@ export async function updateProfile(input: {
   const name = input.name.trim();
   if (!name) return { error: "Name cannot be empty." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any)
     .from("lecturers")
     .update({ name, phone: input.phone?.trim() || null })

@@ -57,7 +57,7 @@ export async function addCourse(input: {
     return { error: `A course with code "${input.code}" already exists for this semester.` };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any).from("courses").insert({
     group_id: input.groupId,
     semester_id: input.semesterId,

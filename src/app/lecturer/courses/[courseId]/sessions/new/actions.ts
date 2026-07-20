@@ -52,7 +52,7 @@ export async function startSession({
   }
 
   // Create the session
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const sessionInsert = await (supabase as any)
     .from("class_sessions")
     .insert({
@@ -90,7 +90,7 @@ export async function startSession({
       geo_verified: false,
     }));
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (supabase as any).from("attendance").insert(attendanceRows);
     // Non-fatal: if this fails, check-ins will still create their own row via upsert
   }
@@ -136,7 +136,7 @@ export async function endSession(sessionId: string): Promise<{ error?: string }>
   const durationMs = Date.now() - new Date(sess.started_at).getTime();
   const durationMinutes = Math.max(1, Math.round(durationMs / 60000));
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any)
     .from("class_sessions")
     .update({

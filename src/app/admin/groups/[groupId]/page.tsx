@@ -163,7 +163,7 @@ export default function GroupDetailPage() {
   const params   = useParams();
   const router   = useRouter();
   const groupId  = params.groupId as string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const supabase = createSupabaseBrowserClient() as any;
 
   const [group,    setGroup]    = useState<Group | null>(null);
@@ -234,7 +234,7 @@ export default function GroupDetailPage() {
       setLoading(false); return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const g = grpRes.data as any;
     setGroup({
       id: g.id,
@@ -249,7 +249,7 @@ export default function GroupDetailPage() {
       is_current_year: !!g.academic_years?.is_current,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const mems: Student[] = (memRes.data ?? []).map((m: any) => ({
       id: m.student_id,
       name: m.students?.name ?? "Unknown",
@@ -260,7 +260,7 @@ export default function GroupDetailPage() {
     }));
     setStudents(mems);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const crs: Course[] = (crsRes.data ?? []).map((c: any) => ({
       id: c.id,
       name: c.name,
@@ -274,11 +274,11 @@ export default function GroupDetailPage() {
     }));
     setCourses(crs);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     setSemesters((semRes.data ?? []).map((s: any) => ({ id: s.id, name: s.name, status: s.status })));
     setLecturers(lecRes.data ?? []);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const activeSem = (semRes.data ?? []).find((s: any) => s.status === "active");
     if (activeSem && !cSemId) setCSemId(activeSem.id);
 

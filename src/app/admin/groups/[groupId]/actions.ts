@@ -34,7 +34,7 @@ export async function assignRep(
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const sb = ctx.supabase as any;
 
   if (replaceCurrentRepId) {
@@ -69,7 +69,7 @@ export async function unassignRep(
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (ctx.supabase as any)
     .from("group_memberships")
     .update({ is_course_rep: false })
@@ -91,7 +91,7 @@ export async function removeStudent(
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (ctx.supabase as any)
     .from("group_memberships")
     .update({ status: "removed", exited_at: new Date().toISOString(), is_course_rep: false })
@@ -127,7 +127,7 @@ export async function resetStudentPassword(
     return { error: "Failed to reset password. Please try again." };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: flagError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ must_change_password: true })
@@ -153,7 +153,7 @@ export async function resetGroupDefaultPassword(
     return { error: "Password must be at least 6 characters." };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (ctx.supabase as any)
     .from("groups_secrets")
     .update({ default_password: newPassword })
@@ -170,7 +170,7 @@ export async function archiveGroup(groupId: string): Promise<ActionResult> {
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (ctx.supabase as any)
     .from("groups")
     .update({ is_archived: true, archived_at: new Date().toISOString() })
@@ -199,7 +199,7 @@ export async function assignLecturer(
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (ctx.supabase as any)
     .from("courses")
     .update({ lecturer_id: lecturerId })
@@ -225,7 +225,7 @@ export async function createCourse(
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (ctx.supabase as any).from("courses").insert({
     group_id: groupId,
     semester_id: payload.semester_id,

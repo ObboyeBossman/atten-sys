@@ -38,7 +38,7 @@ export async function addTimetableEntry(input: {
     return { error: "End time must be after start time." };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any)
     .from("timetables")
     .insert({
@@ -91,7 +91,7 @@ export async function openSession(input: {
     return { error: `A session is already live for this course.` };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data, error } = await (supabase as any)
     .from("class_sessions")
     .insert({
@@ -141,7 +141,7 @@ export async function assignLecturer(input: {
     if (!lecturerCheck.data) return { error: "Lecturer not found." };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any)
     .from("courses")
     .update({

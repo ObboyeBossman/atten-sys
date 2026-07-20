@@ -65,7 +65,7 @@ export async function createLecturer(formData: {
   const newUserId = authData.user.id;
 
   // Step 2: insert into lecturers table (trigger creates user_profiles row)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: lecturerError } = await (ctx.supabase as any)
     .from("lecturers")
     .insert({
@@ -101,7 +101,7 @@ export async function editLecturer(
   if (!name.trim()) return { error: "Name is required." };
   if (!staff_id.trim()) return { error: "Staff ID is required." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: dbError } = await (ctx.supabase as any)
     .from("lecturers")
     .update({
@@ -128,7 +128,7 @@ export async function deactivateLecturer(lecturerId: string): Promise<ActionResu
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: dbError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ is_active: false })
@@ -148,7 +148,7 @@ export async function reactivateLecturer(lecturerId: string): Promise<ActionResu
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: dbError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ is_active: true, must_change_password: true })
@@ -186,7 +186,7 @@ export async function resetLecturerPassword(
   }
 
   // Force password change on next login
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: flagError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ must_change_password: true })

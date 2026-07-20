@@ -75,7 +75,7 @@ export async function updateSetting(
   // are maintained by the set_updated_at trigger and RLS-injected defaults.
   // We cast to `any` here so the runtime payload includes updated_by/updated_at,
   // matching the actual column types while bypassing the narrowed TS Update type.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: dbError } = await (supabase as any)
     .from("system_settings")
     .update({

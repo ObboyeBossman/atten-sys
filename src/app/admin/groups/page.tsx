@@ -97,7 +97,7 @@ function SkeletonCard() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function GroupsPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const supabase = createSupabaseBrowserClient() as any;
 
   const [groups, setGroups]     = useState<Group[]>([]);
@@ -158,7 +158,7 @@ export default function GroupsPage() {
       crsCount[c.group_id] = (crsCount[c.group_id] ?? 0) + 1;
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const mapped: Group[] = (grpRes.data ?? []).map((g: any) => ({
       id: g.id,
       group_name: g.group_name,
@@ -178,12 +178,12 @@ export default function GroupsPage() {
     }));
 
     setGroups(mapped);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     setYearOptions((yearRes.data ?? []).map((y: any) => ({ id: y.id, name: y.name })));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     setQualOptions((qtRes.data ?? []).map((q: any) => ({ id: q.id, name: `${q.code} — ${q.name}` })));
     setAllYears(yearRes.data ?? []);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     setAllQuals((qtRes.data ?? []).map((q: any) => ({ id: q.id, name: q.name, code: q.code })));
     setLoading(false);
   }, [supabase]);
@@ -199,7 +199,7 @@ export default function GroupsPage() {
       .select("id, name, sort_order")
       .eq("qualification_type_id", fQualId)
       .order("sort_order")
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .then(({ data }: any) => { setQualLevels(data ?? []); setFLevelId(""); });
   }, [fQualId, supabase]);
   /* eslint-enable react-hooks/set-state-in-effect */

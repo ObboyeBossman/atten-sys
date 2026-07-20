@@ -28,7 +28,7 @@ export async function closeSession(
   const groupId = await getRepGroupId(supabase);
   if (!groupId) return { error: "Could not resolve your group." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any).rpc("close_session", {
     p_session_id: sessionId,
     p_auto_ended: false,
@@ -59,7 +59,7 @@ export async function markAttendance(input: {
 
   if (input.existingAttendanceId) {
     // UPDATE existing row
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error } = await (supabase as any)
       .from("attendance")
       .update({ status: input.status })
@@ -67,7 +67,7 @@ export async function markAttendance(input: {
     if (error) return { error: error.message };
   } else {
     // INSERT new row
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error } = await (supabase as any)
       .from("attendance")
       .insert({

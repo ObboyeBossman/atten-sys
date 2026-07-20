@@ -33,7 +33,7 @@ export async function removeStudentFromGroup(
   if (!groupId) return { error: "Could not resolve your group." };
 
   // Cast to any to bypass Supabase never inference on chained .update().eq() 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any)
     .from("group_memberships")
     .update({ status: "removed", exited_at: new Date().toISOString() })

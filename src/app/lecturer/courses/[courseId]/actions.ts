@@ -47,7 +47,7 @@ export async function openSession(input: {
     .maybeSingle();
   if (liveCheck.data) return { error: "A session is already live for this course." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data, error } = await (supabase as any)
     .from("class_sessions")
     .insert({

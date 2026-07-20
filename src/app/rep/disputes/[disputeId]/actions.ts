@@ -36,7 +36,7 @@ export async function resolveDispute(input: {
   if (!user) return { error: "Not authenticated." };
 
   // Update the dispute
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: disputeError } = await (supabase as any)
     .from("attendance_disputes")
     .update({
@@ -51,7 +51,7 @@ export async function resolveDispute(input: {
 
   // If approved, update the attendance status
   if (input.action === "approved" && input.newStatus) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error: attError } = await (supabase as any)
       .from("attendance")
       .update({ status: input.newStatus })

@@ -38,7 +38,7 @@ export async function addStudentToGroup(
 
   type RpcRow = { outcome: AddOutcome; index_number: string; email: string };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data, error } = await (supabase as any).rpc("add_student_to_group", {
     p_group_id: groupId,
     p_serial: serial,

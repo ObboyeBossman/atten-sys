@@ -16,7 +16,7 @@ async function getSettings(): Promise<Setting[]> {
     updated_at: string;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data: rawRows, error } = await (supabase as any)
     .from("system_settings")
     .select("key, value, description, updated_by, updated_at")

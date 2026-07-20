@@ -45,7 +45,7 @@ export async function closeSession(
   const check = await verifyLecturerOwnsSession(supabase, sessionId);
   if (!check.authorized) return { error: "You are not authorized to close this session." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error } = await (supabase as any).rpc("close_session", {
     p_session_id: sessionId,
     p_auto_ended: false,
@@ -75,14 +75,14 @@ export async function markAttendance(input: {
   if (!check.authorized) return { error: "Not authorized to mark attendance for this session." };
 
   if (input.existingAttendanceId) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error } = await (supabase as any)
       .from("attendance")
       .update({ status: input.status })
       .eq("id", input.existingAttendanceId);
     if (error) return { error: error.message };
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { error } = await (supabase as any)
       .from("attendance")
       .insert({

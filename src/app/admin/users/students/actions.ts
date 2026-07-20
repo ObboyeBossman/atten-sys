@@ -30,7 +30,7 @@ export async function deactivateStudent(studentId: string): Promise<ActionResult
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: dbError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ is_active: false })
@@ -50,7 +50,7 @@ export async function reactivateStudent(studentId: string): Promise<ActionResult
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: dbError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ is_active: true, must_change_password: true })
@@ -89,7 +89,7 @@ export async function resetStudentPassword(
   }
 
   // Force password change on next login — reuse the already-authenticated client
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { error: flagError } = await (ctx.supabase as any)
     .from("user_profiles")
     .update({ must_change_password: true })

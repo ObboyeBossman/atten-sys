@@ -200,6 +200,7 @@ export default function AcademicYearsPage() {
     setLoading(false);
   }, [supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   // ── Helpers ───────────────────────────────────────────────────────────────

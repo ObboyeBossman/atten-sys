@@ -361,7 +361,7 @@ export default function LevelsPage() {
             placeholder="e.g. Level 100, HND 1, Year 1"
             value={formName}
             onChange={(e) => { setFormName(e.target.value); setFormError(null); }}
-            onKeyDown={(e) => { if (e.key === "Enter") isEdit ? handleEdit() : handleAdd(); }}
+            onKeyDown={(e) => { if (e.key === "Enter") { if (isEdit) { handleEdit(); } else { handleAdd(); } } }}
             autoFocus
             disabled={!isEdit && qualTypes.length === 0}
           />
@@ -376,7 +376,7 @@ export default function LevelsPage() {
             placeholder="1"
             value={formSortOrder}
             onChange={(e) => { setFormSortOrder(e.target.value); setFormError(null); }}
-            onKeyDown={(e) => { if (e.key === "Enter") isEdit ? handleEdit() : handleAdd(); }}
+            onKeyDown={(e) => { if (e.key === "Enter") { if (isEdit) { handleEdit(); } else { handleAdd(); } } }}
             style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}
             disabled={!isEdit && qualTypes.length === 0}
           />

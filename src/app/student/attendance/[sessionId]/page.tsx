@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { SessionDetailClient } from "@/components/attendance/SessionDetailClient";
 
 export const metadata: Metadata = { title: "Attendance Detail" };
 
@@ -23,21 +24,35 @@ export default async function AttendanceDetailPage(props: { params: Promise<{ se
     .eq("session_id", params.sessionId)
     .eq("student_id", user.id)
     .single();
-    
+
   const record = data as any;
 
   if (!record) {
     return (
       <div className="card text-center py-12 max-w-lg mx-auto mt-8">
         <h2 className="text-xl font-bold mb-2">Record Not Found</h2>
-        <p className="text-[var(--color-text-3)] mb-6">We couldn't find an attendance record for this session.</p>
+        <p className="text-[var(--color-text-3)] mb-6">We couldn&apos;t find an attendance record for this session.</p>
         <Link href="/student/dashboard" className="btn btn-primary">Return to Dashboard</Link>
       </div>
     );
   }
 
+  // Fetch dispute for this attendance record
+  const { data: disputeData } = await supabase
+    .from("attendance_disputes")
+    .select("id, status, reason, resolution_note, resolved_at")
+    .eq("attendance_id", record.id)
+    .maybeSingle();
+
+  const dispute = disputeData as any;
+
   const sessionObj = Array.isArray(record.class_sessions) ? record.class_sessions[0] : record.class_sessions;
   const courseObj = Array.isArray(sessionObj?.courses) ? sessionObj?.courses[0] : sessionObj?.courses;
+
+  // Session ended = ended_at is not null
+  const sessionEnded = sessionObj?.ended_at != null;
+  // Student can raise a dispute if: session ended, no existing dispute, status is absent or late
+  const canDispute = sessionEnded && !dispute && (record.status === "absent" || record.status === "late");
 
   return (
     <div className="max-w-xl mx-auto mt-8">
@@ -86,6 +101,14 @@ export default async function AttendanceDetailPage(props: { params: Promise<{ se
               {new Date(sessionObj?.started_at).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
             </span>
           </div>
+          {sessionObj?.ended_at && (
+            <div className="flex justify-between border-b border-[var(--color-border)] pb-3">
+              <span className="text-[var(--color-text-2)]">Session Ended</span>
+              <span className="font-medium text-right ml-4">
+                {new Date(sessionObj.ended_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between border-b border-[var(--color-border)] pb-3">
             <span className="text-[var(--color-text-2)]">Location GPS Verified</span>
             <span className="font-medium text-right ml-4 flex items-center justify-end gap-2">
@@ -102,8 +125,46 @@ export default async function AttendanceDetailPage(props: { params: Promise<{ se
           </div>
         </div>
 
+        {/* Session still live — no dispute option, prompt check-in */}
+        {!sessionEnded && record.status === 'absent' && (
+          <div style={{
+            marginTop: "var(--space-6)",
+            padding: "var(--space-4)",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--color-border)",
+            background: "var(--color-surface-2)",
+            textAlign: "center",
+          }}>
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", marginBottom: "var(--space-3)" }}>
+              This session is still in progress.
+            </p>
+            <Link
+              href={`/student/checkin/${params.sessionId}`}
+              className="btn btn-primary"
+              style={{ minHeight: 44 }}
+            >
+              Check in now
+            </Link>
+          </div>
+        )}
+
+        {/* Dispute section — client island */}
+        <SessionDetailClient
+          attendanceId={record.id}
+          canDispute={canDispute}
+          dispute={dispute ? {
+            id: dispute.id,
+            status: dispute.status,
+            reason: dispute.reason,
+            resolution_note: dispute.resolution_note ?? null,
+            resolved_at: dispute.resolved_at ?? null,
+          } : null}
+        />
+
         <div className="mt-8 text-center">
-          <Link href="/student/dashboard" className="btn btn-primary w-full justify-center">Return to Dashboard</Link>
+          <Link href="/student/attendance" className="btn btn-secondary w-full justify-center">
+            Back to Attendance History
+          </Link>
         </div>
       </div>
     </div>

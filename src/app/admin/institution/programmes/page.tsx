@@ -206,7 +206,7 @@ export default function ProgrammesPage() {
         <label className="label">Programme name</label>
         <input className="input" placeholder="e.g. Information Technology" value={formName}
           onChange={(e) => { setFormName(e.target.value); setFormError(null); }}
-          onKeyDown={(e) => { if (e.key === "Enter") isEdit ? handleEdit() : handleAdd(); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { if (isEdit) { handleEdit(); } else { handleAdd(); } } }}
           autoFocus disabled={!isEdit && departments.length === 0}
         />
       </div>

@@ -28,10 +28,25 @@ git config user.email "obboyebossman@gmail.com"
 
 ## Branching Strategy
 
-- Default: work directly on `main` unless explicitly instructed otherwise.
-- Create a separate branch **only if**:
-  - explicitly asked, or
-  - the session is approaching its context limit and the work is not yet stable.
+- **Never work directly on `main` for new features or serious edits.**
+- Create a feature branch at the start of every new feature or significant change:
+
+```bash
+git checkout -b feat/<feature-name>
+```
+
+- Work on that branch. Commit and push every file change to the feature branch as you go (see **Commit Cadence** below).
+- When the full feature or objective is complete, run build and all checks on the branch.
+- Only after all checks pass clean, merge into `main`:
+
+```bash
+git checkout main
+git merge feat/<feature-name>
+git push origin main
+```
+
+- Delete the feature branch after a successful merge.
+- Work directly on `main` **only** for trivial, single-line fixes where a branch would add no value — and only if explicitly agreed.
 
 ---
 
@@ -46,16 +61,16 @@ This is the **primary workflow rule** for all development on this project.
 ```bash
 git add <file>
 git commit -m "<type>(<scope>): <short description>"
-git push origin main
+git push origin feat/<feature-name>
 ```
 
 - Do not batch multiple file changes into one commit unless the changes are a single atomic unit (e.g., a component file and its co-located type file).
 - Each commit message must be meaningful and describe the exact change made to that file.
-- Push to `origin main` after every commit — no local-only commits during active development.
+- Push to the feature branch after every commit — no local-only commits during active development.
 
 ### After the full feature or objective is complete:
 
-Only once **all files for the feature have been committed and pushed** do you:
+Only once **all files for the feature have been committed and pushed to the feature branch** do you:
 
 1. Run the build:
 
@@ -63,7 +78,7 @@ Only once **all files for the feature have been committed and pushed** do you:
 npm run build
 ```
 
-2. Fix **every** build error that arises — committing and pushing each fix individually as you go.
+2. Fix **every** build error that arises — committing and pushing each fix to the feature branch individually as you go.
 
 3. Run lint and type-check if available:
 
@@ -74,14 +89,23 @@ npm run typecheck  # if present
 
 4. Fix any errors, committing and pushing each fix.
 
-5. Only when all checks pass clean is the feature considered done.
+5. Only when all checks pass clean, merge into `main` and push:
+
+```bash
+git checkout main
+git merge feat/<feature-name>
+git push origin main
+```
+
+6. Delete the feature branch.
 
 ### Summary
 
 | Phase | Action |
 |---|---|
-| Every file added or changed | Commit → Push immediately |
-| Full feature complete | Run build → Fix errors (commit each fix) → Run lint/typecheck → Fix errors (commit each fix) |
+| Start of feature | Create feature branch |
+| Every file added or changed | Commit → Push to feature branch immediately |
+| Full feature complete | Run build → Fix errors (commit each fix) → Run lint/typecheck → Fix errors (commit each fix) → Merge to `main` → Push |
 
 ---
 
@@ -151,17 +175,16 @@ Additionally, as Claude:
 If the session is approaching its context limit:
 
 1. Do **not** leave the repository mid-file or in an incoherent state.
-2. Finish the current file change, commit, and push it.
-3. If the feature is not yet complete, push all committed work to a **separate branch** (not `main`) so `main` remains stable.
-4. Run `npm run build` on the branch to confirm its current state.
-5. Leave a clear written summary covering:
+2. Finish the current file change, commit, and push it to the feature branch.
+3. Do **not** merge into `main` — the feature branch is the safe holding place.
+4. Leave a clear written summary covering:
    - What was completed
    - What files were committed and pushed
-   - What remains
+   - What remains before the branch can be merged
    - Assumptions made
-   - Recommended next steps
+   - Recommended next steps for the next session
 
-Every committed file should be pushed — never leave unpushed local commits at session end.
+Every committed file should be pushed to the feature branch — never leave unpushed local commits at session end.
 
 ---
 

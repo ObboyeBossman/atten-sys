@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { InstitutionCard, DetailPanel, DetailRow, DetailSection } from "@/components/layout/InstitutionCard";
 
@@ -234,7 +235,9 @@ export default function SemestersPage() {
     setLoading(false);
   }, [supabase]);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => { load(); }, [load]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -541,7 +544,7 @@ export default function SemestersPage() {
             <circle cx="8" cy="8" r="7" /><path d="M8 5v3M8 10v.5" />
           </svg>
           <span style={{ flex: 1 }}>You need at least one academic year before creating semesters.</span>
-          <a href="/admin/academic-years" className="btn btn-sm btn-secondary">Go to Academic Years</a>
+          <Link href="/admin/academic-years" className="btn btn-sm btn-secondary">Go to Academic Years</Link>
         </div>
       )}
 

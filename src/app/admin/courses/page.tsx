@@ -290,6 +290,7 @@ export default function CoursesPage() {
     setLoading(false);
   }, [supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   const visible = courses.filter((c) => {

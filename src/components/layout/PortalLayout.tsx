@@ -80,48 +80,15 @@ const ROLE_INITIALS: Record<string, string> = {
   student: "S",
 };
 
-export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, switchTo }: PortalLayoutProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
-  const roleColor = ROLE_COLORS[role];
-  const [drawerOpen, setDrawerOpen] = useState(false);
+// ── Hoisted sub-components (outside PortalLayout to avoid recreating on render) ──
 
-  // Close drawer on route change
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [pathname]);
+interface BrandMarkProps {
+  roleColor: string;
+  roleLabel: string;
+}
 
-  const [confirmSignOut, setConfirmSignOut] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
-
-  // Lock body scroll when drawer or dialog is open
-  useEffect(() => {
-    if (drawerOpen || confirmSignOut) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [drawerOpen, confirmSignOut]);
-
-  // Close dialog on Escape
-  useEffect(() => {
-    if (!confirmSignOut) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setConfirmSignOut(false); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [confirmSignOut]);
-
-  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
-
-  async function handleLogout() {
-    setSigningOut(true);
-    await supabase.auth.signOut();
-    router.replace("/login");
-  }
-
-  const BrandMark = () => (
+function BrandMark({ roleColor, roleLabel }: BrandMarkProps) {
+  return (
     <>
       <div className={styles.brandIcon}>
         <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
@@ -143,8 +110,21 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
       </div>
     </>
   );
+}
 
-  const NavLinks = () => (
+interface NavLinksProps {
+  navItems: readonly NavItem[];
+  pathname: string;
+  roleColor: string;
+  roleLabel: string;
+  role: string;
+  switchTo?: SwitchTarget;
+  closeDrawer: () => void;
+  onSignOut: () => void;
+}
+
+function NavLinks({ navItems, pathname, roleColor, roleLabel, role, switchTo, closeDrawer, onSignOut }: NavLinksProps) {
+  return (
     <>
       <nav className={styles.nav} aria-label={`${roleLabel} navigation`}>
         {navItems.map((item) => {
@@ -182,7 +162,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
         >
           {ROLE_INITIALS[role]}
         </div>
-        <button onClick={() => setConfirmSignOut(true)} className={styles.logoutBtn} title="Sign out">
+        <button onClick={onSignOut} className={styles.logoutBtn} title="Sign out">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
           </svg>
@@ -191,15 +171,70 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
       </div>
     </>
   );
+}
+
+export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, switchTo }: PortalLayoutProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+  const roleColor = ROLE_COLORS[role];
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Close drawer on route change
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  // Lock body scroll when drawer or dialog is open
+  useEffect(() => {
+    if (drawerOpen || confirmSignOut) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [drawerOpen, confirmSignOut]);
+
+  // Close dialog on Escape
+  useEffect(() => {
+    if (!confirmSignOut) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setConfirmSignOut(false); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [confirmSignOut]);
+
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  const openSignOut = useCallback(() => setConfirmSignOut(true), []);
+
+  async function handleLogout() {
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    router.replace("/login");
+  }
+
+  // Suppress intentional side-effect-only setState calls in effects above
+  // (setDrawerOpen in pathname effect is a controlled state reset, not a cascade)
 
   return (
     <div className={styles.root}>
       {/* ── Desktop sidebar ──────────────────────────────────────── */}
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
-          <BrandMark />
+          <BrandMark roleColor={roleColor} roleLabel={roleLabel} />
         </div>
-        <NavLinks />
+        <NavLinks
+          navItems={navItems}
+          pathname={pathname}
+          roleColor={roleColor}
+          roleLabel={roleLabel}
+          role={role}
+          switchTo={switchTo}
+          closeDrawer={closeDrawer}
+          onSignOut={openSignOut}
+        />
       </aside>
 
       {/* ── Mobile topbar ────────────────────────────────────────── */}
@@ -265,7 +300,16 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
             </svg>
           </button>
         </div>
-        <NavLinks />
+        <NavLinks
+          navItems={navItems}
+          pathname={pathname}
+          roleColor={roleColor}
+          roleLabel={roleLabel}
+          role={role}
+          switchTo={switchTo}
+          closeDrawer={closeDrawer}
+          onSignOut={openSignOut}
+        />
       </aside>
 
       {/* ── Main content ─────────────────────────────────────────── */}
@@ -323,7 +367,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
             </div>
             <h2 className={styles.dialogTitle} id="signout-title">Sign out?</h2>
             <p className={styles.dialogBody}>
-              You'll be returned to the login screen. Any unsaved work will be lost.
+              You&apos;ll be returned to the login screen. Any unsaved work will be lost.
             </p>
             <div className={styles.dialogActions}>
               <button

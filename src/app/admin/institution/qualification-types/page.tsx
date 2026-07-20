@@ -312,7 +312,7 @@ export default function QualificationTypesPage() {
           placeholder="e.g. Higher National Diploma"
           value={formName}
           onChange={(e) => { setFormName(e.target.value); setFormError(null); }}
-          onKeyDown={(e) => { if (e.key === "Enter") isEdit ? handleEdit() : handleAdd(); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { if (isEdit) { handleEdit(); } else { handleAdd(); } } }}
           autoFocus
           disabled={!isEdit && programmes.length === 0}
         />

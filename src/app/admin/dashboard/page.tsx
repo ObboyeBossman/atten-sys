@@ -205,6 +205,7 @@ export default async function AdminDashboard() {
               {data.liveSessions.map((session) => {
                 const course = session.courses as { name: string; code: string; groups: { group_name: string } | null } | null;
                 const startedAt = new Date(session.started_at);
+                // eslint-disable-next-line react-hooks/purity
                 const minutesAgo = Math.floor((Date.now() - startedAt.getTime()) / 60000);
                 const timeLabel = minutesAgo < 60
                   ? `${minutesAgo}m ago`

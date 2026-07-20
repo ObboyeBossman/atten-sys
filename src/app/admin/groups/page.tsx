@@ -188,8 +188,10 @@ export default function GroupsPage() {
     setLoading(false);
   }, [supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!fQualId) { setQualLevels([]); setFLevelId(""); return; }
     supabase
@@ -200,6 +202,7 @@ export default function GroupsPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then(({ data }: any) => { setQualLevels(data ?? []); setFLevelId(""); });
   }, [fQualId, supabase]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // ── Filtered ──────────────────────────────────────────────────────────────
 

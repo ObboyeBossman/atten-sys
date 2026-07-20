@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import {
@@ -285,6 +286,7 @@ export default function GroupDetailPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId, supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   // ── Computed ─────────────────────────────────────────────────────────────────
@@ -423,7 +425,7 @@ export default function GroupDetailPage() {
     return (
       <div className="card" style={{ textAlign: "center", padding: "var(--space-16)" }}>
         <h2 style={{ marginBottom: "var(--space-4)" }}>Group not found</h2>
-        <a href="/admin/groups" className="btn btn-secondary">Back to Groups</a>
+        <Link href="/admin/groups" className="btn btn-secondary">Back to Groups</Link>
       </div>
     );
   }
@@ -433,11 +435,11 @@ export default function GroupDetailPage() {
       {/* ── Page header ── */}
       <div className="page-header">
         <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-4)" }}>
-          <a href="/admin/groups" className="btn btn-ghost btn-icon" title="Back to groups" style={{ marginTop: 4, flexShrink: 0 }}>
+          <Link href="/admin/groups" className="btn btn-ghost btn-icon" title="Back to groups" style={{ marginTop: 4, flexShrink: 0 }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
               <path d="M10 3L4 8l6 5" />
             </svg>
-          </a>
+          </Link>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", flexWrap: "wrap" }}>
               <h1 className="page-title">{group.group_name}</h1>

@@ -90,6 +90,7 @@ export default function DepartmentsPage() {
     setLoading(false);
   }, [supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   function openAdd() { setFormName(""); setFormFacId(faculties[0]?.id ?? ""); setFormError(null); setShowAdd(true); }

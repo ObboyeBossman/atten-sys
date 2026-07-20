@@ -194,6 +194,7 @@ export default function QualificationTypesPage() {
     setLoading(false);
   }, [supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   // ── Modal helpers ─────────────────────────────────────────────────────────

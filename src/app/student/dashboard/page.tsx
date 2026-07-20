@@ -320,9 +320,11 @@ export default async function StudentDashboardPage() {
               const courseName = course?.name ?? "Unknown course";
               const courseCode = course?.code ?? "—";
               const startTime = formatTime(session.started_at);
+              /* eslint-disable react-hooks/purity */
               const elapsed = Math.floor(
                 (Date.now() - new Date(session.started_at).getTime()) / 60000
               );
+              /* eslint-enable react-hooks/purity */
               const elapsedLabel =
                 elapsed < 60 ? `${elapsed}m elapsed` : `${Math.floor(elapsed / 60)}h ${elapsed % 60}m elapsed`;
 

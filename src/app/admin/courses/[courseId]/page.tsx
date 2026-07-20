@@ -305,6 +305,7 @@ export default function CourseDetailPage() {
     setLoading(false);
   }, [courseId, supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
   // Overall attendance rate across all sessions

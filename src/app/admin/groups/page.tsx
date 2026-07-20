@@ -188,8 +188,10 @@ export default function GroupsPage() {
     setLoading(false);
   }, [supabase]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!fQualId) { setQualLevels([]); setFLevelId(""); return; }
     supabase

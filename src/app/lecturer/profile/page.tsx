@@ -13,12 +13,14 @@ async function getData() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: lecturer } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: lecturerRaw } = await (supabase as any)
     .from("lecturers")
     .select("name, staff_id, phone")
     .eq("id", user.id)
     .maybeSingle();
 
+  const lecturer = lecturerRaw as { name: string; staff_id: string; phone: string | null } | null;
   if (!lecturer) redirect("/login");
 
   return {

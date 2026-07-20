@@ -47,8 +47,9 @@ async function getData(courseId: string) {
     .is("ended_at", null)
     .maybeSingle();
 
-  if (liveCheck.data) {
-    redirect(`/lecturer/sessions/${liveCheck.data.id}`);
+  const liveData = liveCheck.data as { id: string } | null;
+  if (liveData) {
+    redirect(`/lecturer/sessions/${liveData.id}`);
   }
 
   // Active semester

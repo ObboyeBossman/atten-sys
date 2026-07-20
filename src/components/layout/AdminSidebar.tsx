@@ -138,55 +138,18 @@ const BrandMark = () => (
   </>
 );
 
-export function AdminSidebar() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+interface NavContentProps {
+  pathname: string;
+  closeDrawer: () => void;
+  onSignOutClick: () => void;
+}
 
-  // Close on route change
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [pathname]);
-
-  // Lock body scroll when drawer open
-  useEffect(() => {
-    if (drawerOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [drawerOpen]);
-
-  const [confirmSignOut, setConfirmSignOut] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
-
-  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
-
-  // Close dialog on Escape
-  useEffect(() => {
-    if (!confirmSignOut) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setConfirmSignOut(false); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [confirmSignOut]);
-
-  async function handleLogout() {
-    setSigningOut(true);
-    await supabase.auth.signOut();
-    router.replace("/login");
-  }
-
-  const NavContent = () => (
+function NavContent({ pathname, closeDrawer, onSignOutClick }: NavContentProps) {
+  return (
     <>
       {/* Navigation */}
       <nav className={styles.nav} aria-label="Admin navigation">
         {NAV_ITEMS.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            ("children" in item &&
-              item.children?.some((c) => pathname.startsWith(c.href)));
           const isParentActive = pathname.startsWith(item.href.split("/").slice(0, 3).join("/"));
 
           return (
@@ -225,7 +188,7 @@ export function AdminSidebar() {
           <span className={styles.profileName}>Admin</span>
         </Link>
         <button
-          onClick={() => setConfirmSignOut(true)}
+          onClick={onSignOutClick}
           className={styles.logoutBtn}
           title="Sign out"
         >
@@ -236,6 +199,49 @@ export function AdminSidebar() {
       </div>
     </>
   );
+}
+
+export function AdminSidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Close on route change
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Lock body scroll when drawer open
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [drawerOpen]);
+
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+
+  // Close dialog on Escape
+  useEffect(() => {
+    if (!confirmSignOut) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setConfirmSignOut(false); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [confirmSignOut]);
+
+  async function handleLogout() {
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    router.replace("/login");
+  }
 
   return (
     <>
@@ -244,7 +250,7 @@ export function AdminSidebar() {
         <div className={styles.brand}>
           <BrandMark />
         </div>
-        <NavContent />
+        <NavContent pathname={pathname} closeDrawer={closeDrawer} onSignOutClick={() => setConfirmSignOut(true)} />
       </aside>
 
       {/* ── Mobile topbar ────────────────────────────────────────── */}
@@ -293,7 +299,7 @@ export function AdminSidebar() {
             </svg>
           </button>
         </div>
-        <NavContent />
+        <NavContent pathname={pathname} closeDrawer={closeDrawer} onSignOutClick={() => setConfirmSignOut(true)} />
       </aside>
 
       {/* ── Sign-out confirmation dialog ─────────────────────────── */}

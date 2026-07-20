@@ -51,6 +51,8 @@ interface NavItem {
   label: string;
   href: string;
   icon: NavIcon;
+  /** Optional unread/alert count shown as a badge on the nav icon */
+  badge?: number;
 }
 
 interface SwitchTarget {
@@ -137,8 +139,32 @@ function NavLinks({ navItems, pathname, roleColor, roleLabel, role, switchTo, cl
               className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
               style={isActive ? { "--role-color": roleColor } as React.CSSProperties : undefined}
             >
-              <span className={styles.navIcon}>
+              <span className={styles.navIcon} style={{ position: "relative" }}>
                 <Icon name={item.icon} size={18} />
+                {!!item.badge && item.badge > 0 && (
+                  <span
+                    aria-label={`${item.badge} unread`}
+                    style={{
+                      position: "absolute",
+                      top: -4,
+                      right: -6,
+                      minWidth: 16,
+                      height: 16,
+                      borderRadius: "var(--radius-full)",
+                      background: "var(--color-primary)",
+                      color: "#fff",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "0 4px",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
               </span>
               <span>{item.label}</span>
             </Link>
@@ -329,7 +355,33 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
               className={`${styles.bottomNavItem} ${isActive ? styles.bottomNavItemActive : ""}`}
               style={isActive ? { "--role-color": roleColor } as React.CSSProperties : undefined}
             >
-              <Icon name={item.icon} size={20} />
+              <span style={{ position: "relative", display: "inline-flex" }}>
+                <Icon name={item.icon} size={20} />
+                {!!item.badge && item.badge > 0 && (
+                  <span
+                    aria-label={`${item.badge} unread`}
+                    style={{
+                      position: "absolute",
+                      top: -4,
+                      right: -6,
+                      minWidth: 16,
+                      height: 16,
+                      borderRadius: "var(--radius-full)",
+                      background: "var(--color-primary)",
+                      color: "#fff",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "0 4px",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
+              </span>
               <span>{item.label}</span>
             </Link>
           );

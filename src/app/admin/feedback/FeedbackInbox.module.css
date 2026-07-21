@@ -1,0 +1,209 @@
+/* ── Filter bar ──────────────────────────────────────────────────────────────── */
+.filterBar {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.filterBtn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-2);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.filterBtn:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.filterBtnActive {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+/* ── Row ──────────────────────────────────────────────────────────────────────── */
+.row {
+  transition: background 0.12s;
+}
+.row:hover {
+  background: var(--color-surface-2);
+}
+.rowUnread {
+  background: color-mix(in srgb, var(--color-primary) 4%, transparent);
+}
+.rowUnread:hover {
+  background: color-mix(in srgb, var(--color-primary) 7%, transparent);
+}
+
+.rowHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.unreadDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.sentimentEmoji {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.rowMeta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rowTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowSub {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.roleBadge {
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.roleBadge[data-role="student"] {
+  background: color-mix(in srgb, var(--color-info) 12%, transparent);
+  color: var(--color-info);
+  border: 1px solid color-mix(in srgb, var(--color-info) 20%, transparent);
+}
+.roleBadge[data-role="lecturer"] {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+.anonBadge {
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--color-surface-3);
+  color: var(--color-text-3);
+  border: 1px solid var(--color-border);
+}
+
+.stars {
+  display: flex;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-3);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* ── Expanded body ─────────────────────────────────────────────────────────────── */
+.rowBody {
+  padding: 0 var(--space-5) var(--space-5) calc(var(--space-5) + 7px + var(--space-3) + 20px + var(--space-3));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  animation: expandIn 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes expandIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.bodySection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.bodyLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-3);
+}
+
+.bodyText {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.bodyMeta {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12);
+  color: var(--color-text-3);
+  font-size: var(--text-sm);
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .rowHeader {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-2);
+  }
+  .stars {
+    display: none;
+  }
+  .rowBody {
+    padding: 0 var(--space-4) var(--space-4) var(--space-4);
+  }
+}

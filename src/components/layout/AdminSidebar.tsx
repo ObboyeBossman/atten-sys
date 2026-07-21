@@ -79,6 +79,7 @@ const NAV_ITEMS = [
     children: [
       { label: "Students", href: "/admin/users/students" },
       { label: "Lecturers", href: "/admin/users/lecturers" },
+      { label: "Super Admins", href: "/admin/users/admins" },
     ],
   },
   {
@@ -142,9 +143,10 @@ interface NavContentProps {
   pathname: string;
   closeDrawer: () => void;
   onSignOutClick: () => void;
+  adminName?: string;
 }
 
-function NavContent({ pathname, closeDrawer, onSignOutClick }: NavContentProps) {
+function NavContent({ pathname, closeDrawer, onSignOutClick, adminName }: NavContentProps) {
   return (
     <>
       {/* Navigation */}
@@ -184,8 +186,10 @@ function NavContent({ pathname, closeDrawer, onSignOutClick }: NavContentProps) 
       {/* Footer */}
       <div className={styles.sidebarFooter}>
         <Link href="/admin/profile" className={styles.profileLink} onClick={closeDrawer}>
-          <div className={`avatar ${styles.profileAvatar}`}>A</div>
-          <span className={styles.profileName}>Admin</span>
+          <div className={`avatar ${styles.profileAvatar}`}>
+            {adminName ? adminName.charAt(0).toUpperCase() : "A"}
+          </div>
+          <span className={styles.profileName}>{adminName ?? "Admin"}</span>
         </Link>
         <button
           onClick={onSignOutClick}
@@ -206,6 +210,23 @@ export function AdminSidebar() {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [adminName, setAdminName] = useState<string | undefined>(undefined);
+
+  // Fetch the logged-in admin's name once on mount
+  useEffect(() => {
+    async function fetchName() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await (supabase as any)
+        .from("super_admins")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+      if (data?.name) setAdminName(data.name);
+    }
+    fetchName();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Close on route change
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -250,7 +271,7 @@ export function AdminSidebar() {
         <div className={styles.brand}>
           <BrandMark />
         </div>
-        <NavContent pathname={pathname} closeDrawer={closeDrawer} onSignOutClick={() => setConfirmSignOut(true)} />
+        <NavContent pathname={pathname} closeDrawer={closeDrawer} onSignOutClick={() => setConfirmSignOut(true)} adminName={adminName} />
       </aside>
 
       {/* ── Mobile topbar ────────────────────────────────────────── */}
@@ -299,7 +320,7 @@ export function AdminSidebar() {
             </svg>
           </button>
         </div>
-        <NavContent pathname={pathname} closeDrawer={closeDrawer} onSignOutClick={() => setConfirmSignOut(true)} />
+        <NavContent pathname={pathname} closeDrawer={closeDrawer} onSignOutClick={() => setConfirmSignOut(true)} adminName={adminName} />
       </aside>
 
       {/* ── Sign-out confirmation dialog ─────────────────────────── */}

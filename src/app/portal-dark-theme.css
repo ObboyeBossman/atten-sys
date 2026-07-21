@@ -1,0 +1,297 @@
+/* ============================================================
+   ATTEN-SYS — Sub-Portal Dark Mode Theme
+   Scoped to [data-portal="portal-dark"].
+   Used by: Lecturer, Student, Course Rep portals.
+   Zero bleed into Admin portal or global styles.
+   ============================================================
+
+   Design rationale
+   ----------------
+   Matches the admin dark palette: pure black canvas, charcoal
+   surfaces, strictly greyscale with brand-red as the single
+   colour accent. Consistent across all portals so users feel
+   at home regardless of which role they're logged in as.
+   ============================================================ */
+
+/* ── Core palette ─────────────────────────────────────────── */
+[data-portal="portal-dark"] {
+  /* Canvas */
+  --color-bg:           #0D0D0D;
+  --color-bg-secondary: #111111;
+
+  /* Surfaces */
+  --color-surface:      #1A1A1A;
+  --color-surface-2:    #212121;
+  --color-surface-3:    #2A2A2A;
+
+  /* Borders */
+  --color-border:       rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.15);
+
+  /* Brand red */
+  --color-primary:      #C0111B;
+  --color-primary-dark: #9d0a12;
+  --color-primary-glow: rgba(192, 17, 27, 0.30);
+
+  /* Blue secondary */
+  --color-secondary:      #3b82f6;
+  --color-secondary-dark: #2563eb;
+
+  /* Semantic */
+  --color-success:    #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.10);
+  --color-warning:    #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.10);
+  --color-danger:     #ef4444;
+  --color-danger-bg:  rgba(239, 68, 68, 0.10);
+  --color-info:       #38bdf8;
+  --color-info-bg:    rgba(56, 189, 248, 0.10);
+
+  /* Attendance status */
+  --color-present:    #22c55e;
+  --color-present-bg: rgba(34, 197, 94, 0.10);
+  --color-late:       #f59e0b;
+  --color-late-bg:    rgba(245, 158, 11, 0.10);
+  --color-absent:     #ef4444;
+  --color-absent-bg:  rgba(239, 68, 68, 0.10);
+
+  /* Text */
+  --color-text:         #F0F0F0;
+  --color-text-2:       #A0A0A0;
+  --color-text-3:       #606060;
+  --color-text-inverse: #0D0D0D;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 6px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.4);
+  --shadow-lg:  0 10px 15px rgba(0,0,0,0.7), 0 4px 6px rgba(0,0,0,0.5);
+  --shadow-xl:  0 20px 25px rgba(0,0,0,0.7), 0 10px 10px rgba(0,0,0,0.5);
+  --shadow-glow:0 0 20px var(--color-primary-glow);
+}
+
+/* ── Root background ──────────────────────────────────────── */
+[data-portal="portal-dark"] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  color-scheme: dark;
+}
+
+/* ── Sidebar / navigation shell ───────────────────────────── */
+[data-portal="portal-dark"] aside,
+[data-portal="portal-dark"] .sidebar {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+/* ── Mobile topbar ────────────────────────────────────────── */
+[data-portal="portal-dark"] header {
+  background: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+/* ── Bottom nav ───────────────────────────────────────────── */
+[data-portal="portal-dark"] nav[aria-label="Mobile navigation"] {
+  background: var(--color-bg-secondary);
+  border-top-color: var(--color-border);
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+[data-portal="portal-dark"] .card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal="portal-dark"] .card:hover {
+  border-color: var(--color-border-hover);
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+[data-portal="portal-dark"] .btn-secondary {
+  background: var(--color-surface-2);
+  border-color: var(--color-border);
+  color: var(--color-text-2);
+}
+
+[data-portal="portal-dark"] .btn-secondary:hover {
+  background: var(--color-surface-3);
+  border-color: var(--color-border-hover);
+  color: var(--color-text);
+}
+
+[data-portal="portal-dark"] .btn-ghost {
+  color: var(--color-text-3);
+}
+
+[data-portal="portal-dark"] .btn-ghost:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+/* ── Input ────────────────────────────────────────────────── */
+[data-portal="portal-dark"] .input,
+[data-portal="portal-dark"] .select,
+[data-portal="portal-dark"] .textarea {
+  background: var(--color-surface-2);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-portal="portal-dark"] .input:focus,
+[data-portal="portal-dark"] .select:focus,
+[data-portal="portal-dark"] .textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+[data-portal="portal-dark"] .input::placeholder,
+[data-portal="portal-dark"] .textarea::placeholder {
+  color: var(--color-text-3);
+}
+
+/* ── Table ────────────────────────────────────────────────── */
+[data-portal="portal-dark"] .table-container {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+[data-portal="portal-dark"] thead tr {
+  border-bottom-color: var(--color-border);
+  background: var(--color-surface-2);
+}
+
+[data-portal="portal-dark"] thead th {
+  color: var(--color-text-3);
+}
+
+[data-portal="portal-dark"] tbody tr {
+  border-bottom-color: var(--color-border);
+}
+
+[data-portal="portal-dark"] tbody tr:hover {
+  background: var(--color-surface-2);
+}
+
+[data-portal="portal-dark"] tbody td {
+  color: var(--color-text-2);
+}
+
+/* ── Badges ───────────────────────────────────────────────── */
+[data-portal="portal-dark"] .badge-neutral {
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+}
+
+[data-portal="portal-dark"] .badge-primary {
+  background: rgba(192, 17, 27, 0.15);
+  color: var(--color-primary);
+}
+
+[data-portal="portal-dark"] .badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+[data-portal="portal-dark"] .badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+[data-portal="portal-dark"] .badge-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+[data-portal="portal-dark"] .badge-info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* ── Skeleton ─────────────────────────────────────────────── */
+[data-portal="portal-dark"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 25%,
+    var(--color-surface-3) 50%,
+    var(--color-surface-2) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ── Alerts ───────────────────────────────────────────────── */
+[data-portal="portal-dark"] .alert-error {
+  background: var(--color-danger-bg);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: var(--color-danger);
+}
+
+[data-portal="portal-dark"] .alert-success {
+  background: var(--color-success-bg);
+  border-color: rgba(34, 197, 94, 0.25);
+  color: var(--color-success);
+}
+
+[data-portal="portal-dark"] .alert-warning {
+  background: var(--color-warning-bg);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: var(--color-warning);
+}
+
+[data-portal="portal-dark"] .alert-info {
+  background: var(--color-info-bg);
+  border-color: rgba(56, 189, 248, 0.25);
+  color: var(--color-info);
+}
+
+/* ── Modal ────────────────────────────────────────────────── */
+[data-portal="portal-dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.80);
+  backdrop-filter: blur(4px);
+}
+
+[data-portal="portal-dark"] .modal-box {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xl);
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+[data-portal="portal-dark"] .divider {
+  background: var(--color-border);
+}
+
+/* ── Page header ──────────────────────────────────────────── */
+[data-portal="portal-dark"] .page-title {
+  color: var(--color-text);
+}
+
+[data-portal="portal-dark"] .page-subtitle {
+  color: var(--color-text-3);
+}
+
+/* ── Focus ring ───────────────────────────────────────────── */
+[data-portal="portal-dark"] :focus-visible {
+  outline-color: var(--color-primary);
+}
+
+/* ── Stat card ────────────────────────────────────────────── */
+[data-portal="portal-dark"] .stat-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-portal="portal-dark"] .stat-card-value {
+  color: var(--color-text);
+}
+
+[data-portal="portal-dark"] .stat-card-sub {
+  color: var(--color-text-3);
+}
+
+/* ── Print ────────────────────────────────────────────────── */
+@media print {
+  [data-portal="portal-dark"] {
+    background: #fff;
+    color: #000;
+  }
+}

@@ -139,7 +139,7 @@ export function CourseDetailClient({ courseId, groupId, lecturers, currentLectur
           </div>
         )}
 
-        <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "flex-end" }}>
+        <div className="lecturer-assign-row" style={{ display: "flex", gap: "var(--space-3)", alignItems: "flex-end" }}>
           <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
             <label className="form-label" htmlFor="lecturer-select">
               Lecturer
@@ -357,6 +357,21 @@ export function CourseDetailClient({ courseId, groupId, lecturers, currentLectur
           </div>
         )}
       </div>
+
+      <style>{`
+        /* Stack lecturer select + save button on mobile */
+        @media (max-width: 479px) {
+          .lecturer-assign-row {
+            flex-direction: column;
+            align-items: stretch !important;
+          }
+          .lecturer-assign-row .btn {
+            width: 100%;
+            justify-content: center;
+            min-height: 44px;
+          }
+        }
+      `}</style>
     </>
   );
 }

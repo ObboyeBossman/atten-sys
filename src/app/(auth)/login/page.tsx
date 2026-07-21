@@ -154,6 +154,8 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [transitioning, setTransitioning] = useState(false);
+  const [destLabel, setDestLabel] = useState("Loading your portal…");
 
   // Alert banner state
   const [alert, setAlert] = useState<{ show: boolean; type: AlertType; message: string }>({
@@ -235,7 +237,14 @@ export default function LoginPage() {
         student: "/student/dashboard",
       };
 
+      const labelMap: Record<string, string> = {
+        super_admin: "Opening Admin Portal…",
+        lecturer: "Opening Lecturer Portal…",
+        student: "Opening Student Portal…",
+      };
+
       let destination = portalMap[p.role] ?? "/login";
+      let label = labelMap[p.role] ?? "Loading your portal…";
 
       // Reps share the 'student' role — check if they're an active course rep
       // and route them to the rep portal instead
@@ -251,11 +260,19 @@ export default function LoginPage() {
 
         if (repMembership) {
           destination = "/rep/dashboard";
+          label = "Opening Class Rep Portal…";
         }
       }
 
-      router.replace(destination);
-      router.refresh();
+      // ── Show the transition overlay before the router takes over ──
+      setDestLabel(label);
+      setTransitioning(true);
+
+      // Small rAF ensures the CSS transition fires (overlay becomes visible)
+      // before router.replace kicks off the navigation.
+      requestAnimationFrame(() => {
+        router.replace(destination);
+      });
     } finally {
       setLoading(false);
     }
@@ -263,6 +280,49 @@ export default function LoginPage() {
 
   return (
     <>
+      {/* ── Post-auth transition overlay ──────────────────── */}
+      <div
+        className={`${styles.transitionOverlay} ${transitioning ? styles.visible : ""}`}
+        role="status"
+        aria-live="polite"
+        aria-label="Authentication successful, redirecting"
+      >
+        {/* Spinning logo ring */}
+        <div className={styles.transitionLogoRing}>
+          <Image
+            src="/atten_sys_icon_logo.svg"
+            alt=""
+            width={48}
+            height={48}
+            className={styles.transitionLogo}
+            aria-hidden="true"
+          />
+        </div>
+
+        {/* Notification card — same visual language as AlertBanner */}
+        <div className={styles.transitionCard}>
+          <span className={styles.transitionCardIcon} aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </span>
+          <div className={styles.transitionCardBody}>
+            <p className={styles.transitionCardTitle}>Authentication Successful</p>
+            <p className={styles.transitionCardMsg}>
+              Identity verified. Preparing your workspace.
+            </p>
+          </div>
+        </div>
+
+        {/* Indeterminate progress bar */}
+        <div className={styles.transitionProgress} aria-hidden="true">
+          <div className={styles.transitionProgressBar} />
+        </div>
+
+        <span className={styles.transitionDestLabel}>{destLabel}</span>
+      </div>
+
       {/* Alert banner */}
       <AlertBanner
         show={alert.show}

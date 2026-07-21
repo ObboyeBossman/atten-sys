@@ -97,10 +97,14 @@ export function NoticeBanner() {
   const [mounted, setMounted] = useState(false);
   const stackRef = useRef<HTMLDivElement>(null);
 
-  // Hydrate dismissed set from sessionStorage after mount
+  // Hydrate dismissed set from sessionStorage after mount.
+  // setState here is safe: this effect runs once to sync server→client state
+  // from sessionStorage, which is unavailable during SSR.
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setDismissed(getDismissed());
     setMounted(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   // Offline detection

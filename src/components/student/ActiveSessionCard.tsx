@@ -62,13 +62,22 @@ export default function ActiveSessionCard({ studentId, groupIds, courseIds }: Pr
       const supabase = createSupabaseBrowserClient();
 
       /* 1. Fetch live sessions for student's courses */
-      const { data: rawSessions, error: sessErr } = await supabase
+      type RawSession = {
+        id: string;
+        started_at: string;
+        venue: string | null;
+        courses: { id: string; name: string; code: string } | null;
+      };
+      const { data: rawSessions, error: sessErr } = await (supabase
         .from("class_sessions")
         .select(`id, started_at, venue, courses(id, name, code)`)
         .in("course_id", courseIds)
-        .is("ended_at", null);
+        .is("ended_at", null) as unknown as Promise<{
+          data: RawSession[] | null;
+          error: { message: string } | null;
+        }>);
 
-      if (sessErr) throw sessErr;
+      if (sessErr) throw new Error(sessErr.message);
       if (!rawSessions || rawSessions.length === 0) {
         setState("empty");
         return;
@@ -76,25 +85,24 @@ export default function ActiveSessionCard({ studentId, groupIds, courseIds }: Pr
 
       /* 2. Check which sessions the student already checked in to */
       const sessionIds = rawSessions.map((s) => s.id);
-      const { data: myAtt } = await supabase
+      const { data: myAtt } = await (supabase
         .from("attendance")
         .select("session_id")
         .in("session_id", sessionIds)
-        .eq("student_id", studentId);
+        .eq("student_id", studentId) as unknown as Promise<{
+          data: { session_id: string }[] | null;
+        }>);
 
       const checkedIn = new Set((myAtt ?? []).map((a) => a.session_id));
 
-      const mapped: LiveSession[] = rawSessions.map((s) => {
-        const course = Array.isArray(s.courses) ? s.courses[0] : s.courses;
-        return {
-          id: s.id,
-          started_at: s.started_at,
-          venue: s.venue ?? null,
-          isCheckedIn: checkedIn.has(s.id),
-          courseName: (course as { name: string } | null)?.name ?? "Unknown course",
-          courseCode: (course as { code: string } | null)?.code ?? "—",
-        };
-      });
+      const mapped: LiveSession[] = rawSessions.map((s) => ({
+        id: s.id,
+        started_at: s.started_at,
+        venue: s.venue ?? null,
+        isCheckedIn: checkedIn.has(s.id),
+        courseName: s.courses?.name ?? "Unknown course",
+        courseCode: s.courses?.code ?? "—",
+      }));
 
       setSessions(mapped);
       setState("session");

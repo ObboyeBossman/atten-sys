@@ -160,7 +160,7 @@ CREATE TRIGGER trg_stamp_lecturer_assigned_at
 CREATE OR REPLACE FUNCTION log_lecturer_reassignment()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.lecturer_id IS NOT NULL
@@ -238,7 +238,7 @@ CREATE TRIGGER trg_prevent_archive_with_active_members
 CREATE OR REPLACE FUNCTION push_session_notifications()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     v_group_id      uuid;
@@ -308,7 +308,7 @@ CREATE TRIGGER trg_session_created
 CREATE OR REPLACE FUNCTION dismiss_on_checkin()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     UPDATE notifications
@@ -338,7 +338,7 @@ CREATE TRIGGER trg_dismiss_on_checkin
 CREATE OR REPLACE FUNCTION audit_student_insert()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     PERFORM write_audit_log(
@@ -362,7 +362,7 @@ CREATE TRIGGER trg_audit_student_insert
 CREATE OR REPLACE FUNCTION audit_student_deactivated()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.is_active = true AND NEW.is_active = false
@@ -389,7 +389,7 @@ CREATE TRIGGER trg_audit_student_deactivated
 CREATE OR REPLACE FUNCTION audit_rep_change()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.is_course_rep = false AND NEW.is_course_rep = true THEN
@@ -431,7 +431,7 @@ CREATE TRIGGER trg_audit_rep_change
 CREATE OR REPLACE FUNCTION audit_membership_status_change()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.status = 'active' AND NEW.status = 'promoted' THEN
@@ -465,7 +465,7 @@ CREATE TRIGGER trg_audit_membership_status
 CREATE OR REPLACE FUNCTION audit_course_insert()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     PERFORM write_audit_log(
@@ -494,7 +494,7 @@ CREATE TRIGGER trg_audit_course_insert
 CREATE OR REPLACE FUNCTION audit_course_lecturer_change()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     v_action text;
@@ -536,7 +536,7 @@ CREATE TRIGGER trg_audit_course_lecturer
 CREATE OR REPLACE FUNCTION audit_session_opened()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     PERFORM write_audit_log(
@@ -564,7 +564,7 @@ CREATE TRIGGER trg_audit_session_opened
 CREATE OR REPLACE FUNCTION audit_session_closed()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.ended_at IS NULL AND NEW.ended_at IS NOT NULL THEN
@@ -594,7 +594,7 @@ CREATE TRIGGER trg_audit_session_closed
 CREATE OR REPLACE FUNCTION audit_attendance_checkin()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     PERFORM write_audit_log(
@@ -624,7 +624,7 @@ CREATE TRIGGER trg_audit_attendance_checkin
 CREATE OR REPLACE FUNCTION audit_attendance_corrected()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.status IS DISTINCT FROM NEW.status THEN
@@ -654,7 +654,7 @@ CREATE TRIGGER trg_audit_attendance_corrected
 CREATE OR REPLACE FUNCTION audit_dispute_raised()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     PERFORM write_audit_log(
@@ -682,7 +682,7 @@ CREATE TRIGGER trg_audit_dispute_raised
 CREATE OR REPLACE FUNCTION audit_dispute_resolved()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.status = 'pending'
@@ -713,7 +713,7 @@ CREATE TRIGGER trg_audit_dispute_resolved
 CREATE OR REPLACE FUNCTION audit_group_archived()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF OLD.is_archived = false AND NEW.is_archived = true THEN

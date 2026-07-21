@@ -43,7 +43,7 @@ $$;
 CREATE OR REPLACE FUNCTION sync_user_role()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF TG_ARGV[0] IS NULL OR TG_ARGV[0] = '' THEN
@@ -71,7 +71,7 @@ $$;
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     INSERT INTO public.user_profiles (id, role, email, phone, must_change_password)
@@ -93,7 +93,7 @@ $$;
 CREATE OR REPLACE FUNCTION handle_user_login()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     IF NEW.last_sign_in_at IS DISTINCT FROM OLD.last_sign_in_at THEN
@@ -125,7 +125,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_super_admin()
 RETURNS boolean
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
 BEGIN
@@ -142,7 +142,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_lecturer()
 RETURNS boolean
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
 BEGIN
@@ -160,7 +160,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_rep_in_group(p_group_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT EXISTS (
@@ -181,7 +181,7 @@ $$;
 CREATE OR REPLACE FUNCTION was_rep_in_group(p_group_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT EXISTS (
@@ -201,7 +201,7 @@ $$;
 CREATE OR REPLACE FUNCTION has_group_membership(p_group_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT EXISTS (
@@ -216,7 +216,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_lecturer_for_course(p_course_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT EXISTS (
@@ -235,7 +235,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_lecturer_for_session(p_session_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT is_lecturer_for_course(
@@ -250,7 +250,7 @@ $$;
 CREATE OR REPLACE FUNCTION was_lecturer_for_course(p_course_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT
@@ -281,7 +281,7 @@ $$;
 CREATE OR REPLACE FUNCTION was_lecturer_for_session(p_session_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT was_lecturer_for_course(
@@ -295,7 +295,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_lecturer_for_group(p_group_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT
@@ -327,7 +327,7 @@ $$;
 CREATE OR REPLACE FUNCTION group_id_for_course(p_course_id uuid)
 RETURNS uuid
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT group_id FROM courses WHERE id = p_course_id;
@@ -337,7 +337,7 @@ $$;
 CREATE OR REPLACE FUNCTION group_id_for_session(p_session_id uuid)
 RETURNS uuid
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT c.group_id
@@ -351,7 +351,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_group_archived(p_group_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT COALESCE(
@@ -364,7 +364,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_course_group_archived(p_course_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT is_group_archived(
@@ -376,7 +376,7 @@ $$;
 CREATE OR REPLACE FUNCTION is_session_group_archived(p_session_id uuid)
 RETURNS boolean
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT is_group_archived(group_id_for_session(p_session_id));
@@ -400,7 +400,7 @@ $$;
 CREATE OR REPLACE FUNCTION assemble_index_number(p_group_id uuid, p_serial int)
 RETURNS text
 LANGUAGE sql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 STABLE
 AS $$
     SELECT
@@ -449,7 +449,7 @@ RETURNS TABLE (
     email         text
 )
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     v_index_number   text;
@@ -619,7 +619,7 @@ CREATE OR REPLACE FUNCTION close_session(
 )
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     v_course_id uuid;
@@ -681,7 +681,7 @@ $$;
 CREATE OR REPLACE FUNCTION open_semester(p_semester_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     -- BUG FIX: only super_admin (or the cron service role, auth.uid() = NULL)
@@ -736,7 +736,7 @@ $$;
 CREATE OR REPLACE FUNCTION close_semester(p_semester_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     v_open_session RECORD;
@@ -793,7 +793,7 @@ $$;
 CREATE OR REPLACE FUNCTION open_academic_year(p_academic_year_id uuid)
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     v_previous_id uuid;
@@ -873,7 +873,7 @@ RETURNS TABLE (
     detail          text
 )
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     r               RECORD;
@@ -1064,7 +1064,7 @@ CREATE OR REPLACE FUNCTION write_audit_log(
 )
 RETURNS void
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
     INSERT INTO public.audit_log (actor_id, action, table_name, record_id, old_data, new_data)

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = { title: "Attendance History" };
 
@@ -10,7 +11,6 @@ export default async function AttendanceHistoryPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect("/login");
 
-  // Fetch all attendance records — include session_id (FK) for routing + left-join disputes
   const { data: records } = await supabase
     .from("attendance")
     .select(`
@@ -25,7 +25,6 @@ export default async function AttendanceHistoryPage() {
     .eq("student_id", user.id)
     .order("created_at", { ascending: false });
 
-  // Group by semester
   const groupedBySemester = ((records as any[]) || []).reduce((acc, record) => {
     const session = record.class_sessions;
     const sessionObj = Array.isArray(session) ? session[0] : session;
@@ -33,7 +32,6 @@ export default async function AttendanceHistoryPage() {
 
     const semester = Array.isArray(sessionObj.app_semesters) ? sessionObj.app_semesters[0] : sessionObj.app_semesters;
     const course = Array.isArray(sessionObj.courses) ? sessionObj.courses[0] : sessionObj.courses;
-
     const semName = semester?.name || "Unknown Semester";
 
     if (!acc[semName]) acc[semName] = [];
@@ -54,15 +52,15 @@ export default async function AttendanceHistoryPage() {
 
   const disputeBadgeStyle = (status: string) => {
     const map: Record<string, { color: string; bg: string; label: string }> = {
-      pending: { color: "var(--color-warning)", bg: "var(--color-warning-bg)", label: "Dispute: Under review" },
-      approved: { color: "var(--color-success)", bg: "var(--color-success-bg)", label: "Dispute: Approved" },
-      rejected: { color: "var(--color-danger)", bg: "var(--color-danger-bg)", label: "Dispute: Rejected" },
+      pending: { color: "var(--color-warning)", bg: "var(--color-warning-bg)", label: "Under review" },
+      approved: { color: "var(--color-success)", bg: "var(--color-success-bg)", label: "Approved" },
+      rejected: { color: "var(--color-danger)", bg: "var(--color-danger-bg)", label: "Rejected" },
     };
     return map[status] ?? map.pending;
   };
 
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+    <div className={styles.page}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Attendance History</h1>
@@ -72,97 +70,75 @@ export default async function AttendanceHistoryPage() {
 
       {Object.keys(groupedBySemester).length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-[var(--color-text-3)]">You have no attendance records yet.</p>
+          <p style={{ color: "var(--color-text-3)", textAlign: "center", padding: "3rem 1rem" }}>
+            You have no attendance records yet.
+          </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-8">
+        <div className={styles.semesterList}>
           {Object.entries(groupedBySemester).map(([semester, items]) => (
             <div key={semester}>
-              <h2 className="text-xl font-bold mb-4 border-b border-[var(--color-border)] pb-2">{semester}</h2>
-              <div className="card overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-[var(--color-surface-2)]">
+              <h2 className={styles.semesterHeading}>{semester}</h2>
+
+              {/* ── Desktop / tablet: table ─────────────────────── */}
+              <div className={`card ${styles.tableWrap}`}>
+                <div className={styles.tableScroll}>
+                  <table className={styles.table}>
+                    <thead>
                       <tr>
-                        <th className="p-3 font-medium text-sm text-[var(--color-text-2)] uppercase tracking-wider">Date</th>
-                        <th className="p-3 font-medium text-sm text-[var(--color-text-2)] uppercase tracking-wider">Course</th>
-                        <th className="p-3 font-medium text-sm text-[var(--color-text-2)] uppercase tracking-wider">Status</th>
-                        <th className="p-3 font-medium text-sm text-[var(--color-text-2)] uppercase tracking-wider">Check-in Time</th>
+                        <th className={styles.th}>Date</th>
+                        <th className={styles.th}>Course</th>
+                        <th className={styles.th}>Status</th>
+                        <th className={styles.th}>Check-in Time</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--color-border)]">
+                    <tbody>
                       {(items as any[]).map((item: any) => {
                         const dispute = item.dispute;
                         const cfg = dispute ? disputeBadgeStyle(dispute.status) : null;
                         return (
-                          <tr
-                            key={item.id}
-                            className="hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer"
-                            style={{ minHeight: 44 }}
-                          >
-                            {/* Entire row is a link — using a nested Link on the first cell and aria for the row */}
-                            <td className="p-3 whitespace-nowrap" style={{ minWidth: 100 }}>
+                          <tr key={item.id} className={styles.tr}>
+                            <td className={styles.td} style={{ whiteSpace: "nowrap" }}>
                               <Link
                                 href={`/student/attendance/${item.session_id}`}
-                                className="block"
-                                style={{ minHeight: 44, display: "flex", alignItems: "center" }}
+                                className={styles.rowLink}
                                 aria-label={`View detail for ${item.courseCode} on ${new Date(item.sessionDate).toLocaleDateString()}`}
                               >
-                                {new Date(item.sessionDate).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                                {new Date(item.sessionDate).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })}
                               </Link>
                             </td>
-                            <td className="p-3">
-                              <Link href={`/student/attendance/${item.session_id}`} className="block" tabIndex={-1} aria-hidden="true">
-                                <div className="font-bold">{item.courseCode}</div>
-                                <div className="text-sm text-[var(--color-text-3)] truncate max-w-[200px]">{item.courseName}</div>
+                            <td className={styles.td}>
+                              <Link href={`/student/attendance/${item.session_id}`} className={styles.rowLink} tabIndex={-1} aria-hidden="true">
+                                <span className={styles.courseCode}>{item.courseCode}</span>
+                                <span className={styles.courseName}>{item.courseName}</span>
                               </Link>
                             </td>
-                            <td className="p-3">
-                              <Link href={`/student/attendance/${item.session_id}`} className="block" tabIndex={-1} aria-hidden="true">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  {item.status === 'present' && <span className="badge badge-success">Present</span>}
-                                  {item.status === 'late' && <span className="badge badge-warning">Late</span>}
-                                  {item.status === 'absent' && <span className="badge badge-danger">Absent</span>}
-                                  {/* Dispute badge — color + text, never color alone */}
+                            <td className={styles.td}>
+                              <Link href={`/student/attendance/${item.session_id}`} className={styles.rowLink} tabIndex={-1} aria-hidden="true">
+                                <span className={styles.badgeRow}>
+                                  {item.status === "present" && <span className="badge badge-success">Present</span>}
+                                  {item.status === "late" && <span className="badge badge-warning">Late</span>}
+                                  {item.status === "absent" && <span className="badge badge-danger">Absent</span>}
                                   {cfg && (
-                                    <span
-                                      style={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: 4,
-                                        padding: "2px 8px",
-                                        borderRadius: "var(--radius-full)",
-                                        fontSize: "var(--text-xs)",
-                                        fontWeight: 600,
-                                        color: cfg.color,
-                                        background: cfg.bg,
-                                        whiteSpace: "nowrap",
-                                      }}
-                                    >
-                                      {/* Icon: flag shape */}
-                                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <span className={styles.disputeBadge} style={{ color: cfg.color, background: cfg.bg }}>
+                                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                         <path d="M4 2v18M4 2h12l-3 5 3 5H4" />
                                       </svg>
                                       {cfg.label}
                                     </span>
                                   )}
-                                </div>
+                                </span>
                               </Link>
                             </td>
-                            <td className="p-3 text-sm text-[var(--color-text-2)] whitespace-nowrap">
-                              <Link href={`/student/attendance/${item.session_id}`} className="block" tabIndex={-1} aria-hidden="true">
-                                <span className="flex items-center gap-2" style={{ minHeight: 44, display: "flex", alignItems: "center" }}>
-                                  {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  {item.geo_verified && (
-                                    <span className="text-[var(--color-success)]" title="GPS Verified" aria-label="GPS Verified">
-                                      ✓
-                                    </span>
-                                  )}
-                                  {/* Chevron — communicates row clickability */}
-                                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ color: "var(--color-text-3)", marginLeft: "auto" }}>
-                                    <path d="M5 2l4 5-4 5" />
-                                  </svg>
-                                </span>
+                            <td className={styles.td} style={{ whiteSpace: "nowrap" }}>
+                              <Link href={`/student/attendance/${item.session_id}`} className={`${styles.rowLink} ${styles.timeCell}`} tabIndex={-1} aria-hidden="true">
+                                {new Date(item.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                {item.geo_verified && (
+                                  <span className={styles.gpsIcon} title="GPS Verified" aria-label="GPS Verified">✓</span>
+                                )}
+                                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.chevron}>
+                                  <path d="M5 2l4 5-4 5" />
+                                </svg>
                               </Link>
                             </td>
                           </tr>
@@ -171,6 +147,66 @@ export default async function AttendanceHistoryPage() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+
+              {/* ── Mobile: stacked card list ───────────────────── */}
+              <div className={styles.cardList}>
+                {(items as any[]).map((item: any) => {
+                  const dispute = item.dispute;
+                  const cfg = dispute ? disputeBadgeStyle(dispute.status) : null;
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/student/attendance/${item.session_id}`}
+                      className={styles.mobileCard}
+                      aria-label={`View detail for ${item.courseCode} on ${new Date(item.sessionDate).toLocaleDateString()}`}
+                    >
+                      {/* Left: date chip */}
+                      <div className={styles.dateChip} aria-hidden="true">
+                        <span className={styles.dateMonth}>
+                          {new Date(item.sessionDate).toLocaleDateString([], { month: "short" })}
+                        </span>
+                        <span className={styles.dateDay}>
+                          {new Date(item.sessionDate).getDate()}
+                        </span>
+                      </div>
+
+                      {/* Centre: course info + badges */}
+                      <div className={styles.cardBody}>
+                        <div className={styles.cardCourse}>
+                          <span className={styles.cardCode}>{item.courseCode}</span>
+                          <span className={styles.cardName}>{item.courseName}</span>
+                        </div>
+                        <div className={styles.cardMeta}>
+                          {item.status === "present" && <span className="badge badge-success">Present</span>}
+                          {item.status === "late" && <span className="badge badge-warning">Late</span>}
+                          {item.status === "absent" && <span className="badge badge-danger">Absent</span>}
+                          {cfg && (
+                            <span className={styles.disputeBadge} style={{ color: cfg.color, background: cfg.bg }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <path d="M4 2v18M4 2h12l-3 5 3 5H4" />
+                              </svg>
+                              {cfg.label}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: time + chevron */}
+                      <div className={styles.cardRight}>
+                        <span className={styles.cardTime}>
+                          {new Date(item.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                        {item.geo_verified && (
+                          <span className={styles.gpsIcon} title="GPS Verified" aria-label="GPS Verified">✓</span>
+                        )}
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={styles.chevron}>
+                          <path d="M5 2l4 5-4 5" />
+                        </svg>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}

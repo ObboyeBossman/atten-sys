@@ -29,22 +29,24 @@ async function getAdminContext() {
 export async function assignRep(
   groupId: string,
   studentId: string,
-  replaceCurrentRepId: string | null,
 ): Promise<ActionResult> {
   const ctx = await getAdminContext();
   if (!ctx) return { error: "Unauthorized." };
 
-   
   const sb = ctx.supabase as any;
 
-  if (replaceCurrentRepId) {
-    const { error: unsetErr } = await sb
-      .from("group_memberships")
-      .update({ is_course_rep: false })
-      .eq("student_id", replaceCurrentRepId)
-      .eq("group_id", groupId)
-      .eq("status", "active");
-    if (unsetErr) return { error: unsetErr.message };
+  // Count current reps — enforce 2-rep cap server-side
+  const { data: currentReps, error: countErr } = await sb
+    .from("group_memberships")
+    .select("student_id")
+    .eq("group_id", groupId)
+    .eq("status", "active")
+    .eq("is_course_rep", true);
+
+  if (countErr) return { error: countErr.message };
+
+  if ((currentReps ?? []).length >= 2) {
+    return { error: "This group already has 2 course reps. Remove one before assigning another." };
   }
 
   const { error: setErr } = await sb

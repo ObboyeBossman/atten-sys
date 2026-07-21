@@ -191,9 +191,11 @@
   color: var(--color-text-2);
 }
 
-.label span {
-  color: var(--color-danger);
-  margin-left: 2px;
+.optionalHint {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--color-text-3);
+  margin-left: var(--space-1);
 }
 
 .input,

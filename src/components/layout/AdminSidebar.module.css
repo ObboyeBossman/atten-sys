@@ -440,3 +440,166 @@
   from { opacity: 0; transform: translateY(12px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ── Light mode overrides (admin portal only) ─────────────────────────── */
+/*
+  All tokens below are scoped to [data-portal="admin-light"] which is set
+  on the admin layout root. No other portal is touched.
+*/
+
+[data-portal="admin-light"] .sidebar {
+  background: #FFFFFF;
+  border-right-color: #E5E7EB;
+  box-shadow: 1px 0 0 0 #E5E7EB;
+}
+
+[data-portal="admin-light"] .brand {
+  border-bottom-color: #E5E7EB;
+}
+
+[data-portal="admin-light"] .brandIcon {
+  background: #F5F6FA;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.12);
+}
+
+[data-portal="admin-light"] .brandName {
+  color: #111827;
+}
+
+[data-portal="admin-light"] .brandRole {
+  color: #9d0a12;
+}
+
+[data-portal="admin-light"] .navItem {
+  color: #374151;
+}
+
+[data-portal="admin-light"] .navItem:hover {
+  background: #F0F2F8;
+  color: #111827;
+}
+
+[data-portal="admin-light"] .navItemActive {
+  background: rgba(157, 10, 18, 0.07);
+  color: #9d0a12;
+}
+
+[data-portal="admin-light"] .navItemActive .navIcon {
+  color: #9d0a12;
+}
+
+[data-portal="admin-light"] .navIcon {
+  color: #6B7280;
+}
+
+[data-portal="admin-light"] .subNav {
+  border-left-color: #E5E7EB;
+}
+
+[data-portal="admin-light"] .subNavItem {
+  color: #6B7280;
+}
+
+[data-portal="admin-light"] .subNavItem:hover {
+  color: #111827;
+  background: #F0F2F8;
+}
+
+[data-portal="admin-light"] .subNavItemActive {
+  color: #9d0a12;
+  background: rgba(157, 10, 18, 0.06);
+}
+
+[data-portal="admin-light"] .sidebarFooter {
+  border-top-color: #E5E7EB;
+}
+
+[data-portal="admin-light"] .profileLink:hover {
+  background: #F0F2F8;
+}
+
+[data-portal="admin-light"] .profileName {
+  color: #111827;
+}
+
+[data-portal="admin-light"] .logoutBtn {
+  color: #6B7280;
+}
+
+[data-portal="admin-light"] .logoutBtn:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* Mobile topbar */
+[data-portal="admin-light"] .mobileTopbar {
+  background: #FFFFFF;
+  border-bottom-color: #E5E7EB;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+[data-portal="admin-light"] .hamburger {
+  color: #111827;
+}
+
+[data-portal="admin-light"] .hamburger:hover {
+  background: #F0F2F8;
+}
+
+/* Mobile drawer */
+[data-portal="admin-light"] .drawer {
+  background: #FFFFFF;
+  border-right-color: #E5E7EB;
+}
+
+[data-portal="admin-light"] .drawerHeader {
+  border-bottom-color: #E5E7EB;
+}
+
+[data-portal="admin-light"] .drawerBackdrop {
+  background: rgba(17, 24, 39, 0.35);
+}
+
+[data-portal="admin-light"] .drawerClose {
+  color: #6B7280;
+}
+
+[data-portal="admin-light"] .drawerClose:hover {
+  color: #111827;
+  background: #F0F2F8;
+}
+
+/* Sign-out dialog */
+[data-portal="admin-light"] .dialogOverlay {
+  background: rgba(17, 24, 39, 0.40);
+}
+
+[data-portal="admin-light"] .dialog {
+  background: #FFFFFF;
+  border-color: #E5E7EB;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.07);
+}
+
+[data-portal="admin-light"] .dialogIcon {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
+
+[data-portal="admin-light"] .dialogTitle {
+  color: #111827;
+}
+
+[data-portal="admin-light"] .dialogBody {
+  color: #6B7280;
+}
+
+[data-portal="admin-light"] .dialogCancel {
+  background: #F0F2F8;
+  border-color: #E5E7EB;
+  color: #111827;
+}
+
+[data-portal="admin-light"] .dialogCancel:hover {
+  background: #E4E6F0;
+  border-color: #CBD5E1;
+}

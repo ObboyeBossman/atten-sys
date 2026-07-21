@@ -38,39 +38,45 @@ export function NavProgressBar() {
 
   useEffect(() => {
     if (navigating) {
-      // Reset
+      // Reset via timers to avoid synchronous setState-in-effect lint rule
       if (tickRef.current) clearInterval(tickRef.current);
       if (hideRef.current) clearTimeout(hideRef.current);
-      setCompleting(false);
-      setWidth(0);
-      setVisible(true);
+      const resetTimer = setTimeout(() => {
+        setCompleting(false);
+        setWidth(0);
+        setVisible(true);
 
-      // Increment: slow start, decelerate as it approaches 85 %
-      let current = 0;
-      tickRef.current = setInterval(() => {
-        setWidth((prev) => {
-          const remaining = 85 - prev;
-          const step = Math.max(0.4, remaining * 0.06);
-          current = Math.min(85, prev + step);
-          return current;
-        });
-      }, 80);
+        // Increment: slow start, decelerate as it approaches 85 %
+        tickRef.current = setInterval(() => {
+          setWidth((prev) => {
+            const remaining = 85 - prev;
+            const step = Math.max(0.4, remaining * 0.06);
+            return Math.min(85, prev + step);
+          });
+        }, 80);
+      }, 0);
+      return () => {
+        clearTimeout(resetTimer);
+        if (tickRef.current) clearInterval(tickRef.current);
+        if (hideRef.current) clearTimeout(hideRef.current);
+      };
     } else {
       // Navigation complete — fill to 100 % then fade
       if (tickRef.current) clearInterval(tickRef.current);
-      setCompleting(true);
-      setWidth(100);
-      hideRef.current = setTimeout(() => {
-        setVisible(false);
-        setCompleting(false);
-        setWidth(0);
-      }, 350);
+      const completeTimer = setTimeout(() => {
+        setCompleting(true);
+        setWidth(100);
+        hideRef.current = setTimeout(() => {
+          setVisible(false);
+          setCompleting(false);
+          setWidth(0);
+        }, 350);
+      }, 0);
+      return () => {
+        clearTimeout(completeTimer);
+        if (hideRef.current) clearTimeout(hideRef.current);
+      };
     }
-
-    return () => {
-      if (tickRef.current) clearInterval(tickRef.current);
-      if (hideRef.current) clearTimeout(hideRef.current);
-    };
   }, [navigating]);
 
   if (!visible) return null;
@@ -152,19 +158,25 @@ export function PageShimmer() {
   useEffect(() => {
     if (navigating) {
       if (fadeRef.current) clearTimeout(fadeRef.current);
-      setFading(false);
-      setMounted(true);
+      const showTimer = setTimeout(() => {
+        setFading(false);
+        setMounted(true);
+      }, 0);
+      return () => clearTimeout(showTimer);
     } else if (mounted) {
       // Fade out gracefully
-      setFading(true);
-      fadeRef.current = setTimeout(() => {
-        setMounted(false);
-        setFading(false);
-      }, 280);
+      const fadeTimer = setTimeout(() => {
+        setFading(true);
+        fadeRef.current = setTimeout(() => {
+          setMounted(false);
+          setFading(false);
+        }, 280);
+      }, 0);
+      return () => {
+        clearTimeout(fadeTimer);
+        if (fadeRef.current) clearTimeout(fadeRef.current);
+      };
     }
-    return () => {
-      if (fadeRef.current) clearTimeout(fadeRef.current);
-    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigating]);
 

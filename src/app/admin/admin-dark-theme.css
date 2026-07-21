@@ -1,0 +1,380 @@
+/* ============================================================
+   ATTEN-SYS — Super Admin Portal · Dark Mode Theme
+   Scoped entirely to [data-portal="admin-dark"].
+   Zero bleed into any other portal.
+   ============================================================
+
+   Design rationale
+   ----------------
+   Inspired by the Visux dark UI: the dark side isn't just
+   inverted light — it's a deliberate depth system. Three
+   distinct surface levels (canvas → card → elevated) create
+   spatial hierarchy without colour. Borders are whisper-thin
+   rgba whites. The brand red punches through the dark with
+   controlled glow — authority, not decoration.
+
+   Palette logic
+   -------------
+   Canvas:   #0A0E1A  — deepest ink, near-black with a blue cast
+   Sidebar:  #0D1220  — one step lifted off the canvas, giving
+                        the nav its own space without a harsh edge
+   Surface:  #111827  — cards and panels; the workhorse level
+   Surface2: #161E2E  — secondary backgrounds, hover states
+   Surface3: #1C2640  — active/selected fills, table headers
+
+   Borders use rgba(255,255,255,N) so they inherit the surface
+   colour naturally — no hardcoded hex borders that fight the
+   background they sit on.
+
+   Signature detail
+   ----------------
+   Active nav items get a left-aligned 2px brand-red bar that
+   "bleeds" out of the nav item to the sidebar edge — a
+   structural line that anchors where you are spatially, not
+   just visually. No pill, no background blob — just the line.
+   ============================================================ */
+
+/* ── Core palette ─────────────────────────────────────────── */
+[data-portal="admin-dark"] {
+  /* Canvas — deepest level, blue-tinted ink */
+  --color-bg:           #0A0E1A;
+  --color-bg-secondary: #0D1220;
+
+  /* Surface stack — three deliberate steps up from the canvas */
+  --color-surface:      #111827;
+  --color-surface-2:    #161E2E;
+  --color-surface-3:    #1C2640;
+
+  /* Borders — rgba so they work on any surface level */
+  --color-border:       rgba(255, 255, 255, 0.07);
+  --color-border-hover: rgba(255, 255, 255, 0.14);
+
+  /* Brand red — slightly brightened for dark surfaces */
+  --color-primary:      #C0111B;
+  --color-primary-dark: #9d0a12;
+  --color-primary-glow: rgba(192, 17, 27, 0.28);
+
+  /* Blue secondary */
+  --color-secondary:      #3b82f6;
+  --color-secondary-dark: #2563eb;
+
+  /* Semantic — vivid enough to read on dark, restrained enough to not shout */
+  --color-success:    #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.10);
+  --color-warning:    #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.10);
+  --color-danger:     #ef4444;
+  --color-danger-bg:  rgba(239, 68, 68, 0.10);
+  --color-info:       #38bdf8;
+  --color-info-bg:    rgba(56, 189, 248, 0.10);
+
+  /* Attendance status */
+  --color-present:    #22c55e;
+  --color-present-bg: rgba(34, 197, 94, 0.10);
+  --color-late:       #f59e0b;
+  --color-late-bg:    rgba(245, 158, 11, 0.10);
+  --color-absent:     #ef4444;
+  --color-absent-bg:  rgba(239, 68, 68, 0.10);
+
+  /* Text ramp — bright enough for WCAG AA on dark surfaces */
+  --color-text:         #F0F4FF;   /* near-white headings */
+  --color-text-2:       #8B9BB4;   /* body text — cool slate */
+  --color-text-3:       #4D5E78;   /* captions, placeholders */
+  --color-text-inverse: #0A0E1A;
+
+  /* Shadows — layered with colour tinting for depth */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md:   0 4px 10px rgba(0, 0, 0, 0.50), 0 2px 4px rgba(0, 0, 0, 0.35);
+  --shadow-lg:   0 10px 20px rgba(0, 0, 0, 0.60), 0 4px 8px rgba(0, 0, 0, 0.40);
+  --shadow-xl:   0 20px 40px rgba(0, 0, 0, 0.65), 0 8px 16px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 22px var(--color-primary-glow);
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+[data-portal="admin-dark"] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+[data-portal="admin-dark"] ::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+[data-portal="admin-dark"] ::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+}
+
+[data-portal="admin-dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+[data-portal="admin-dark"] .card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal="admin-dark"] .card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+[data-portal="admin-dark"] .card-glass {
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: var(--color-border);
+}
+
+/* ── Headings & paragraphs ────────────────────────────────── */
+[data-portal="admin-dark"] h1,
+[data-portal="admin-dark"] h2,
+[data-portal="admin-dark"] h3,
+[data-portal="admin-dark"] h4,
+[data-portal="admin-dark"] h5,
+[data-portal="admin-dark"] h6 {
+  color: var(--color-text);
+}
+
+[data-portal="admin-dark"] p {
+  color: var(--color-text-2);
+}
+
+/* ── Links ────────────────────────────────────────────────── */
+[data-portal="admin-dark"] a {
+  color: var(--color-primary);
+}
+
+/* ── Form elements ────────────────────────────────────────── */
+[data-portal="admin-dark"] .input {
+  background: var(--color-surface-2);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-portal="admin-dark"] .input::placeholder {
+  color: var(--color-text-3);
+}
+
+[data-portal="admin-dark"] .input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+[data-portal="admin-dark"] .select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234D5E78' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+[data-portal="admin-dark"] .btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  box-shadow: 0 4px 15px var(--color-primary-glow);
+}
+
+[data-portal="admin-dark"] .btn-primary:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+[data-portal="admin-dark"] .btn-secondary {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+[data-portal="admin-dark"] .btn-secondary:hover {
+  background: var(--color-surface-3);
+  border-color: var(--color-border-hover);
+}
+
+[data-portal="admin-dark"] .btn-ghost {
+  color: var(--color-text-2);
+}
+
+[data-portal="admin-dark"] .btn-ghost:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+[data-portal="admin-dark"] .btn-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+[data-portal="admin-dark"] .btn-danger:hover {
+  background: var(--color-danger);
+  color: #fff;
+  border-color: var(--color-danger);
+}
+
+/* ── Stat cards ───────────────────────────────────────────── */
+[data-portal="admin-dark"] .stat-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal="admin-dark"] .stat-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+[data-portal="admin-dark"] .stat-card-label {
+  color: var(--color-text-3);
+}
+
+[data-portal="admin-dark"] .stat-card-value {
+  color: var(--color-text);
+}
+
+[data-portal="admin-dark"] .stat-card-sub {
+  color: var(--color-text-3);
+}
+
+/* ── Table ────────────────────────────────────────────────── */
+[data-portal="admin-dark"] .table-container {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal="admin-dark"] thead tr {
+  border-bottom-color: var(--color-border);
+  background: var(--color-surface-2);
+}
+
+[data-portal="admin-dark"] thead th {
+  color: var(--color-text-3);
+}
+
+[data-portal="admin-dark"] tbody tr {
+  border-bottom-color: var(--color-border);
+}
+
+[data-portal="admin-dark"] tbody tr:hover {
+  background: var(--color-surface-2);
+}
+
+[data-portal="admin-dark"] tbody td {
+  color: var(--color-text-2);
+}
+
+/* ── Badges ───────────────────────────────────────────────── */
+[data-portal="admin-dark"] .badge-neutral {
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+}
+
+[data-portal="admin-dark"] .badge-primary {
+  background: rgba(192, 17, 27, 0.15);
+  color: var(--color-primary);
+}
+
+[data-portal="admin-dark"] .badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+[data-portal="admin-dark"] .badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+[data-portal="admin-dark"] .badge-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+[data-portal="admin-dark"] .badge-info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* ── Skeleton ─────────────────────────────────────────────── */
+[data-portal="admin-dark"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 25%,
+    var(--color-surface-3) 50%,
+    var(--color-surface-2) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ── Alerts ───────────────────────────────────────────────── */
+[data-portal="admin-dark"] .alert-error {
+  background: var(--color-danger-bg);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: var(--color-danger);
+}
+
+[data-portal="admin-dark"] .alert-success {
+  background: var(--color-success-bg);
+  border-color: rgba(34, 197, 94, 0.25);
+  color: var(--color-success);
+}
+
+[data-portal="admin-dark"] .alert-warning {
+  background: var(--color-warning-bg);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: var(--color-warning);
+}
+
+[data-portal="admin-dark"] .alert-info {
+  background: var(--color-info-bg);
+  border-color: rgba(56, 189, 248, 0.25);
+  color: var(--color-info);
+}
+
+/* ── Modal ────────────────────────────────────────────────── */
+[data-portal="admin-dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+[data-portal="admin-dark"] .modal-box {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xl);
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+[data-portal="admin-dark"] .divider {
+  background: var(--color-border);
+}
+
+/* ── Avatar ───────────────────────────────────────────────── */
+[data-portal="admin-dark"] .avatar {
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+}
+
+/* ── Page header ──────────────────────────────────────────── */
+[data-portal="admin-dark"] .page-title {
+  color: var(--color-text);
+}
+
+[data-portal="admin-dark"] .page-subtitle {
+  color: var(--color-text-3);
+}
+
+/* ── Audit log ────────────────────────────────────────────── */
+[data-portal="admin-dark"] .audit-row:hover {
+  background: var(--color-surface-2);
+}
+
+/* ── Focus ring ───────────────────────────────────────────── */
+[data-portal="admin-dark"] :focus-visible {
+  outline-color: var(--color-primary);
+}
+
+/* ── Print ────────────────────────────────────────────────── */
+@media print {
+  [data-portal="admin-dark"] {
+    background: #fff;
+    color: #000;
+  }
+}

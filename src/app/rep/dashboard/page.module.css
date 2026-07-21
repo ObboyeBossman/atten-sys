@@ -14,6 +14,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  /* Prevent any child from blowing out the viewport width on mobile */
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 @media (min-width: 640px) {
@@ -62,6 +66,9 @@
     text-decoration: none;
     /* Minimum touch target */
     min-height: 44px;
+    /* Prevent chevron or text from escaping the banner bounds */
+    overflow: hidden;
+    width: 100%;
   }
 }
 
@@ -83,6 +90,9 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-4);
+  /* Contain children — grid blowout protection */
+  width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 640px) {
@@ -256,6 +266,10 @@
   text-align: center;
   /* Tight on mobile, generous on desktop */
   padding: var(--space-8) var(--space-4);
+  /* Ensure the card never bleeds wider than its grid cell */
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 @media (min-width: 480px) {

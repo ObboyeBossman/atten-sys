@@ -110,7 +110,7 @@ export function InstitutionCard({
             {title}
           </div>
           {meta && (
-            <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 3, lineHeight: 1.4 }}>
+            <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 3, lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {meta}
             </div>
           )}
@@ -159,13 +159,15 @@ export function InstitutionCard({
           paddingTop: "var(--space-3)",
           borderTop: "1px solid var(--color-border)",
           marginTop: "auto",
+          gap: "var(--space-2)",
+          minWidth: 0,
         }}>
           {footer && (
-            <span style={{ fontSize: 10, color: "var(--color-text-3)" }}>{footer}</span>
+            <span style={{ fontSize: 10, color: "var(--color-text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{footer}</span>
           )}
           {actions && (
             <div
-              style={{ display: "flex", gap: 4, marginLeft: "auto" }}
+              style={{ display: "flex", gap: 4, flexShrink: 0, marginLeft: footer ? "auto" : undefined }}
               onClick={(e) => e.stopPropagation()}
             >
               {actions}

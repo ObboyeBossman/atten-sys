@@ -8,6 +8,7 @@ import styles from "./PortalLayout.module.css";
 import { PageShimmer } from "./PageTransition";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { NoticeBanner } from "./NoticeBanner";
 
 type NavIcon =
   | "dashboard"
@@ -371,6 +372,11 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
           userInitial={userInitial}
         />
       </aside>
+
+      {/* ── Notice banners ───────────────────────────────────────── */}
+      <div className={styles.noticeBannerBar}>
+        <NoticeBanner />
+      </div>
 
       {/* ── Main content ─────────────────────────────────────────── */}
       <main className={styles.main}>

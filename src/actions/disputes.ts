@@ -16,8 +16,8 @@ export async function raiseDispute({
   if (!user) return { error: "Unauthorized" };
 
   // Verify the caller owns this attendance record
-  const { data: record, error: fetchError } = await supabase
-    .from("attendance")
+  const { data: record, error: fetchError } = await (supabase
+    .from("attendance") as any)
     .select("id, student_id")
     .eq("id", attendanceId)
     .single();

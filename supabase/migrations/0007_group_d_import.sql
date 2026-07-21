@@ -110,11 +110,10 @@ ON CONFLICT (group_id) DO NOTHING;
 -- ---------------------------------------------------------------------------
 SET session_replication_role = replica;
 
-INSERT INTO students (id, index_number, name, phone, photo_path, created_at, updated_at)
+INSERT INTO students (id, index_number, name, photo_path, created_at, updated_at)
 SELECT _legacy_student_uuid(v.idx),
        UPPER(TRIM(v.idx)),
        COALESCE(NULLIF(TRIM(v.name), ''), v.idx),
-       NULL,
        NULLIF(TRIM(v.photo_path), ''),
        COALESCE(NULLIF(v.created_at, '')::timestamptz, now()),
        now()
@@ -3564,10 +3563,13 @@ ON CONFLICT (session_id, student_id) DO NOTHING;
 -- [C4 FIX] session_id values are real legacy session IDs
 -- ---------------------------------------------------------------------------
 -- System admin placeholder for resolved_by FK
+-- [C FIX] Use replica mode to bypass auth.users FK (same as STEP 3)
+SET session_replication_role = replica;
 INSERT INTO user_profiles (id, role, email, is_active, must_change_password, created_at, updated_at)
 VALUES ('00000000-0000-0000-0000-0000000000aa',
         'super_admin', 'legacy-admin@ttu.edu.gh', true, false, now(), now())
 ON CONFLICT (id) DO NOTHING;
+SET session_replication_role = DEFAULT;
 
 INSERT INTO attendance_disputes (
     attendance_id, raised_by, reason, status,

@@ -6,6 +6,8 @@ import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./PortalLayout.module.css";
 import { PageShimmer } from "./PageTransition";
+import { useTheme } from "@/components/theme/ThemeProvider";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 type NavIcon =
   | "dashboard"
@@ -190,12 +192,15 @@ function NavLinks({ navItems, pathname, roleColor, roleLabel, role, switchTo, cl
         >
           {userInitial}
         </div>
-        <button onClick={onSignOut} className={styles.logoutBtn} title="Sign out">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
-          </svg>
-          Sign out
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginLeft: "auto" }}>
+          <ThemeToggle variant="icon" />
+          <button onClick={onSignOut} className={styles.logoutBtn} title="Sign out">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
+            </svg>
+            Sign out
+          </button>
+        </div>
       </div>
     </>
   );
@@ -208,6 +213,8 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
   const roleColor = ROLE_COLORS[role];
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userInitial, setUserInitial] = useState(ROLE_INITIALS[role]);
+  const { resolved: resolvedTheme } = useTheme();
+  const portalDataAttr = resolvedTheme === "light" ? "portal-light" : "portal-dark";
 
   // Fetch the real user name on mount to replace the generic role initial
   useEffect(() => {
@@ -266,7 +273,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
   }
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-portal={portalDataAttr}>
       {/* ── Desktop sidebar ──────────────────────────────────────── */}
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
@@ -303,6 +310,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
             <div className={styles.mobileTopbarRole} style={{ color: roleColor }}>{roleLabel}</div>
           </div>
         </div>
+        <ThemeToggle variant="icon" />
       </header>
 
       {/* ── Mobile drawer overlay ─────────────────────────────────── */}

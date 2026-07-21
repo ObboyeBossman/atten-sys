@@ -82,8 +82,10 @@ export default function FeedbackForm({ authorRole }: { authorRole: FeedbackAutho
     setError("");
 
     if (rating === 0) { setError("Please select a star rating."); return; }
-    if (!title.trim()) { setError("Please add a short title for your feedback."); return; }
-    if (!body.trim()) { setError("Please share your thoughts in the details field."); return; }
+    if (!title.trim() && !body.trim()) {
+      setError("Please add a title or some details — at least one is required.");
+      return;
+    }
 
     startTransition(async () => {
       const res = await submitFeedback({ category, sentiment, rating, title, body, isAnonymous, authorRole });
@@ -181,7 +183,7 @@ export default function FeedbackForm({ authorRole }: { authorRole: FeedbackAutho
       {/* ── Title ──────────────────────────────────── */}
       <div className={styles.field}>
         <label className={styles.label} htmlFor="fb-title">
-          Title <span aria-hidden="true">*</span>
+          Title <span className={styles.optionalHint}>(optional if you add details)</span>
         </label>
         <input
           id="fb-title"
@@ -191,7 +193,7 @@ export default function FeedbackForm({ authorRole }: { authorRole: FeedbackAutho
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={120}
-          aria-required="true"
+          aria-required="false"
           disabled={isPending}
         />
         <span className={styles.charCount}>{title.length}/120</span>
@@ -200,7 +202,7 @@ export default function FeedbackForm({ authorRole }: { authorRole: FeedbackAutho
       {/* ── Body ───────────────────────────────────── */}
       <div className={styles.field}>
         <label className={styles.label} htmlFor="fb-body">
-          Details <span aria-hidden="true">*</span>
+          Details <span className={styles.optionalHint}>(optional if you add a title)</span>
         </label>
         <textarea
           id="fb-body"
@@ -210,7 +212,7 @@ export default function FeedbackForm({ authorRole }: { authorRole: FeedbackAutho
           onChange={(e) => setBody(e.target.value)}
           rows={5}
           maxLength={2000}
-          aria-required="true"
+          aria-required="false"
           disabled={isPending}
         />
         <span className={styles.charCount}>{body.length}/2000</span>

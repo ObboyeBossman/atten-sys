@@ -395,9 +395,9 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
               key={item.href}
               href={item.href}
               className={`${styles.bottomNavItem} ${isActive ? styles.bottomNavItemActive : ""}`}
-              style={isActive ? { "--role-color": roleColor } as React.CSSProperties : undefined}
+              aria-current={isActive ? "page" : undefined}
             >
-              <span style={{ position: "relative", display: "inline-flex" }}>
+              <span style={{ position: "relative", display: "inline-flex", flexShrink: 0 }}>
                 <Icon name={item.icon} size={20} />
                 {!!item.badge && item.badge > 0 && (
                   <span
@@ -409,8 +409,8 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
                       minWidth: 16,
                       height: 16,
                       borderRadius: "var(--radius-full)",
-                      background: "var(--color-primary)",
-                      color: "#fff",
+                      background: isActive ? "var(--color-bg)" : "var(--color-primary)",
+                      color: isActive ? "var(--color-text)" : "#fff",
                       fontSize: 10,
                       fontWeight: 700,
                       display: "inline-flex",
@@ -424,7 +424,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
                   </span>
                 )}
               </span>
-              <span>{item.label}</span>
+              <span className={styles.bottomNavLabel}>{item.label}</span>
             </Link>
           );
         })}
@@ -432,13 +432,12 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
           <Link
             href={switchTo.href}
             className={styles.bottomNavItem}
-            style={{ "--role-color": "#f59e0b" } as React.CSSProperties}
             title={switchTo.label}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
               <path d="M4 10h12M10 4l6 6-6 6" />
             </svg>
-            <span>Switch</span>
+            <span className={styles.bottomNavLabel}>Switch</span>
           </Link>
         )}
       </nav>

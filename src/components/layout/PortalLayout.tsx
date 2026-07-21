@@ -373,13 +373,13 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
         />
       </aside>
 
-      {/* ── Notice banners ───────────────────────────────────────── */}
-      <div className={styles.noticeBannerBar}>
-        <NoticeBanner />
-      </div>
-
       {/* ── Main content ─────────────────────────────────────────── */}
       <main className={styles.main}>
+        {/* Notice banners live inside main so they don't participate
+            in the root flex row and break the desktop layout */}
+        <div className={styles.noticeBannerBar}>
+          <NoticeBanner />
+        </div>
         <div className={styles.content} style={{ position: "relative" }}>
           <PageShimmer />
           {children}

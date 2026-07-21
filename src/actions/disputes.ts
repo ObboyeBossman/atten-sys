@@ -35,8 +35,8 @@ export async function raiseDispute({
 
   if (existing) return { error: "A dispute already exists for this record." };
 
-  const { error: insertError } = await supabase
-    .from("attendance_disputes")
+  const { error: insertError } = await (supabase
+    .from("attendance_disputes") as any)
     .insert({
       attendance_id: attendanceId,
       raised_by: user.id,

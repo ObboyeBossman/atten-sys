@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "../auth.module.css";
 
-export default function ChangePasswordPage() {
+function ChangePasswordInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createSupabaseBrowserClient();
+  const nextUrl = searchParams.get("next") ?? null;
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -72,12 +74,39 @@ export default function ChangePasswordPage() {
         .update({ must_change_password: false })
         .eq("id", user.id);
 
-      // Redirect to dashboard
+      // Redirect: honour the ?next param if present (handles rep portal),
+      // otherwise fall back to role-based routing.
+      if (nextUrl) {
+        router.replace(nextUrl);
+        router.refresh();
+        return;
+      }
+
       const { data: profile } = await supabase
         .from("user_profiles")
         .select("role")
         .eq("id", user.id)
         .single();
+
+      const role = (profile as any)?.role ?? "";
+
+      // Students who are course reps need special handling — check membership.
+      if (role === "student") {
+        const { data: repMembership } = await supabase
+          .from("group_memberships")
+          .select("id")
+          .eq("student_id", user.id)
+          .eq("is_course_rep", true)
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle();
+
+        if (repMembership) {
+          router.replace("/rep/dashboard");
+          router.refresh();
+          return;
+        }
+      }
 
       const roleMap: Record<string, string> = {
         super_admin: "/admin/dashboard",
@@ -85,7 +114,7 @@ export default function ChangePasswordPage() {
         student: "/student/dashboard",
       };
 
-      router.replace(roleMap[(profile as any)?.role ?? ""] ?? "/login");
+      router.replace(roleMap[role] ?? "/login");
       router.refresh();
     } finally {
       setLoading(false);
@@ -198,5 +227,14 @@ export default function ChangePasswordPage() {
         </button>
       </form>
     </div>
+  );
+}
+
+
+export default function ChangePasswordPage() {
+  return (
+    <Suspense>
+      <ChangePasswordInner />
+    </Suspense>
   );
 }

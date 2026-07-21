@@ -1,0 +1,336 @@
+/* ============================================================
+   ATTEN-SYS — Super Admin Portal · Light Mode Theme
+   Scoped entirely to [data-portal="admin-light"].
+   Zero bleed into any other portal.
+   ============================================================
+
+   Design rationale
+   ----------------
+   Inspired by the Visux light UI: monochromatic discipline
+   where light/dark differ only in luminosity — not colour
+   complexity. One warm neutral ramp, one brand red, clean
+   whites, charcoal text. Every token here has a job; nothing
+   is decorative.
+
+   Signature detail
+   ----------------
+   The sidebar carries a paper-white (#FFFFFF) surface against
+   the page's #F5F6FA wash. The 1px #E5E7EB borders create
+   structure without weight — a "line-drawn" aesthetic that
+   makes the interface feel precise and professional without
+   being cold.
+   ============================================================ */
+
+/* ── Core palette ─────────────────────────────────────────── */
+[data-portal="admin-light"] {
+  /* Page canvas — warm off-white, not pure white */
+  --color-bg:           #F5F6FA;
+  --color-bg-secondary: #EEF0F6;
+
+  /* Surfaces: sidebar/cards are pure white; secondary panels step up slightly */
+  --color-surface:      #FFFFFF;
+  --color-surface-2:    #F0F2F8;
+  --color-surface-3:    #E4E6F0;
+
+  /* Borders: crisp hairlines, no opacity hacks */
+  --color-border:       #E5E7EB;
+  --color-border-hover: #CBD5E1;
+
+  /* Brand red — kept identical to dark mode for identity consistency */
+  --color-primary:      #9d0a12;
+  --color-primary-dark: #82080f;
+  --color-primary-glow: rgba(157, 10, 18, 0.15);
+
+  /* Blue secondary */
+  --color-secondary:      #3b82f6;
+  --color-secondary-dark: #2563eb;
+
+  /* Semantic colours — adjusted for light surfaces */
+  --color-success:    #16a34a;
+  --color-success-bg: rgba(22, 163, 74, 0.10);
+  --color-warning:    #d97706;
+  --color-warning-bg: rgba(217, 119, 6, 0.10);
+  --color-danger:     #dc2626;
+  --color-danger-bg:  rgba(220, 38, 38, 0.08);
+  --color-info:       #0284c7;
+  --color-info-bg:    rgba(2, 132, 199, 0.10);
+
+  /* Attendance status */
+  --color-present:    #16a34a;
+  --color-present-bg: rgba(22, 163, 74, 0.10);
+  --color-late:       #d97706;
+  --color-late-bg:    rgba(217, 119, 6, 0.10);
+  --color-absent:     #dc2626;
+  --color-absent-bg:  rgba(220, 38, 38, 0.08);
+
+  /* Text ramp — charcoal, not full black, for reading comfort */
+  --color-text:         #111827;   /* near-black headings */
+  --color-text-2:       #374151;   /* body text */
+  --color-text-3:       #6B7280;   /* captions, placeholders */
+  --color-text-inverse: #FFFFFF;
+
+  /* Shadows — soft, not heavy; light UIs need air not drama */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md:  0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-lg:  0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+  --shadow-xl:  0 8px 32px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.07);
+  --shadow-glow: 0 0 18px var(--color-primary-glow);
+}
+
+/* ── Body background ──────────────────────────────────────── */
+[data-portal="admin-light"] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ── Scrollbar — light mode variant ──────────────────────── */
+[data-portal="admin-light"] ::-webkit-scrollbar-track {
+  background: var(--color-surface-2);
+}
+
+[data-portal="admin-light"] ::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+}
+
+[data-portal="admin-light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* ── Global card overrides ────────────────────────────────── */
+[data-portal="admin-light"] .card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal="admin-light"] .card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+[data-portal="admin-light"] .card-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: var(--color-border);
+}
+
+/* ── Headings & paragraphs ────────────────────────────────── */
+[data-portal="admin-light"] h1,
+[data-portal="admin-light"] h2,
+[data-portal="admin-light"] h3,
+[data-portal="admin-light"] h4,
+[data-portal="admin-light"] h5,
+[data-portal="admin-light"] h6 {
+  color: var(--color-text);
+}
+
+[data-portal="admin-light"] p {
+  color: var(--color-text-2);
+}
+
+/* ── Link colour ──────────────────────────────────────────── */
+[data-portal="admin-light"] a {
+  color: var(--color-primary);
+}
+
+/* ── Form elements ────────────────────────────────────────── */
+[data-portal="admin-light"] .input {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-portal="admin-light"] .input::placeholder {
+  color: var(--color-text-3);
+}
+
+[data-portal="admin-light"] .input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+[data-portal="admin-light"] .select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+[data-portal="admin-light"] .btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+[data-portal="admin-light"] .btn-secondary:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-border-hover);
+}
+
+[data-portal="admin-light"] .btn-ghost {
+  color: var(--color-text-2);
+}
+
+[data-portal="admin-light"] .btn-ghost:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+[data-portal="admin-light"] .btn-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: rgba(220, 38, 38, 0.25);
+}
+
+[data-portal="admin-light"] .btn-danger:hover {
+  background: var(--color-danger);
+  color: #fff;
+  border-color: var(--color-danger);
+}
+
+/* ── Stat cards ───────────────────────────────────────────── */
+[data-portal="admin-light"] .stat-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal="admin-light"] .stat-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+[data-portal="admin-light"] .stat-card-label {
+  color: var(--color-text-3);
+}
+
+[data-portal="admin-light"] .stat-card-value {
+  color: var(--color-text);
+}
+
+[data-portal="admin-light"] .stat-card-sub {
+  color: var(--color-text-3);
+}
+
+/* ── Table ────────────────────────────────────────────────── */
+[data-portal="admin-light"] .table-container {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-portal="admin-light"] thead tr {
+  border-bottom-color: var(--color-border);
+  background: var(--color-surface-2);
+}
+
+[data-portal="admin-light"] thead th {
+  color: var(--color-text-3);
+}
+
+[data-portal="admin-light"] tbody tr {
+  border-bottom-color: var(--color-border);
+}
+
+[data-portal="admin-light"] tbody tr:hover {
+  background: var(--color-surface-2);
+}
+
+[data-portal="admin-light"] tbody td {
+  color: var(--color-text-2);
+}
+
+/* ── Badges ───────────────────────────────────────────────── */
+[data-portal="admin-light"] .badge-neutral {
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+}
+
+[data-portal="admin-light"] .badge-primary {
+  background: rgba(157, 10, 18, 0.08);
+  color: var(--color-primary);
+}
+
+/* ── Skeleton loader ──────────────────────────────────────── */
+[data-portal="admin-light"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 25%,
+    var(--color-border)    50%,
+    var(--color-surface-2) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ── Alerts ───────────────────────────────────────────────── */
+[data-portal="admin-light"] .alert-error {
+  background: var(--color-danger-bg);
+  border-color: rgba(220, 38, 38, 0.25);
+  color: var(--color-danger);
+}
+
+[data-portal="admin-light"] .alert-success {
+  background: var(--color-success-bg);
+  border-color: rgba(22, 163, 74, 0.25);
+  color: var(--color-success);
+}
+
+[data-portal="admin-light"] .alert-warning {
+  background: var(--color-warning-bg);
+  border-color: rgba(217, 119, 6, 0.25);
+  color: var(--color-warning);
+}
+
+[data-portal="admin-light"] .alert-info {
+  background: var(--color-info-bg);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: var(--color-info);
+}
+
+/* ── Modal ────────────────────────────────────────────────── */
+[data-portal="admin-light"] .modal-overlay {
+  background: rgba(17, 24, 39, 0.45);
+}
+
+[data-portal="admin-light"] .modal-box {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xl);
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+[data-portal="admin-light"] .divider {
+  background: var(--color-border);
+}
+
+/* ── Avatar ───────────────────────────────────────────────── */
+[data-portal="admin-light"] .avatar {
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+}
+
+/* ── Page header ──────────────────────────────────────────── */
+[data-portal="admin-light"] .page-title {
+  color: var(--color-text);
+}
+
+[data-portal="admin-light"] .page-subtitle {
+  color: var(--color-text-3);
+}
+
+/* ── Audit log ────────────────────────────────────────────── */
+[data-portal="admin-light"] .audit-row:hover {
+  background: var(--color-surface-2);
+}
+
+/* ── Focus ring ───────────────────────────────────────────── */
+[data-portal="admin-light"] :focus-visible {
+  outline-color: var(--color-primary);
+}
+
+/* ── Print — keep clean white ─────────────────────────────── */
+@media print {
+  [data-portal="admin-light"] {
+    background: #fff;
+    color: #000;
+  }
+}

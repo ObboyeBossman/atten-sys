@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import ProfileClient from "./ProfileClient";
+import { AppearanceCard } from "@/components/theme/AppearanceCard";
 
 export const metadata: Metadata = { title: "Profile" };
 
@@ -49,6 +50,22 @@ export default async function ProfilePage() {
         staffId={staffId}
         phone={phone}
       />
+
+      <div style={{ marginTop: "var(--space-6)" }}>
+        <h2
+          style={{
+            fontSize: "var(--text-sm)",
+            fontWeight: 700,
+            color: "var(--color-text-3)",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            marginBottom: "var(--space-3)",
+          }}
+        >
+          Appearance
+        </h2>
+        <AppearanceCard />
+      </div>
     </div>
   );
 }

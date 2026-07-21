@@ -298,7 +298,16 @@ export default function LoginPage() {
         }
       }
 
-      // ── 3. Ensure overlay has been visible for at least MIN_OVERLAY_MS ──
+      // ── 3. Force password change if flagged ────────────────────────
+      // This applies to all roles. The destination is preserved in a
+      // query param so the change-password page can redirect correctly.
+      if (p.must_change_password) {
+        const encodedNext = encodeURIComponent(destination);
+        destination = `/change-password?next=${encodedNext}`;
+        label = "Password change required…";
+      }
+
+      // ── 4. Ensure overlay has been visible for at least MIN_OVERLAY_MS ──
       await waitMinimum();
 
       setDestLabel(label);

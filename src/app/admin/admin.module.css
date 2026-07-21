@@ -2,6 +2,7 @@
   display: flex;
   min-height: 100dvh;
   background: var(--color-bg);
+  /* Light-mode token inheritance handled by [data-portal="admin-light"] in admin-light-theme.css */
 }
 
 .adminMain {

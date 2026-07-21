@@ -90,10 +90,26 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
   async function handleNotifClick(notif: NotificationItem) {
     if (!notif.is_read) markRead(notif.id);
 
-    if (notif.session_id) {
-      // Check session live status then route appropriately
-      router.push(`/student/attendance/${notif.session_id}`);
+    if (!notif.session_id) return;
+
+    // For session_started notifications: check whether the session is still live
+    // so we can send the student directly to check-in instead of the detail page.
+    if (notif.type === "session_started") {
+      try {
+        const res = await fetch(`/api/sessions/${notif.session_id}/status`);
+        if (res.ok) {
+          const { live } = await res.json();
+          if (live) {
+            router.push(`/student/checkin/${notif.session_id}`);
+            return;
+          }
+        }
+      } catch {
+        // If the check fails, fall through to the attendance detail page
+      }
     }
+
+    router.push(`/student/attendance/${notif.session_id}`);
   }
 
   if (notifications.length === 0) {

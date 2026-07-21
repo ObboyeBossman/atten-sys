@@ -182,8 +182,6 @@ export function NoticeBanner() {
     }
   }, [dismiss]);
 
-  const stackRef = useRef<HTMLDivElement>(null);
-
   // Keep --banner-h in sync with the rendered stack height so mobile
   // main padding adjusts automatically via CSS var(--banner-h, 0px).
   useEffect(() => {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { assignLecturerToCourse } from "../actions";
+import { assignLecturerToCourse, deleteCourse } from "../actions";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -204,6 +204,109 @@ function AssignModal({
   );
 }
 
+// ── Delete Course Modal ───────────────────────────────────────────────────────
+
+function DeleteCourseModal({
+  course,
+  sessionCount,
+  attendanceCount,
+  onClose,
+  onDeleted,
+}: {
+  course: Course;
+  sessionCount: number;
+  attendanceCount: number;
+  onClose: () => void;
+  onDeleted: () => void;
+}) {
+  const [confirm, setConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const canDelete = confirm.trim().toLowerCase() === course.code.trim().toLowerCase();
+
+  async function handleDelete() {
+    if (!canDelete || deleting) return;
+    setDeleting(true);
+    setErr(null);
+    const res = await deleteCourse(course.id);
+    setDeleting(false);
+    if ("error" in res) { setErr(res.error); return; }
+    onDeleted();
+  }
+
+  return (
+    <Modal title="Delete Course" onClose={onClose}>
+      {/* Danger banner */}
+      <div style={{
+        display: "flex", alignItems: "flex-start", gap: "var(--space-3)",
+        padding: "var(--space-4)", borderRadius: "var(--radius-lg)",
+        background: "var(--color-danger-bg)", border: "1px solid rgba(157,10,18,0.2)",
+        marginBottom: "var(--space-5)",
+      }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <div>
+          <p style={{ fontSize: "var(--text-sm)", fontWeight: 700, color: "var(--color-danger)", marginBottom: 4 }}>
+            This action cannot be undone
+          </p>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", lineHeight: 1.5 }}>
+            Deleting <strong>{course.name}</strong> will permanently remove:
+          </p>
+          <ul style={{ fontSize: "var(--text-sm)", color: "var(--color-text-2)", margin: "var(--space-2) 0 0 var(--space-4)", lineHeight: 1.8 }}>
+            <li>The course record</li>
+            <li><strong>{sessionCount}</strong> class session{sessionCount !== 1 ? "s" : ""}</li>
+            <li><strong>{attendanceCount}</strong> attendance record{attendanceCount !== 1 ? "s" : ""}</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Confirmation input */}
+      <div style={{ marginBottom: "var(--space-5)" }}>
+        <label style={{ display: "block", fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text-2)", marginBottom: "var(--space-2)" }}>
+          Type the course code <span style={{ fontFamily: "var(--font-mono)", background: "var(--color-surface-3)", padding: "1px 6px", borderRadius: 4, color: "var(--color-danger)" }}>{course.code}</span> to confirm
+        </label>
+        <input
+          className="input"
+          placeholder={course.code}
+          value={confirm}
+          onChange={(e) => { setConfirm(e.target.value); setErr(null); }}
+          autoFocus
+          autoComplete="off"
+          spellCheck={false}
+        />
+      </div>
+
+      {err && (
+        <p style={{ fontSize: "var(--text-sm)", color: "var(--color-danger)", background: "var(--color-danger-bg)", padding: "var(--space-3)", borderRadius: "var(--radius-md)", marginBottom: "var(--space-4)" }}>
+          {err}
+        </p>
+      )}
+
+      <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end" }}>
+        <button className="btn btn-ghost" onClick={onClose} disabled={deleting}>Cancel</button>
+        <button
+          className={`btn btn-danger ${deleting ? "btn-loading" : ""}`}
+          onClick={handleDelete}
+          disabled={!canDelete || deleting}
+          style={{ opacity: canDelete ? 1 : 0.45 }}
+        >
+          {!deleting && (
+            <>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+              </svg>
+              Delete Course
+            </>
+          )}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── Info row helper ───────────────────────────────────────────────────────────
 
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
@@ -228,6 +331,7 @@ export default function CourseDetailPage() {
   const [loading, setLoading]     = useState(true);
   const [err, setErr]             = useState<string | null>(null);
   const [showAssign, setShowAssign] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -309,9 +413,10 @@ export default function CourseDetailPage() {
   useEffect(() => { load(); }, [load]);
 
   // Overall attendance rate across all sessions
-  const totalPresent  = sessions.reduce((a, s) => a + s.present + s.late, 0);
-  const totalRecords  = sessions.reduce((a, s) => a + s.total, 0);
-  const overallRate   = totalRecords ? Math.round((totalPresent / totalRecords) * 100) : null;
+  const totalPresent    = sessions.reduce((a, s) => a + s.present + s.late, 0);
+  const totalRecords    = sessions.reduce((a, s) => a + s.total, 0);
+  const overallRate     = totalRecords ? Math.round((totalPresent / totalRecords) * 100) : null;
+  const totalAttendance = totalRecords; // alias used by delete modal
 
   if (loading) return (
     <div style={{ textAlign: "center", padding: "var(--space-16)", color: "var(--color-text-3)" }}>Loading…</div>
@@ -324,9 +429,19 @@ export default function CourseDetailPage() {
   return (
     <div>
       {/* Back + header */}
-      <div style={{ marginBottom: "var(--space-2)" }}>
-        <button className="btn btn-ghost btn-sm" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)", marginBottom: "var(--space-3)" }} onClick={() => router.push("/admin/courses")}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-2)", flexWrap: "wrap", gap: "var(--space-3)" }}>
+        <button className="btn btn-ghost btn-sm" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }} onClick={() => router.push("/admin/courses")}>
           <IBack /> Back to Courses
+        </button>
+        <button
+          className="btn btn-danger btn-sm"
+          onClick={() => setShowDelete(true)}
+          style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+          Delete Course
         </button>
       </div>
 
@@ -498,6 +613,16 @@ export default function CourseDetailPage() {
           lecturers={lecturers}
           onClose={() => setShowAssign(false)}
           onDone={load}
+        />
+      )}
+
+      {showDelete && (
+        <DeleteCourseModal
+          course={course}
+          sessionCount={sessions.length}
+          attendanceCount={totalAttendance}
+          onClose={() => setShowDelete(false)}
+          onDeleted={() => router.replace("/admin/courses")}
         />
       )}
     </div>

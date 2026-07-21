@@ -453,18 +453,24 @@
 .refreshRow:hover { color: var(--color-text-2); }
 
 /* ── Mobile tweaks ──────────────────────────────────────── */
-@media (max-width: 480px) {
-  .idleCard,
-  .liveBanner,
-  .emptyCard,
-  .offlineCard,
-  .errorCard {
+
+/* ≤640px: standard phone portrait */
+@media (max-width: 640px) {
+  .idleCard {
+    /* Stack icon+text above button on phones */
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
     padding: var(--space-4) var(--space-5);
   }
 
   .checkBtn {
     width: 100%;
     justify-content: center;
+  }
+
+  .liveBanner {
+    padding: var(--space-5);
   }
 
   .liveBannerActions {
@@ -474,9 +480,30 @@
 
   .liveBannerActions .btn {
     text-align: center;
+    justify-content: center;
   }
 
   .detailsLink {
     text-align: center;
+  }
+}
+
+/* ≤480px: narrow phones */
+@media (max-width: 480px) {
+  .idleCard,
+  .liveBanner,
+  .emptyCard,
+  .offlineCard,
+  .errorCard {
+    padding: var(--space-4) var(--space-4);
+  }
+
+  .skeletonCard {
+    padding: var(--space-4) var(--space-4);
+  }
+
+  .skeletonBtn {
+    width: 100%;
+    margin-top: var(--space-2);
   }
 }

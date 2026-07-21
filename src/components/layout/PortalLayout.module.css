@@ -163,6 +163,26 @@
   background: var(--color-danger-bg);
 }
 
+/* ── Notice banner bar ──────────────────────────────────────────────────── */
+
+.noticeBannerBar {
+  /* Desktop: sticky strip at the top of main — naturally pushes content down */
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .noticeBannerBar {
+    /* Mobile: fixed below topbar; main gets extra padding via var below */
+    position: fixed;
+    top: 56px; /* matches .mobileTopbar height */
+    left: 0;
+    right: 0;
+  }
+}
+
 .main {
   flex: 1;
   margin-left: var(--sidebar-width);
@@ -214,7 +234,8 @@
   }
   .main {
     margin-left: 0;
-    padding-top: 56px; /* matches .mobileTopbar height */
+    /* 56px topbar + dynamic banner height set by JS via --banner-h */
+    padding-top: calc(56px + var(--banner-h, 0px));
     padding-bottom: 64px; /* space for bottom nav + safe area */
   }
   .content {

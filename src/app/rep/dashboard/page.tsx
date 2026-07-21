@@ -522,7 +522,7 @@ function LiveSessionCard({
         </div>
       </div>
 
-      <Link href={`/rep/sessions/${session.id}`} className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+      <Link href={`/rep/sessions/${session.id}`} className="btn btn-primary" style={{ width: "100%", justifyContent: "center", minHeight: 48 }}>
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M2 10h16M10 4l6 6-6 6" />
         </svg>

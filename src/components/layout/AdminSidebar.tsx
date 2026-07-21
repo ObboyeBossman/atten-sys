@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./AdminSidebar.module.css";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const NAV_ITEMS = [
   {
@@ -191,15 +192,18 @@ function NavContent({ pathname, closeDrawer, onSignOutClick, adminName }: NavCon
           </div>
           <span className={styles.profileName}>{adminName ?? "Admin"}</span>
         </Link>
-        <button
-          onClick={onSignOutClick}
-          className={styles.logoutBtn}
-          title="Sign out"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
-          </svg>
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <ThemeToggle variant="icon" />
+          <button
+            onClick={onSignOutClick}
+            className={styles.logoutBtn}
+            title="Sign out"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l4-4-4-4M14 7H6" />
+            </svg>
+          </button>
+        </div>
       </div>
     </>
   );

@@ -245,7 +245,11 @@ export function AddCourseClient({ groupId, semesterId }: Props) {
           background: var(--color-surface);
           border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
           box-shadow: var(--shadow-xl);
-          max-height: 92dvh;
+          /*
+           * Cap at viewport minus the 56px mobile topbar so the sheet
+           * never slides up behind the topbar chrome.
+           */
+          max-height: calc(100dvh - 56px);
           display: flex; flex-direction: column;
           transform: translateY(105%);
           transition: transform 300ms cubic-bezier(0.22,1,0.36,1);
@@ -372,10 +376,21 @@ export function AddCourseClient({ groupId, semesterId }: Props) {
         .ac-footer {
           display: flex; gap: var(--space-3);
           padding: var(--space-4) var(--space-6);
-          padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+          /*
+           * Mobile: the floating pill nav sits ~72px above the bottom edge
+           * (pill ~56px + 16px gap) plus safe-area-inset-bottom.
+           * Without this, Cancel/Save buttons are hidden behind the pill nav.
+           */
+          padding-bottom: calc(88px + env(safe-area-inset-bottom));
           border-top: 1px solid var(--color-border);
           flex-shrink: 0;
           background: var(--color-surface);
+        }
+        /* Desktop/tablet: pill nav hidden — restore normal padding */
+        @media (min-width: 769px) {
+          .ac-footer {
+            padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+          }
         }
 
         /* Save button done state */

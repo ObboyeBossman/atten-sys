@@ -43,6 +43,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
     { label: "Dashboard", href: "/student/dashboard", icon: "dashboard" as const },
     { label: "Attendance", href: "/student/attendance", icon: "check" as const },
     { label: "Notifications", href: "/student/notifications", icon: "bell" as const, badge: unreadCount },
+    { label: "Feedback", href: "/student/feedback", icon: "star" as const },
     { label: "Profile", href: "/student/profile", icon: "user" as const },
   ];
 

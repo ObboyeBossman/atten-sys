@@ -14,6 +14,7 @@ const LECTURER_NAV = [
   { label: "Groups", href: "/lecturer/groups", icon: "users" },
   { label: "Disputes", href: "/lecturer/disputes", icon: "flag" },
   { label: "History", href: "/lecturer/history", icon: "clock" },
+  { label: "Feedback", href: "/lecturer/feedback", icon: "star" },
   { label: "Profile", href: "/lecturer/profile", icon: "user" },
 ] as const;
 

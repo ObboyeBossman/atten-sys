@@ -603,3 +603,189 @@
   background: #E4E6F0;
   border-color: #CBD5E1;
 }
+
+/* ── Dark mode overrides (admin portal only) ──────────────────────────── */
+/*
+  Scoped to [data-portal="admin-dark"] set on the admin layout root.
+  The signature detail: active nav items get a 2px brand-red left bar
+  that bleeds to the sidebar edge — spatial anchoring, not a pill/blob.
+*/
+
+[data-portal="admin-dark"] .sidebar {
+  background: #0D1220;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-portal="admin-dark"] .brand {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-portal="admin-dark"] .brandIcon {
+  background: #161E2E;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.18);
+}
+
+[data-portal="admin-dark"] .brandName {
+  color: #F0F4FF;
+}
+
+[data-portal="admin-dark"] .brandRole {
+  color: #C0111B;
+}
+
+/* Nav items */
+[data-portal="admin-dark"] .navItem {
+  color: #8B9BB4;
+  position: relative;
+}
+
+[data-portal="admin-dark"] .navItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #F0F4FF;
+}
+
+/* Signature detail: red left bar on active item */
+[data-portal="admin-dark"] .navItemActive {
+  background: rgba(192, 17, 27, 0.10);
+  color: #F0F4FF;
+}
+
+[data-portal="admin-dark"] .navItemActive::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--space-3));
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: #C0111B;
+  border-radius: 0 2px 2px 0;
+}
+
+[data-portal="admin-dark"] .navItemActive .navIcon {
+  color: #C0111B;
+}
+
+[data-portal="admin-dark"] .navIcon {
+  color: #4D5E78;
+  transition: color 150ms ease;
+}
+
+[data-portal="admin-dark"] .navItem:hover .navIcon {
+  color: #8B9BB4;
+}
+
+/* Sub nav */
+[data-portal="admin-dark"] .subNav {
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-portal="admin-dark"] .subNavItem {
+  color: #4D5E78;
+}
+
+[data-portal="admin-dark"] .subNavItem:hover {
+  color: #F0F4FF;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-portal="admin-dark"] .subNavItemActive {
+  color: #C0111B;
+  background: rgba(192, 17, 27, 0.08);
+}
+
+/* Footer */
+[data-portal="admin-dark"] .sidebarFooter {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-portal="admin-dark"] .profileLink:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-portal="admin-dark"] .profileName {
+  color: #F0F4FF;
+}
+
+[data-portal="admin-dark"] .logoutBtn {
+  color: #4D5E78;
+}
+
+[data-portal="admin-dark"] .logoutBtn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.10);
+}
+
+/* Mobile topbar */
+[data-portal="admin-dark"] .mobileTopbar {
+  background: #0D1220;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+[data-portal="admin-dark"] .hamburger {
+  color: #F0F4FF;
+}
+
+[data-portal="admin-dark"] .hamburger:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Mobile drawer */
+[data-portal="admin-dark"] .drawer {
+  background: #0D1220;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-portal="admin-dark"] .drawerHeader {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-portal="admin-dark"] .drawerBackdrop {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+[data-portal="admin-dark"] .drawerClose {
+  color: #4D5E78;
+}
+
+[data-portal="admin-dark"] .drawerClose:hover {
+  color: #F0F4FF;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Sign-out dialog */
+[data-portal="admin-dark"] .dialogOverlay {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+[data-portal="admin-dark"] .dialog {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65), 0 8px 16px rgba(0, 0, 0, 0.45);
+}
+
+[data-portal="admin-dark"] .dialogIcon {
+  background: rgba(239, 68, 68, 0.10);
+  color: #ef4444;
+}
+
+[data-portal="admin-dark"] .dialogTitle {
+  color: #F0F4FF;
+}
+
+[data-portal="admin-dark"] .dialogBody {
+  color: #4D5E78;
+}
+
+[data-portal="admin-dark"] .dialogCancel {
+  background: #161E2E;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #F0F4FF;
+}
+
+[data-portal="admin-dark"] .dialogCancel:hover {
+  background: #1C2640;
+  border-color: rgba(255, 255, 255, 0.14);
+}

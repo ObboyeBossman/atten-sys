@@ -292,7 +292,9 @@ export default function GroupDetailPage() {
   // ── Computed ─────────────────────────────────────────────────────────────────
 
   const activeStudents = students.filter(s => s.membership_status === "active");
-  const currentRep     = activeStudents.find(s => s.is_course_rep) ?? null;
+  const currentReps    = activeStudents.filter(s => s.is_course_rep);
+  const repCount       = currentReps.length;
+  const atRepCapacity  = repCount >= 2;
 
   function actionGuard() {
     if (group?.is_archived) {
@@ -324,7 +326,7 @@ export default function GroupDetailPage() {
   async function confirmAssignRep() {
     if (!repTarget) return;
     await run(
-      () => assignRep(groupId, repTarget.id, currentRep && currentRep.id !== repTarget.id ? currentRep.id : null),
+      () => assignRep(groupId, repTarget.id),
       () => setRepTarget(null),
     );
   }
@@ -502,10 +504,29 @@ export default function GroupDetailPage() {
             </div>
           ))}
           <div>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Course Rep</div>
-            <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, marginTop: 4, color: currentRep ? "var(--color-success)" : "var(--color-text-3)" }}>
-              {currentRep ? currentRep.name.split(" ")[0] : "None assigned"}
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Course Reps</div>
+              <span style={{
+                fontSize: 10, fontWeight: 700, padding: "1px 6px",
+                borderRadius: "var(--radius-full)",
+                background: atRepCapacity ? "rgba(34,197,94,0.12)" : "rgba(245,158,11,0.12)",
+                color: atRepCapacity ? "var(--color-success)" : "var(--color-warning)",
+                border: `1px solid ${atRepCapacity ? "rgba(34,197,94,0.3)" : "rgba(245,158,11,0.3)"}`,
+              }}>
+                {repCount}/2
+              </span>
             </div>
+            {repCount === 0 ? (
+              <div style={{ fontSize: "var(--text-sm)", fontWeight: 600, marginTop: 4, color: "var(--color-text-3)" }}>None assigned</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4 }}>
+                {currentReps.map(r => (
+                  <div key={r.id} style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-success)" }}>
+                    {r.name.split(" ")[0]}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Created</div>
@@ -577,11 +598,11 @@ export default function GroupDetailPage() {
                           <button className="btn btn-ghost btn-sm" onClick={() => confirmUnassignRep(s)} disabled={busy || group.is_archived}>
                             Remove Rep
                           </button>
-                        ) : (
+                        ) : !atRepCapacity ? (
                           <button className="btn btn-ghost btn-sm" onClick={() => { if (actionGuard()) setRepTarget(s); }} disabled={busy || group.is_archived}>
                             Make Rep
                           </button>
-                        )}
+                        ) : null}
                         <button className="btn btn-ghost btn-sm" onClick={() => { setResetPwdTarget(s); setNewPwd(""); setShowPwd(false); }} disabled={busy}>
                           Reset Pwd
                         </button>
@@ -675,18 +696,19 @@ export default function GroupDetailPage() {
       {/* Assign rep */}
       {repTarget && (
         <Modal title="Assign Course Rep" onClose={() => setRepTarget(null)}>
-          {currentRep && currentRep.id !== repTarget.id && (
+          {repCount === 1 && (
             <div className="alert alert-warning" style={{ marginBottom: "var(--space-5)" }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" style={{ flexShrink: 0 }}>
                 <path d="M8 2L1 14h14L8 2zM8 6v4M8 11.5v.5" />
               </svg>
               <span>
-                <strong>{currentRep.name}</strong> is currently the course rep and will be unassigned automatically.
+                This group already has one rep (<strong>{currentReps[0].name}</strong>).{" "}
+                Assigning <strong>{repTarget.name}</strong> will fill the second rep slot — the group will then be at capacity.
               </span>
             </div>
           )}
           <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-3)", marginBottom: "var(--space-6)", lineHeight: 1.6 }}>
-            Assign <strong style={{ color: "var(--color-text)" }}>{repTarget.name}</strong> as the course rep for this group?
+            Assign <strong style={{ color: "var(--color-text)" }}>{repTarget.name}</strong> as a course rep for this group?
           </p>
           <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "flex-end" }}>
             <button className="btn btn-secondary" onClick={() => setRepTarget(null)} disabled={busy}>Cancel</button>

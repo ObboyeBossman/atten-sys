@@ -330,7 +330,7 @@ export default async function RepDashboard() {
               total={d.totalStudents}
             />
           ) : (
-            <NoSessionCard />
+            <NoSessionCard hasCourses={d.totalCourses > 0} />
           )}
 
           {/* Recent Sessions */}
@@ -338,9 +338,15 @@ export default async function RepDashboard() {
             <h2 className={s.recentTitle}>Recent Sessions</h2>
 
             {d.recentSessions.length === 0 ? (
-              <p className={s.recentEmpty}>
-                No sessions held yet this semester.
-              </p>
+              <div className={s.recentEmptyState}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ color: "var(--color-text-3)", marginBottom: "var(--space-3)" }}>
+                  <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
+                </svg>
+                <p style={{ fontWeight: 600, fontSize: "var(--text-sm)", color: "var(--color-text-2)", margin: 0 }}>No sessions yet</p>
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", margin: "var(--space-1) 0 0" }}>
+                  {d.totalCourses > 0 ? "Open a session from a course page to get started." : "Add your courses first, then open sessions."}
+                </p>
+              </div>
             ) : (
               <div className={s.recentList}>
                 {d.recentSessions.map((session) => (
@@ -526,25 +532,47 @@ function LiveSessionCard({
   );
 }
 
-function NoSessionCard() {
+function NoSessionCard({ hasCourses }: { hasCourses: boolean }) {
   return (
     <div className={`card ${s.noSessionCard}`}>
       <div className={s.noSessionIcon} aria-hidden="true">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 8v4l3 3" />
-        </svg>
+        {hasCourses ? (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4l3 3" />
+          </svg>
+        ) : (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+        )}
       </div>
-      <div className={s.noSessionTitle}>No Active Session</div>
+      <div className={s.noSessionTitle}>
+        {hasCourses ? "No Active Session" : "Set Up Your Courses"}
+      </div>
       <p className={s.noSessionBody}>
-        Students are waiting. Pick a course to start a session.
+        {hasCourses
+          ? "Students are waiting. Pick a course to start a session."
+          : "Add your semester courses first. You can open attendance sessions from each course page."}
       </p>
       <Link href="/rep/courses" className="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <circle cx="10" cy="10" r="9" />
-          <path d="M10 6v8M6 10h8" />
-        </svg>
-        Start a Session
+        {hasCourses ? (
+          <>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="10" cy="10" r="9" />
+              <path d="M10 6v8M6 10h8" />
+            </svg>
+            Start a Session
+          </>
+        ) : (
+          <>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10 5v10M5 10h10" />
+            </svg>
+            Add Courses
+          </>
+        )}
       </Link>
     </div>
   );

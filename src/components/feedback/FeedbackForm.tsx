@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { submitFeedback } from "@/actions/feedback";
 import type { FeedbackCategory, FeedbackSentiment, FeedbackAuthorRole } from "@/actions/feedback";
 import styles from "./FeedbackForm.module.css";
@@ -67,6 +68,7 @@ function StarRating({
 }
 
 export default function FeedbackForm({ authorRole }: { authorRole: FeedbackAuthorRole }) {
+  const router = useRouter();
   const [category, setCategory] = useState<FeedbackCategory>("general");
   const [sentiment, setSentiment] = useState<FeedbackSentiment>("positive");
   const [rating, setRating] = useState(0);
@@ -93,6 +95,9 @@ export default function FeedbackForm({ authorRole }: { authorRole: FeedbackAutho
         setError(res.error);
       } else {
         setSubmitted(true);
+        // Refresh the server component so the "My submissions" tab re-fetches
+        // history from Supabase and shows the newly submitted item.
+        router.refresh();
       }
     });
   }

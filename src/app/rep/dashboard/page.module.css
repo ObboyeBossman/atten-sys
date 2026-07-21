@@ -1,0 +1,484 @@
+/**
+ * Rep Dashboard — Responsive Layout Module
+ *
+ * Breakpoint system (mobile-first, matching AGENTS.md):
+ *   base  : 0–479px     (phones, one-thumb zone)
+ *   sm    : 480px+       (large phones / small tablets)
+ *   md    : 768px+       (tablets — sidebar appears in PortalLayout)
+ *   lg    : 1024px+      (desktop — two-column lower grid unlocks)
+ *   xl    : 1280px+      (wide desktop)
+ */
+
+/* ── Page shell ─────────────────────────────────────────────── */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.headerText {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Disputes button — visible on desktop, hidden on mobile */
+.disputesBtn {
+  flex-shrink: 0;
+}
+
+@media (max-width: 639px) {
+  .disputesBtn {
+    display: none;
+  }
+}
+
+/* ── Mobile disputes banner — hidden by default, shown on mobile ── */
+.disputesBanner {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .disputesBanner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--color-danger-bg);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    text-decoration: none;
+  }
+}
+
+.disputesBannerText {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-danger);
+  flex: 1;
+  min-width: 0;
+}
+
+.disputesBannerChevron {
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+
+/* ── Lower grid (session card + sidebar) ────────────────────── */
+.lowerGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .lowerGrid {
+    grid-template-columns: 1fr 340px;
+  }
+}
+
+/* Main column — contains live session + recent sessions */
+.mainCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Sidebar column — quick actions + disputes + semester */
+.sideCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* On mobile, sidebar comes below the main column */
+@media (max-width: 1023px) {
+  .mainCol { order: 1; }
+  .sideCol { order: 2; }
+}
+
+/* ── Live Session Card ──────────────────────────────────────── */
+.liveCard {
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.06), transparent);
+  overflow: hidden;
+}
+
+.liveHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.livePulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+
+.liveBadge {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-success);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.liveElapsed {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  white-space: nowrap;
+}
+
+.liveCourseName {
+  font-weight: 800;
+  font-size: var(--text-xl);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: var(--space-1);
+}
+
+.liveMeta {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: var(--space-4);
+}
+
+/* On very small phones, allow the meta to wrap */
+@media (max-width: 400px) {
+  .liveMeta {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+.liveProgressLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.liveProgressCount {
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.liveProgressPct {
+  font-weight: 400;
+  color: var(--color-text-3);
+  margin-left: 4px;
+}
+
+.liveProgressTrack {
+  height: 6px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+
+.liveProgressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
+
+.liveProgressFill[data-level="good"]    { background: var(--color-success); }
+.liveProgressFill[data-level="medium"]  { background: var(--color-warning); }
+.liveProgressFill[data-level="low"]     { background: var(--color-danger); }
+
+/* ── No Session Card ────────────────────────────────────────── */
+.noSessionCard {
+  text-align: center;
+  padding: var(--space-10) var(--space-6);
+}
+
+@media (max-width: 479px) {
+  /* Save vertical space on small phones */
+  .noSessionCard {
+    padding: var(--space-6) var(--space-4);
+  }
+}
+
+.noSessionIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-4);
+  color: var(--color-text-3);
+}
+
+.noSessionTitle {
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+}
+
+.noSessionBody {
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+  margin-bottom: var(--space-5);
+  line-height: 1.6;
+}
+
+/* ── Recent Sessions card ───────────────────────────────────── */
+.recentCard {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.recentTitle {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--color-text);
+}
+
+.recentEmpty {
+  color: var(--color-text-3);
+  font-size: var(--text-sm);
+}
+
+.recentList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.recentRow {
+  display: grid;
+  /* date-chip | info | rate */
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+  /* Minimum 44px touch target */
+  min-height: 44px;
+}
+
+.recentRow:hover {
+  background: var(--color-surface-2);
+}
+
+/* Tighten horizontal padding on very small screens */
+@media (max-width: 400px) {
+  .recentRow {
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-2);
+  }
+}
+
+.recentDateChip {
+  width: 44px;
+  flex-shrink: 0;
+  text-align: center;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) 0;
+}
+
+.recentDateMonth {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-3);
+  text-transform: uppercase;
+  display: block;
+}
+
+.recentDateDay {
+  font-size: var(--text-lg);
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1;
+  display: block;
+}
+
+.recentInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.recentCourseName {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.recentCourseCode {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.recentTime {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  margin-top: 2px;
+  display: block;
+}
+
+.recentRate {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.recentRateValue {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  display: block;
+}
+
+.recentRateValue[data-level="good"]   { color: var(--color-success); }
+.recentRateValue[data-level="medium"] { color: var(--color-warning); }
+.recentRateValue[data-level="low"]    { color: var(--color-danger); }
+.recentRateValue[data-level="none"]   { color: var(--color-text-3); }
+
+.recentRateFraction {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  display: block;
+  white-space: nowrap;
+}
+
+/* ── Quick Actions card ─────────────────────────────────────── */
+.quickActionsTitle {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--color-text);
+}
+
+.quickActionsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* On mobile (below the fold, after main content), show as 2×2 grid */
+@media (max-width: 1023px) {
+  .quickActionsList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+}
+
+/* Revert to column on very small phones — 2-col is too cramped at 320px */
+@media (max-width: 479px) {
+  .quickActionsList {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quickActionsBtn {
+  justify-content: flex-start;
+  /* Ensure minimum touch target */
+  min-height: 44px;
+}
+
+/* ── Disputes callout card (inside sidebar) ─────────────────── */
+.disputesCallout {
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--color-danger-bg);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  text-decoration: none;
+}
+
+.disputesCalloutInner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.disputesCalloutIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+
+.disputesCalloutTitle {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+.disputesCalloutSub {
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+  margin-top: 2px;
+}
+
+/* ── Semester info card ─────────────────────────────────────── */
+.semesterCard {
+  padding: var(--space-4) var(--space-5);
+}
+
+.semesterLabel {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+  display: block;
+}
+
+.semesterName {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.semesterNone {
+  font-size: var(--text-sm);
+  color: var(--color-warning);
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import ActiveSessionCard from "@/components/student/ActiveSessionCard";
 import styles from "./dashboard.module.css";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -105,32 +106,7 @@ export default async function StudentDashboardPage() {
     courseIds = courses?.map((c) => c.id) ?? [];
   }
 
-  /* 5. Active (live) sessions */
-  let activeSessions: any[] = [];
-  if (courseIds.length > 0) {
-    const { data: sessions } = await supabase
-      .from("class_sessions")
-      .select(`id, started_at, venue, courses(id, name, code, groups(group_name))`)
-      .in("course_id", courseIds)
-      .is("ended_at", null);
-    activeSessions = sessions ?? [];
-  }
-
-  /* 6. Already checked-in session IDs */
-  const sessionIds = activeSessions.map((s) => s.id);
-  const checkedInSessionIds = new Set<string>();
-  if (sessionIds.length > 0) {
-    const { data: myAtt } = await supabase
-      .from("attendance")
-      .select("session_id")
-      .in("session_id", sessionIds)
-      .eq("student_id", user.id) as unknown as {
-        data: { session_id: string }[] | null;
-      };
-    myAtt?.forEach((a) => checkedInSessionIds.add(a.session_id));
-  }
-
-  /* 7. Attendance stats for active semester */
+  /* 5. Attendance stats for active semester */
   let totalPresent = 0;
   let totalLate = 0;
   let totalAbsent = 0;
@@ -160,7 +136,7 @@ export default async function StudentDashboardPage() {
       ? Math.round(((totalPresent + totalLate) / totalClasses) * 100)
       : 0;
 
-  /* 8. Recent 5 attendance records */
+  /* 6. Recent 5 attendance records */
   const { data: recentRaw } = await supabase
     .from("attendance")
     .select(`
@@ -291,7 +267,7 @@ export default async function StudentDashboardPage() {
         </Link>
       </div>
 
-      {/* ══ Live Session Banner ══════════════════════════════════ */}
+      {/* ══ Active Session — On-Demand PWA Card ═════════════════ */}
       <div className={styles.liveWrap}>
         <div className={styles.sectionLabel}>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -302,82 +278,11 @@ export default async function StudentDashboardPage() {
           <span className={styles.sectionLabelLine} />
         </div>
 
-        {activeSessions.length === 0 ? (
-          <div className={styles.noSession}>
-            <span className={styles.noSessionIcon}>
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <rect x="2" y="5" width="16" height="12" rx="2" />
-                <path d="M6 5V3M14 5V3M2 9h16" />
-              </svg>
-            </span>
-            <span>No classes in session right now. Check back when your next class starts.</span>
-          </div>
-        ) : (
-          <div className={styles.multiLiveGrid}>
-            {activeSessions.map((session) => {
-              const isCheckedIn = checkedInSessionIds.has(session.id);
-              const course = Array.isArray(session.courses) ? session.courses[0] : session.courses;
-              const courseName = course?.name ?? "Unknown course";
-              const courseCode = course?.code ?? "—";
-              const startTime = formatTime(session.started_at);
-              /* eslint-disable react-hooks/purity */
-              const elapsed = Math.floor(
-                (Date.now() - new Date(session.started_at).getTime()) / 60000
-              );
-              /* eslint-enable react-hooks/purity */
-              const elapsedLabel =
-                elapsed < 60 ? `${elapsed}m elapsed` : `${Math.floor(elapsed / 60)}h ${elapsed % 60}m elapsed`;
-
-              return (
-                <div key={session.id} className={styles.liveBanner}>
-                  <div className={styles.liveBannerGlow} />
-                  <div className={styles.liveBannerContent}>
-                    <div className={styles.livePulse}>
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--color-primary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="5" width="12" height="10" rx="1.5" />
-                        <path d="M14 8l5-3v9l-5-3" />
-                      </svg>
-                    </div>
-                    <div className={styles.liveTextWrap}>
-                      <div className={styles.liveLabelRow}>
-                        <span className={styles.liveDot}>● LIVE</span>
-                        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)" }}>
-                          {elapsedLabel}
-                        </span>
-                      </div>
-                      <div className={styles.liveCourseName}>{courseName}</div>
-                      <div className={styles.liveCourseMeta}>
-                        {courseCode}
-                        {session.venue ? ` · ${session.venue}` : ""}
-                        {" · "}Started at {startTime}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.liveBannerActions}>
-                    {isCheckedIn ? (
-                      <div className={styles.liveCheckedIn}>
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 8l4 4 6-7" />
-                        </svg>
-                        Checked In
-                      </div>
-                    ) : (
-                      <Link href={`/student/checkin/${session.id}`} className="btn btn-primary">
-                        Check In Now
-                      </Link>
-                    )}
-                    <Link
-                      href={`/student/attendance/${session.id}`}
-                      style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", textAlign: "center" }}
-                    >
-                      View details
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <ActiveSessionCard
+          studentId={user.id}
+          groupIds={groupIds}
+          courseIds={courseIds}
+        />
       </div>
 
       {/* ══ Attendance Stats ═════════════════════════════════════ */}

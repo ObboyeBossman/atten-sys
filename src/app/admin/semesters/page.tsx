@@ -517,19 +517,20 @@ export default function SemestersPage() {
           border: "1px solid rgba(34,197,94,0.25)",
           borderRadius: "var(--radius-lg)",
           marginBottom: "var(--space-5)",
+          flexWrap: "wrap",
         }}>
           <StatusDot status="active" />
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-success)" }}>
               {activeSemester.name}
             </span>
-            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", marginLeft: "var(--space-2)" }}>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", marginLeft: "var(--space-2)", display: "inline-block" }}>
               {activeSemester.year_name} · {fmtDate(activeSemester.start_date)} – {fmtDate(activeSemester.end_date)}
             </span>
           </div>
           <button
             className="btn btn-sm btn-secondary"
-            style={{ color: "var(--color-danger)", borderColor: "rgba(239,68,68,0.3)" }}
+            style={{ color: "var(--color-danger)", borderColor: "rgba(239,68,68,0.3)", whiteSpace: "nowrap", flexShrink: 0 }}
             onClick={() => setCloseTarget(activeSemester)}
           >
             Close Semester
@@ -601,7 +602,7 @@ export default function SemestersPage() {
 
       {/* ── Content ── */}
       {loading ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "var(--space-4)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 290px), 1fr))", gap: "var(--space-4)" }}>
           {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
         </div>
 
@@ -634,7 +635,7 @@ export default function SemestersPage() {
             return (
               <div key={key}>
                 {/* Section header */}
-                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-3)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)", flexWrap: "wrap" }}>
                   <div style={{
                     width: 28, height: 28, borderRadius: "var(--radius-md)", flexShrink: 0,
                     background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
@@ -651,6 +652,7 @@ export default function SemestersPage() {
                     <span style={{
                       fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: "var(--radius-full)",
                       background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "var(--color-success)",
+                      whiteSpace: "nowrap",
                     }}>
                       Current Year
                     </span>
@@ -660,17 +662,17 @@ export default function SemestersPage() {
                       fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 700,
                       padding: "2px 7px", borderRadius: "var(--radius-sm)",
                       background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
-                      color: "var(--color-secondary)", flexShrink: 0,
+                      color: "var(--color-secondary)", flexShrink: 0, whiteSpace: "nowrap",
                     }}>
                       {year.year_code}
                     </span>
                   )}
                   <span className="badge badge-neutral" style={{ fontSize: 10 }}>{items.length}</span>
-                  <div style={{ flex: 1, height: 1, background: "var(--color-border)" }} />
+                  <div style={{ flex: 1, minWidth: 16, height: 1, background: "var(--color-border)" }} />
                 </div>
 
-                {/* Card grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(290px, 1fr))", gap: "var(--space-3)" }}>
+                {/* Card grid — min(100%) lets cards fill the full width on phones */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 290px), 1fr))", gap: "var(--space-3)" }}>
                   {items.map((s) => {
                     const cfg       = statusConfig[s.status];
                     const canOpen   = s.status === "upcoming" && !activeSemester;

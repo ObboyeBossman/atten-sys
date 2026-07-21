@@ -549,6 +549,7 @@
   background: var(--color-surface-2);
   color: var(--color-text);
   transition: all var(--transition-fast);
+  min-height: 44px; /* accessible touch target */
 }
 
 .dialogCancel:hover {
@@ -564,22 +565,30 @@
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
-  background: var(--color-danger);
-  color: #fff;
-  transition: all var(--transition-fast);
+  /* Hardcoded — never depends on a CSS var that may resolve late or to the wrong theme value */
+  background: #dc2626;
+  color: #ffffff;
+  transition: background var(--transition-fast), opacity var(--transition-fast), transform 80ms ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  min-height: 44px; /* accessible touch target */
 }
 
 .dialogConfirm:hover {
-  background: #dc2626;
+  background: #b91c1c;
+}
+
+.dialogConfirm:active {
+  background: #991b1b;
+  transform: scale(0.98);
 }
 
 .dialogConfirm:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 @keyframes dialogFadeIn {

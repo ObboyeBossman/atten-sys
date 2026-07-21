@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import styles from "./NoticeBanner.module.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -95,6 +95,7 @@ export function NoticeBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isPwaInstallable, setIsPwaInstallable] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const stackRef = useRef<HTMLDivElement>(null);
 
   // Hydrate dismissed set from sessionStorage after mount
   useEffect(() => {
@@ -181,6 +182,27 @@ export function NoticeBanner() {
     }
   }, [dismiss]);
 
+  const stackRef = useRef<HTMLDivElement>(null);
+
+  // Keep --banner-h in sync with the rendered stack height so mobile
+  // main padding adjusts automatically via CSS var(--banner-h, 0px).
+  useEffect(() => {
+    const el = stackRef.current;
+    if (!el) return;
+
+    const update = () => {
+      document.documentElement.style.setProperty("--banner-h", `${el.offsetHeight}px`);
+    };
+    update();
+
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.setProperty("--banner-h", "0px");
+    };
+  });
+
   if (!mounted) return null;
 
   // Build ordered banner list — offline is always highest priority
@@ -215,7 +237,7 @@ export function NoticeBanner() {
   if (banners.length === 0) return null;
 
   return (
-    <div className={styles.stack} role="status" aria-live="polite" aria-label="System notices">
+    <div ref={stackRef} className={styles.stack} role="status" aria-live="polite" aria-label="System notices">
       {banners.map((banner, i) => (
         <div
           key={banner.kind}

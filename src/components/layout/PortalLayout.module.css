@@ -2,6 +2,7 @@
   display: flex;
   min-height: 100vh;
   background-color: var(--color-bg);
+  overflow-x: hidden; /* prevent horizontal bleed from any child */
 }
 
 .sidebar {

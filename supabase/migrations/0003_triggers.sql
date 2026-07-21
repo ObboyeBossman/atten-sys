@@ -117,30 +117,7 @@ CREATE TRIGGER trg_handle_user_login
     FOR EACH ROW EXECUTE FUNCTION handle_user_login();
 
 
--- ===========================================================================
--- D. SINGLETON SUPER_ADMIN GUARD
--- BUG FIX (review): function is now SECURITY DEFINER so it can read
--- super_admins regardless of the caller's role.
--- ===========================================================================
-
-CREATE OR REPLACE FUNCTION enforce_single_super_admin()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER   -- BUG FIX: was missing SECURITY DEFINER in original 0002
-AS $$
-BEGIN
-    IF (SELECT COUNT(*) FROM super_admins) >= 1 THEN
-        RAISE EXCEPTION
-            'Only one super admin is permitted. '
-            'Remove the existing super admin before creating a new one.';
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER trg_enforce_single_super_admin
-    BEFORE INSERT ON super_admins
-    FOR EACH ROW EXECUTE FUNCTION enforce_single_super_admin();
+-- REMOVED: singleton super admin guard (multiple super admins are permitted)
 
 
 -- ===========================================================================

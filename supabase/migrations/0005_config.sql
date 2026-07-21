@@ -1,7 +1,6 @@
 -- =============================================================================
--- ATTEN-SYS — 0005_seed.sql
--- Seed data: system_settings constants, and a documented institution skeleton
--- template that the super admin should populate via the admin portal.
+-- ATTEN-SYS — 0005_config.sql
+-- System configuration: operational constants read by the app at runtime.
 -- Apply after 0004_rls.sql.
 --
 -- This file inserts only rows that must exist at boot time:

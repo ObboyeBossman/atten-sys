@@ -292,16 +292,16 @@ export default function GroupsPage() {
 
       {/* Filters */}
       {!loading && groups.length > 0 && (
-        <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", marginBottom: "var(--space-5)" }}>
-          <select className="input" style={{ width: "auto", minWidth: 170 }} value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))", gap: "var(--space-3)", marginBottom: "var(--space-5)" }}>
+          <select className="input" value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
             <option value="all">All Academic Years</option>
             {yearOptions.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
           </select>
-          <select className="input" style={{ width: "auto", minWidth: 190 }} value={filterQual} onChange={(e) => setFilterQual(e.target.value)}>
+          <select className="input" value={filterQual} onChange={(e) => setFilterQual(e.target.value)}>
             <option value="all">All Qualification Types</option>
             {qualOptions.map((q) => <option key={q.id} value={q.id}>{q.name}</option>)}
           </select>
-          <select className="input" style={{ width: "auto", minWidth: 140 }} value={filterArchived} onChange={(e) => setFilterArchived(e.target.value)}>
+          <select className="input" value={filterArchived} onChange={(e) => setFilterArchived(e.target.value)}>
             <option value="active">Active only</option>
             <option value="archived">Archived only</option>
             <option value="all">All groups</option>
@@ -322,7 +322,7 @@ export default function GroupsPage() {
 
       {/* Content */}
       {loading ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "var(--space-4)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: "var(--space-4)" }}>
           {[1,2,3,4,5,6].map((i) => <SkeletonCard key={i} />)}
         </div>
       ) : filtered.length === 0 ? (
@@ -346,7 +346,7 @@ export default function GroupsPage() {
           {groups.length === 0 && <button className="btn btn-primary" onClick={openAdd}>Create First Group</button>}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "var(--space-4)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: "var(--space-4)" }}>
           {filtered.map((g) => {
             const accent   = g.is_archived ? "purple" : g.is_current_year ? "green" : "blue";
             const badge    = g.is_archived ? "Archived" : g.is_current_year ? "Current Year" : g.year_name;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { AdminContentWrapper } from "./AdminContentWrapper";
 import { AdminThemeApplier } from "./AdminThemeApplier";
+import { NoticeBanner } from "@/components/layout/NoticeBanner";
 import styles from "./admin.module.css";
 import "./admin-light-theme.css";
 import "./admin-dark-theme.css";
@@ -17,6 +18,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <AdminThemeApplier />
       <AdminSidebar />
       <main className={styles.adminMain}>
+        <div className={styles.adminNoticeBannerBar}>
+          <NoticeBanner />
+        </div>
         <AdminContentWrapper>{children}</AdminContentWrapper>
       </main>
     </div>

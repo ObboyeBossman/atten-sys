@@ -12,6 +12,26 @@
   transition: margin-left var(--transition-slow);
 }
 
+/* ── Notice banner bar ──────────────────────────────────────────────────── */
+
+.adminNoticeBannerBar {
+  /* Desktop: sticky strip at top of main — naturally pushes content down */
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .adminNoticeBannerBar {
+    /* Mobile: fixed below topbar */
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+  }
+}
+
 .adminContent {
   padding: var(--space-8);
   max-width: 1400px;
@@ -21,7 +41,8 @@
 @media (max-width: 1024px) {
   .adminMain {
     margin-left: 0;
-    padding-top: 56px; /* mobile topbar height */
+    /* 56px topbar + dynamic banner height set by NoticeBanner via --banner-h */
+    padding-top: calc(56px + var(--banner-h, 0px));
   }
 
   .adminContent {

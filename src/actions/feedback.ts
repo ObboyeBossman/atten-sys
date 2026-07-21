@@ -44,8 +44,8 @@ export async function submitFeedback(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Unauthorized. Please log in again." };
 
-  if (!payload.title?.trim()) return { error: "Please add a short title." };
-  if (!payload.body?.trim()) return { error: "Please share some details." };
+  if (!payload.title?.trim() && !payload.body?.trim())
+    return { error: "Please add a title or some details — at least one is required." };
   if (payload.rating < 1 || payload.rating > 5)
     return { error: "Rating must be between 1 and 5." };
 
@@ -57,8 +57,8 @@ export async function submitFeedback(
       category: payload.category,
       sentiment: payload.sentiment,
       rating: payload.rating,
-      title: payload.title.trim(),
-      body: payload.body.trim(),
+      title: payload.title?.trim() ?? "",
+      body: payload.body?.trim() ?? "",
       is_anonymous: payload.isAnonymous,
     })
     .select("id")
@@ -71,6 +71,71 @@ export async function submitFeedback(
 
   return { success: true, id: (data as { id: string }).id };
 }
+
+// ── Admin types & actions ─────────────────────────────────────────────────────
+
+export type AdminFeedbackItem = FeedbackItem & {
+  authorRole: FeedbackAuthorRole;
+  isReadAdmin: boolean;
+};
+
+export async function getAllFeedback(): Promise<AdminFeedbackItem[]> {
+  const supabase = await createSupabaseServerClient();
+
+  const { data } = await (supabase as any)
+    .from("feedback")
+    .select(
+      "id, category, sentiment, rating, title, body, is_anonymous, author_role, is_read_admin, created_at"
+    )
+    .order("created_at", { ascending: false });
+
+  if (!data) return [];
+
+  return (
+    data as Array<{
+      id: string;
+      category: string;
+      sentiment: string;
+      rating: number;
+      title: string;
+      body: string;
+      is_anonymous: boolean;
+      author_role: string;
+      is_read_admin: boolean;
+      created_at: string;
+    }>
+  ).map((r) => ({
+    id: r.id,
+    category: r.category as FeedbackCategory,
+    sentiment: r.sentiment as FeedbackSentiment,
+    rating: r.rating,
+    title: r.title,
+    body: r.body,
+    isAnonymous: r.is_anonymous,
+    authorRole: r.author_role as FeedbackAuthorRole,
+    isReadAdmin: r.is_read_admin,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function markFeedbackRead(
+  id: string
+): Promise<{ error: string } | { success: true }> {
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await (supabase as any)
+    .from("feedback")
+    .update({ is_read_admin: true })
+    .eq("id", id);
+
+  if (error) {
+    console.error("markFeedbackRead error:", error);
+    return { error: "Failed to mark as read." };
+  }
+  return { success: true };
+}
+
+// ── Student/Lecturer history ──────────────────────────────────────────────────
 
 export async function getMyFeedback(): Promise<FeedbackItem[]> {
   const supabase = await createSupabaseServerClient();

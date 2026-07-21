@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Attendance History" };
@@ -9,11 +10,12 @@ export default async function AttendanceHistoryPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect("/login");
 
-  // Fetch all attendance records with related session/course info
+  // Fetch all attendance records — include session_id (FK) for routing + left-join disputes
   const { data: records } = await supabase
     .from("attendance")
     .select(`
-      id, status, created_at, geo_verified,
+      id, session_id, status, created_at, geo_verified,
+      attendance_disputes ( id, status ),
       class_sessions (
         started_at, ended_at, venue,
         app_semesters ( name, id ),
@@ -26,26 +28,38 @@ export default async function AttendanceHistoryPage() {
   // Group by semester
   const groupedBySemester = ((records as any[]) || []).reduce((acc, record) => {
     const session = record.class_sessions;
-    // Handle inner join array wrapping if any
     const sessionObj = Array.isArray(session) ? session[0] : session;
     if (!sessionObj) return acc;
-    
+
     const semester = Array.isArray(sessionObj.app_semesters) ? sessionObj.app_semesters[0] : sessionObj.app_semesters;
     const course = Array.isArray(sessionObj.courses) ? sessionObj.courses[0] : sessionObj.courses;
-    
+
     const semName = semester?.name || "Unknown Semester";
-    
+
     if (!acc[semName]) acc[semName] = [];
-    
+
+    const disputeRaw = record.attendance_disputes;
+    const dispute = Array.isArray(disputeRaw) ? disputeRaw[0] : disputeRaw;
+
     acc[semName].push({
       ...record,
       courseCode: course?.code,
       courseName: course?.name,
       sessionDate: sessionObj.started_at,
+      dispute: dispute ?? null,
     });
-    
+
     return acc;
   }, {} as Record<string, any[]>);
+
+  const disputeBadgeStyle = (status: string) => {
+    const map: Record<string, { color: string; bg: string; label: string }> = {
+      pending: { color: "var(--color-warning)", bg: "var(--color-warning-bg)", label: "Dispute: Under review" },
+      approved: { color: "var(--color-success)", bg: "var(--color-success-bg)", label: "Dispute: Approved" },
+      rejected: { color: "var(--color-danger)", bg: "var(--color-danger-bg)", label: "Dispute: Rejected" },
+    };
+    return map[status] ?? map.pending;
+  };
 
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
@@ -77,26 +91,83 @@ export default async function AttendanceHistoryPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--color-border)]">
-                      {(items as any[]).map((item: any) => (
-                        <tr key={item.id} className="hover:bg-[var(--color-surface-2)] transition-colors">
-                          <td className="p-3 whitespace-nowrap">
-                            {new Date(item.sessionDate).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-                          </td>
-                          <td className="p-3">
-                            <div className="font-bold">{item.courseCode}</div>
-                            <div className="text-sm text-[var(--color-text-3)] truncate max-w-[200px]">{item.courseName}</div>
-                          </td>
-                          <td className="p-3">
-                            {item.status === 'present' && <span className="badge badge-success">Present</span>}
-                            {item.status === 'late' && <span className="badge badge-warning">Late</span>}
-                            {item.status === 'absent' && <span className="badge badge-danger">Absent</span>}
-                          </td>
-                          <td className="p-3 text-sm text-[var(--color-text-2)] whitespace-nowrap">
-                            {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            {item.geo_verified && <span className="ml-2 text-[var(--color-success)]" title="GPS Verified">✓</span>}
-                          </td>
-                        </tr>
-                      ))}
+                      {(items as any[]).map((item: any) => {
+                        const dispute = item.dispute;
+                        const cfg = dispute ? disputeBadgeStyle(dispute.status) : null;
+                        return (
+                          <tr
+                            key={item.id}
+                            className="hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer"
+                            style={{ minHeight: 44 }}
+                          >
+                            {/* Entire row is a link — using a nested Link on the first cell and aria for the row */}
+                            <td className="p-3 whitespace-nowrap" style={{ minWidth: 100 }}>
+                              <Link
+                                href={`/student/attendance/${item.session_id}`}
+                                className="block"
+                                style={{ minHeight: 44, display: "flex", alignItems: "center" }}
+                                aria-label={`View detail for ${item.courseCode} on ${new Date(item.sessionDate).toLocaleDateString()}`}
+                              >
+                                {new Date(item.sessionDate).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                              </Link>
+                            </td>
+                            <td className="p-3">
+                              <Link href={`/student/attendance/${item.session_id}`} className="block" tabIndex={-1} aria-hidden="true">
+                                <div className="font-bold">{item.courseCode}</div>
+                                <div className="text-sm text-[var(--color-text-3)] truncate max-w-[200px]">{item.courseName}</div>
+                              </Link>
+                            </td>
+                            <td className="p-3">
+                              <Link href={`/student/attendance/${item.session_id}`} className="block" tabIndex={-1} aria-hidden="true">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {item.status === 'present' && <span className="badge badge-success">Present</span>}
+                                  {item.status === 'late' && <span className="badge badge-warning">Late</span>}
+                                  {item.status === 'absent' && <span className="badge badge-danger">Absent</span>}
+                                  {/* Dispute badge — color + text, never color alone */}
+                                  {cfg && (
+                                    <span
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: 4,
+                                        padding: "2px 8px",
+                                        borderRadius: "var(--radius-full)",
+                                        fontSize: "var(--text-xs)",
+                                        fontWeight: 600,
+                                        color: cfg.color,
+                                        background: cfg.bg,
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      {/* Icon: flag shape */}
+                                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                        <path d="M4 2v18M4 2h12l-3 5 3 5H4" />
+                                      </svg>
+                                      {cfg.label}
+                                    </span>
+                                  )}
+                                </div>
+                              </Link>
+                            </td>
+                            <td className="p-3 text-sm text-[var(--color-text-2)] whitespace-nowrap">
+                              <Link href={`/student/attendance/${item.session_id}`} className="block" tabIndex={-1} aria-hidden="true">
+                                <span className="flex items-center gap-2" style={{ minHeight: 44, display: "flex", alignItems: "center" }}>
+                                  {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  {item.geo_verified && (
+                                    <span className="text-[var(--color-success)]" title="GPS Verified" aria-label="GPS Verified">
+                                      ✓
+                                    </span>
+                                  )}
+                                  {/* Chevron — communicates row clickability */}
+                                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ color: "var(--color-text-3)", marginLeft: "auto" }}>
+                                    <path d="M5 2l4 5-4 5" />
+                                  </svg>
+                                </span>
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

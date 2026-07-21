@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { AdminContentWrapper } from "./AdminContentWrapper";
 import styles from "./admin.module.css";
 import "./admin-light-theme.css";
 import "./admin-dark-theme.css";
@@ -13,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className={styles.adminRoot} data-portal="admin-dark">
       <AdminSidebar />
       <main className={styles.adminMain}>
-        <div className={styles.adminContent}>{children}</div>
+        <AdminContentWrapper>{children}</AdminContentWrapper>
       </main>
     </div>
   );

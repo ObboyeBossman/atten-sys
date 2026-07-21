@@ -212,7 +212,7 @@ export default async function RepCoursesPage() {
                 </div>
 
                 {/* Stats */}
-                <div style={{
+                <div className="course-stats-col" style={{
                   flexShrink: 0,
                   display: "flex", flexDirection: "column", alignItems: "flex-end",
                   gap: "var(--space-1)",
@@ -246,6 +246,10 @@ export default async function RepCoursesPage() {
           border-color: var(--color-border-hover);
           transform: translateY(-1px);
           box-shadow: var(--shadow-md);
+        }
+        /* Hide session count on very small phones — info col needs the space */
+        @media (max-width: 400px) {
+          .course-stats-col { display: none; }
         }
       `}</style>
     </div>

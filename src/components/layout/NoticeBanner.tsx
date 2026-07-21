@@ -128,7 +128,7 @@ export function NoticeBanner() {
     if (!("Notification" in window)) return;
 
     const check = () => {
-      setNotifBlocked(Notification.permission === "denied");
+      setNotifBlocked(Notification.permission !== "granted");
     };
     check();
 
@@ -180,11 +180,27 @@ export function NoticeBanner() {
 
   const handleEnableNotifications = useCallback(async () => {
     if (!("Notification" in window)) return;
+    // When already denied, browser won't show the prompt — guide user to settings
+    if (Notification.permission === "denied") {
+      alert("Notifications are blocked. To enable them, open your browser settings and allow notifications for this site.");
+      return;
+    }
     const result = await Notification.requestPermission();
-    if (result !== "denied") {
+    if (result === "granted") {
       dismiss("notifications");
     }
   }, [dismiss]);
+
+  const handleRetry = useCallback(async () => {
+    try {
+      // Lightweight connectivity probe — avoids full page reload when possible
+      await fetch("/favicon.ico", { method: "HEAD", cache: "no-store" });
+      setIsOffline(false);
+    } catch {
+      // Still offline — force reload so SW can serve cached shell if available
+      window.location.reload();
+    }
+  }, []);
 
   // Keep --banner-h in sync with the rendered stack height so mobile
   // main padding adjusts automatically via CSS var(--banner-h, 0px).
@@ -215,15 +231,23 @@ export function NoticeBanner() {
       kind: "offline",
       icon: <OfflineIcon />,
       message: "You're offline. Some features won't work until you reconnect.",
+      action: { label: "Retry", onClick: handleRetry },
     });
   }
+
+  const notifPermission = typeof window !== "undefined" && "Notification" in window
+    ? Notification.permission
+    : "default";
 
   if (notifBlocked && !dismissed.has("notifications")) {
     banners.push({
       kind: "notifications",
       icon: <BellOffIcon />,
-      message: "Notifications are blocked. Enable them to get session alerts.",
-      action: { label: "Enable", onClick: handleEnableNotifications },
+      message:
+        notifPermission === "denied"
+          ? "Notifications are blocked in your browser settings."
+          : "Allow notifications to receive session and attendance alerts.",
+      action: { label: notifPermission === "denied" ? "Settings" : "Allow", onClick: handleEnableNotifications },
     });
   }
 

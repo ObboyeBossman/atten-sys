@@ -16,14 +16,15 @@ export async function raiseDispute({
   if (!user) return { error: "Unauthorized" };
 
   // Verify the caller owns this attendance record
-  const { data: record, error: fetchError } = await supabase
+  const { data: record, error: fetchError } = await (supabase as any)
     .from("attendance")
     .select("id, student_id")
     .eq("id", attendanceId)
     .single();
 
-  if (fetchError || !record) return { error: "Attendance record not found." };
-  if (record.student_id !== user.id)
+  const rec = record as { id: string; student_id: string } | null;
+  if (fetchError || !rec) return { error: "Attendance record not found." };
+  if (rec.student_id !== user.id)
     return { error: "You are not authorised to dispute this record." };
 
   // Check no existing dispute for this record
@@ -35,7 +36,7 @@ export async function raiseDispute({
 
   if (existing) return { error: "A dispute already exists for this record." };
 
-  const { error: insertError } = await supabase
+  const { error: insertError } = await (supabase as any)
     .from("attendance_disputes")
     .insert({
       attendance_id: attendanceId,

@@ -218,6 +218,7 @@ export default async function TimetablePage() {
                         >
                           {/* Time block */}
                           <div
+                            className="tt-time-block"
                             style={{
                               flexShrink: 0,
                               width: 80,
@@ -320,6 +321,10 @@ export default async function TimetablePage() {
           .timetable-entry:hover {
             transform: translateY(-1px);
           }
+        }
+        /* Compact time block on very small phones */
+        @media (max-width: 400px) {
+          .tt-time-block { width: 64px; }
         }
       `}</style>
     </div>

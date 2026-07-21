@@ -606,13 +606,16 @@
 
 /* ── Dark mode overrides (admin portal only) ──────────────────────────── */
 /*
-  Scoped to [data-portal="admin-dark"] set on the admin layout root.
-  The signature detail: active nav items get a 2px brand-red left bar
-  that bleeds to the sidebar edge — spatial anchoring, not a pill/blob.
+  Scoped to [data-portal="admin-dark"] — pure black/grey palette,
+  zero blue cast anywhere. Matches the Visux dark prototype exactly.
+
+  Signature detail: active nav item gets a 2px brand-red left bar
+  that bleeds to the sidebar edge. The ONLY colour on the entire
+  sidebar — everything else is strict greyscale.
 */
 
 [data-portal="admin-dark"] .sidebar {
-  background: #0D1220;
+  background: #111111;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -621,12 +624,12 @@
 }
 
 [data-portal="admin-dark"] .brandIcon {
-  background: #161E2E;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.18);
+  background: #1A1A1A;
+  box-shadow: none;
 }
 
 [data-portal="admin-dark"] .brandName {
-  color: #F0F4FF;
+  color: #FFFFFF;
 }
 
 [data-portal="admin-dark"] .brandRole {
@@ -635,19 +638,19 @@
 
 /* Nav items */
 [data-portal="admin-dark"] .navItem {
-  color: #8B9BB4;
+  color: #A0A0A0;
   position: relative;
 }
 
 [data-portal="admin-dark"] .navItem:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #F0F4FF;
+  color: #FFFFFF;
 }
 
-/* Signature detail: red left bar on active item */
+/* Signature detail: red left bar — only colour on the sidebar */
 [data-portal="admin-dark"] .navItemActive {
   background: rgba(192, 17, 27, 0.10);
-  color: #F0F4FF;
+  color: #FFFFFF;
 }
 
 [data-portal="admin-dark"] .navItemActive::before {
@@ -667,12 +670,12 @@
 }
 
 [data-portal="admin-dark"] .navIcon {
-  color: #4D5E78;
+  color: #555555;
   transition: color 150ms ease;
 }
 
 [data-portal="admin-dark"] .navItem:hover .navIcon {
-  color: #8B9BB4;
+  color: #A0A0A0;
 }
 
 /* Sub nav */
@@ -681,11 +684,11 @@
 }
 
 [data-portal="admin-dark"] .subNavItem {
-  color: #4D5E78;
+  color: #555555;
 }
 
 [data-portal="admin-dark"] .subNavItem:hover {
-  color: #F0F4FF;
+  color: #FFFFFF;
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -704,11 +707,11 @@
 }
 
 [data-portal="admin-dark"] .profileName {
-  color: #F0F4FF;
+  color: #FFFFFF;
 }
 
 [data-portal="admin-dark"] .logoutBtn {
-  color: #4D5E78;
+  color: #555555;
 }
 
 [data-portal="admin-dark"] .logoutBtn:hover {
@@ -718,13 +721,13 @@
 
 /* Mobile topbar */
 [data-portal="admin-dark"] .mobileTopbar {
-  background: #0D1220;
+  background: #111111;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.60);
 }
 
 [data-portal="admin-dark"] .hamburger {
-  color: #F0F4FF;
+  color: #FFFFFF;
 }
 
 [data-portal="admin-dark"] .hamburger:hover {
@@ -733,7 +736,7 @@
 
 /* Mobile drawer */
 [data-portal="admin-dark"] .drawer {
-  background: #0D1220;
+  background: #111111;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -742,28 +745,28 @@
 }
 
 [data-portal="admin-dark"] .drawerBackdrop {
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 [data-portal="admin-dark"] .drawerClose {
-  color: #4D5E78;
+  color: #555555;
 }
 
 [data-portal="admin-dark"] .drawerClose:hover {
-  color: #F0F4FF;
+  color: #FFFFFF;
   background: rgba(255, 255, 255, 0.07);
 }
 
 /* Sign-out dialog */
 [data-portal="admin-dark"] .dialogOverlay {
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.80);
   backdrop-filter: blur(4px);
 }
 
 [data-portal="admin-dark"] .dialog {
-  background: #111827;
+  background: #1A1A1A;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65), 0 8px 16px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 8px 16px rgba(0, 0, 0, 0.60);
 }
 
 [data-portal="admin-dark"] .dialogIcon {
@@ -772,20 +775,20 @@
 }
 
 [data-portal="admin-dark"] .dialogTitle {
-  color: #F0F4FF;
+  color: #FFFFFF;
 }
 
 [data-portal="admin-dark"] .dialogBody {
-  color: #4D5E78;
+  color: #555555;
 }
 
 [data-portal="admin-dark"] .dialogCancel {
-  background: #161E2E;
+  background: #212121;
   border-color: rgba(255, 255, 255, 0.08);
-  color: #F0F4FF;
+  color: #FFFFFF;
 }
 
 [data-portal="admin-dark"] .dialogCancel:hover {
-  background: #1C2640;
+  background: #2A2A2A;
   border-color: rgba(255, 255, 255, 0.14);
 }

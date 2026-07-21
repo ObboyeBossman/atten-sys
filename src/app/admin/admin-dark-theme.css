@@ -6,59 +6,53 @@
 
    Design rationale
    ----------------
-   Inspired by the Visux dark UI: the dark side isn't just
-   inverted light — it's a deliberate depth system. Three
-   distinct surface levels (canvas → card → elevated) create
-   spatial hierarchy without colour. Borders are whisper-thin
-   rgba whites. The brand red punches through the dark with
-   controlled glow — authority, not decoration.
+   Matching the Visux dark prototype exactly: pure black canvas,
+   near-black cards, dark charcoal surfaces. NO blue cast.
+   Monochromatic discipline — black/white/grey only, with the
+   brand red as the single colour accent. Cards step up from
+   the canvas in pure grey, not blue-grey.
 
-   Palette logic
-   -------------
-   Canvas:   #0A0E1A  — deepest ink, near-black with a blue cast
-   Sidebar:  #0D1220  — one step lifted off the canvas, giving
-                        the nav its own space without a harsh edge
-   Surface:  #111827  — cards and panels; the workhorse level
-   Surface2: #161E2E  — secondary backgrounds, hover states
-   Surface3: #1C2640  — active/selected fills, table headers
-
-   Borders use rgba(255,255,255,N) so they inherit the surface
-   colour naturally — no hardcoded hex borders that fight the
-   background they sit on.
+   Palette
+   -------
+   Canvas:   #0D0D0D  — pure near-black, matches Visux dark bg
+   Sidebar:  #111111  — one deliberate step off the canvas
+   Surface:  #1A1A1A  — cards, panels — pure dark grey
+   Surface2: #212121  — hover states, secondary fills
+   Surface3: #2A2A2A  — active fills, table headers
+   Border:   rgba(255,255,255,0.08) — subtle hairlines only
 
    Signature detail
    ----------------
-   Active nav items get a left-aligned 2px brand-red bar that
-   "bleeds" out of the nav item to the sidebar edge — a
-   structural line that anchors where you are spatially, not
-   just visually. No pill, no background blob — just the line.
+   Active nav: 2px brand-red left bar bleeding to sidebar edge.
+   The ONLY colour on the page is that red — everything else
+   is strictly greyscale. Makes the brand mark unmissable.
    ============================================================ */
 
 /* ── Core palette ─────────────────────────────────────────── */
 [data-portal="admin-dark"] {
-  /* Canvas — deepest level, blue-tinted ink */
-  --color-bg:           #0A0E1A;
-  --color-bg-secondary: #0D1220;
+  /* Canvas — pure near-black, zero blue cast */
+  --color-bg:           #0D0D0D;
+  --color-bg-secondary: #111111;
 
-  /* Surface stack — three deliberate steps up from the canvas */
-  --color-surface:      #111827;
-  --color-surface-2:    #161E2E;
-  --color-surface-3:    #1C2640;
+  /* Surface stack — pure grey steps, no blue */
+  --color-surface:      #1A1A1A;
+  --color-surface-2:    #212121;
+  --color-surface-3:    #2A2A2A;
 
-  /* Borders — rgba so they work on any surface level */
-  --color-border:       rgba(255, 255, 255, 0.07);
-  --color-border-hover: rgba(255, 255, 255, 0.14);
+  /* Borders — whisper-thin rgba whites */
+  --color-border:       rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.15);
 
-  /* Brand red — slightly brightened for dark surfaces */
+  /* Brand red — the ONLY colour accent on the page */
   --color-primary:      #C0111B;
   --color-primary-dark: #9d0a12;
-  --color-primary-glow: rgba(192, 17, 27, 0.28);
+  --color-primary-glow: rgba(192, 17, 27, 0.30);
 
-  /* Blue secondary */
+  /* Blue secondary — still available for system use */
   --color-secondary:      #3b82f6;
   --color-secondary-dark: #2563eb;
 
-  /* Semantic — vivid enough to read on dark, restrained enough to not shout */
+  /* Semantic — vivid enough to read on pure black */
   --color-success:    #22c55e;
   --color-success-bg: rgba(34, 197, 94, 0.10);
   --color-warning:    #f59e0b;
@@ -76,18 +70,18 @@
   --color-absent:     #ef4444;
   --color-absent-bg:  rgba(239, 68, 68, 0.10);
 
-  /* Text ramp — bright enough for WCAG AA on dark surfaces */
-  --color-text:         #F0F4FF;   /* near-white headings */
-  --color-text-2:       #8B9BB4;   /* body text — cool slate */
-  --color-text-3:       #4D5E78;   /* captions, placeholders */
-  --color-text-inverse: #0A0E1A;
+  /* Text ramp — pure white → grey, no blue tint */
+  --color-text:         #FFFFFF;   /* pure white headings */
+  --color-text-2:       #A0A0A0;   /* body text — neutral mid-grey */
+  --color-text-3:       #555555;   /* captions, placeholders */
+  --color-text-inverse: #0D0D0D;
 
-  /* Shadows — layered with colour tinting for depth */
-  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-md:   0 4px 10px rgba(0, 0, 0, 0.50), 0 2px 4px rgba(0, 0, 0, 0.35);
-  --shadow-lg:   0 10px 20px rgba(0, 0, 0, 0.60), 0 4px 8px rgba(0, 0, 0, 0.40);
-  --shadow-xl:   0 20px 40px rgba(0, 0, 0, 0.65), 0 8px 16px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 0 22px var(--color-primary-glow);
+  /* Shadows — deep, pure black */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.60), 0 1px 2px rgba(0, 0, 0, 0.50);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.65), 0 2px 4px rgba(0, 0, 0, 0.50);
+  --shadow-lg:   0 10px 24px rgba(0, 0, 0, 0.70), 0 4px 8px rgba(0, 0, 0, 0.55);
+  --shadow-xl:   0 20px 48px rgba(0, 0, 0, 0.75), 0 8px 16px rgba(0, 0, 0, 0.60);
+  --shadow-glow: 0 0 24px var(--color-primary-glow);
 }
 
 /* ── Base ─────────────────────────────────────────────────── */
@@ -98,7 +92,7 @@
 
 /* ── Scrollbar ────────────────────────────────────────────── */
 [data-portal="admin-dark"] ::-webkit-scrollbar-track {
-  background: var(--color-surface);
+  background: var(--color-bg);
 }
 
 [data-portal="admin-dark"] ::-webkit-scrollbar-thumb {
@@ -106,7 +100,7 @@
 }
 
 [data-portal="admin-dark"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.20);
+  background: rgba(255, 255, 255, 0.22);
 }
 
 /* ── Cards ────────────────────────────────────────────────── */
@@ -122,7 +116,7 @@
 }
 
 [data-portal="admin-dark"] .card-glass {
-  background: rgba(17, 24, 39, 0.75);
+  background: rgba(26, 26, 26, 0.80);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-color: var(--color-border);
@@ -164,12 +158,12 @@
 }
 
 [data-portal="admin-dark"] .select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234D5E78' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555555' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
 }
 
 /* ── Buttons ──────────────────────────────────────────────── */
 [data-portal="admin-dark"] .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background: linear-gradient(135deg, var(--color-primary), #e02020);
   box-shadow: 0 4px 15px var(--color-primary-glow);
 }
 
@@ -238,7 +232,6 @@
 [data-portal="admin-dark"] .table-container {
   border-color: var(--color-border);
   background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
 }
 
 [data-portal="admin-dark"] thead tr {
@@ -331,7 +324,7 @@
 
 /* ── Modal ────────────────────────────────────────────────── */
 [data-portal="admin-dark"] .modal-overlay {
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.80);
   backdrop-filter: blur(4px);
 }
 

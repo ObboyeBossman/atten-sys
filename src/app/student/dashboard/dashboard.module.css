@@ -596,17 +596,21 @@
   gap: var(--space-3);
 }
 
-/* ── Responsive ────────────────────────────────────────────── */
+/* ── Responsive — mobile-first, 4 breakpoints ──────────────── */
+
+/* ── ≤900px: tablet / large phone in landscape ─────────────── */
 @media (max-width: 900px) {
   .statsGrid {
     grid-template-columns: 1fr;
   }
 
+  /* Ring card becomes a horizontal strip — more space-efficient */
   .ringCard {
     flex-direction: row;
     justify-content: flex-start;
     text-align: left;
     gap: var(--space-6);
+    padding: var(--space-5) var(--space-6);
   }
 
   .detailCards {
@@ -614,9 +618,11 @@
   }
 }
 
+/* ── ≤640px: standard phones in portrait ───────────────────── */
 @media (max-width: 640px) {
+  /* Hero */
   .hero {
-    padding: var(--space-6);
+    padding: var(--space-5) var(--space-5);
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-4);
@@ -630,29 +636,286 @@
     width: 100%;
   }
 
+  /* ID card: pill-shaped horizontal strip — full width */
   .heroIndexCard {
     text-align: left;
     display: flex;
-    gap: var(--space-4);
+    flex-direction: row;
+    gap: var(--space-3);
     align-items: center;
     min-width: unset;
+    padding: var(--space-3) var(--space-4);
   }
 
+  .heroIndexLabel {
+    margin-bottom: 0;
+    font-size: 9px;
+  }
+
+  .heroIndexValue {
+    font-size: var(--text-base);
+  }
+
+  /* Quick links: keep 3 columns, reduce padding */
   .quickLinks {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-2);
   }
 
+  .quickLink {
+    padding: var(--space-4) var(--space-2);
+    gap: var(--space-1);
+    font-size: 10px;
+  }
+
+  .quickLinkIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Stats */
   .detailCards {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-3);
   }
 
+  .detailCard {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .detailIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .detailValue {
+    font-size: var(--text-xl);
+  }
+
+  /* Recent activity */
+  .recentHeader {
+    padding: var(--space-4) var(--space-4);
+  }
+
   .recentRow {
     padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  /* Section labels */
+  .sectionLabel {
+    margin-bottom: var(--space-3);
+  }
+
+  /* Spacing tightening */
+  .liveWrap {
+    margin-bottom: var(--space-6);
+  }
+
+  .statsSection {
+    margin-bottom: var(--space-6);
+  }
+}
+
+/* ── ≤480px: narrow phones (360–480px) ─────────────────────── */
+@media (max-width: 480px) {
+  /* Hero: tighter still */
+  .hero {
+    padding: var(--space-4) var(--space-4);
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .heroGreeting {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+
+  .heroName {
+    font-size: var(--text-xl);
+    line-height: 1.2;
+  }
+
+  .heroPill {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+
+  .heroMeta {
+    gap: var(--space-2);
+  }
+
+  /* ID card: compact */
+  .heroIndexCard {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .heroIndexLabel {
+    font-size: 8px;
+  }
+
+  .heroIndexValue {
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+  }
+
+  /* Quick links: still 3 cols, very compact */
+  .quickLinks {
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .quickLink {
+    padding: var(--space-3) var(--space-1);
+    font-size: 9px;
+    letter-spacing: 0.02em;
+  }
+
+  .quickLinkIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Ring card */
+  .ringCard {
+    padding: var(--space-4) var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .ringWrap {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  .ringPct {
+    font-size: var(--text-lg);
+  }
+
+  /* Detail stat cards */
+  .detailCards {
+    gap: var(--space-2);
+  }
+
+  .detailCard {
+    padding: var(--space-3) var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .detailCard::after {
+    width: 2px;
+  }
+
+  .detailIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+  }
+
+  .detailIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .detailValue {
+    font-size: var(--text-lg);
+  }
+
+  .detailLabel {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+
+  .detailSub {
+    display: none; /* remove sub-label on tiny screens — label is enough */
+  }
+
+  /* Recent rows */
+  .recentRow {
+    padding: var(--space-3) var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .recentIcon {
+    width: 32px;
+    height: 32px;
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+
+  .recentRowTitle {
+    font-size: var(--text-xs);
+  }
+
+  .recentRowMeta {
+    font-size: 9px;
+    margin-top: 1px;
+  }
+
+  /* Right side: badge + date — stack tightly */
+  .recentRowRight {
+    gap: 2px;
+  }
+
+  .recentDate {
+    font-size: 9px;
   }
 
   .recentHeader {
-    padding: var(--space-4);
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .recentHeaderTitle {
+    font-size: var(--text-xs);
+  }
+
+  /* Section spacing */
+  .liveWrap {
+    margin-bottom: var(--space-5);
+  }
+
+  .statsSection {
+    margin-bottom: var(--space-5);
+  }
+
+  .recentSection {
+    margin-bottom: var(--space-4);
+  }
+}
+
+/* ── ≤360px: very narrow phones ────────────────────────────── */
+@media (max-width: 360px) {
+  .hero {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .heroName {
+    font-size: var(--text-lg);
+  }
+
+  /* Quick links: 3 cols at minimum viable size */
+  .quickLink {
+    padding: var(--space-3) 0;
+    font-size: 8px;
+  }
+
+  /* Prevent any horizontal overflow */
+  .statsGrid,
+  .detailCards,
+  .quickLinks,
+  .recentCard {
+    overflow: hidden;
+  }
+
+  /* Recent rows: trim further */
+  .recentRow {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .recentRowRight {
+    flex-shrink: 0;
   }
 }

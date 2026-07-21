@@ -247,14 +247,17 @@ export default async function RepDisputesPage() {
                 <div style={{
                   fontSize: "var(--text-xs)", color: "var(--color-text-2)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  maxWidth: 420,
                 }}>
                   "{dispute.reason}"
                 </div>
+                {/* Time-ago — shown inline on mobile instead of right column */}
+                <div className="dispute-timeago-mobile" style={{ fontSize: "var(--text-xs)", color: "var(--color-text-3)", marginTop: 3 }}>
+                  {timeAgo(dispute.raisedAt)}
+                </div>
               </div>
 
-              {/* Right side */}
-              <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-2)" }}>
+              {/* Right side — hidden on small screens, shown on md+ */}
+              <div className="dispute-right-col" style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--space-2)" }}>
                 <span style={{
                   fontSize: "var(--text-xs)", fontWeight: 600,
                   color: "var(--color-warning)", background: "var(--color-warning-bg)",
@@ -278,6 +281,14 @@ export default async function RepDisputesPage() {
 
       <style>{`
         .dispute-row:hover { background: var(--color-surface-2); }
+        /* On mobile, hide the right column and inline-timeago shows instead */
+        @media (max-width: 600px) {
+          .dispute-right-col { display: none; }
+          .dispute-timeago-mobile { display: block; }
+        }
+        @media (min-width: 601px) {
+          .dispute-timeago-mobile { display: none; }
+        }
       `}</style>
     </div>
   );

@@ -184,16 +184,41 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return;
+
     setError(null);
     setLoading(true);
 
+    // ── 1. Show the overlay immediately — guaranteed to appear ──────
+    // The user sees the loading screen from this point on, no matter
+    // how fast or slow the network is.
+    setTransitioning(true);
+    setDestLabel("Verifying credentials…");
+
+    // Record when the overlay appeared so we can enforce the minimum
+    // visible duration regardless of how quickly auth resolves.
+    const overlayStart = Date.now();
+    const MIN_OVERLAY_MS = 1500;
+
+    // Helper: waits for the remainder of the minimum display time.
+    const waitMinimum = () => {
+      const elapsed = Date.now() - overlayStart;
+      const remaining = MIN_OVERLAY_MS - elapsed;
+      return remaining > 0
+        ? new Promise<void>((res) => setTimeout(res, remaining))
+        : Promise.resolve();
+    };
+
     try {
+      // ── 2. Auth work runs behind the overlay ────────────────────
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
       });
 
       if (signInError) {
+        await waitMinimum();
+        // Dismiss overlay, show error toast, return to login form.
+        setTransitioning(false);
         const msg = "Invalid email or password. Please try again.";
         setError(msg);
         showAlert(msg, "error");
@@ -202,11 +227,15 @@ export default function LoginPage() {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        await waitMinimum();
+        setTransitioning(false);
         const msg = "Authentication failed. Please try again.";
         setError(msg);
         showAlert(msg, "error");
         return;
       }
+
+      setDestLabel("Loading your profile…");
 
       const { data: profile, error: profileError } = await supabase
         .from("user_profiles")
@@ -215,6 +244,8 @@ export default function LoginPage() {
         .single();
 
       if (profileError || !profile) {
+        await waitMinimum();
+        setTransitioning(false);
         const msg = "Could not load your account. Please contact support.";
         setError(msg);
         showAlert(msg, "error");
@@ -225,6 +256,8 @@ export default function LoginPage() {
 
       if (!p.is_active && p.role !== "student") {
         await supabase.auth.signOut();
+        await waitMinimum();
+        setTransitioning(false);
         const msg = "Your account has been deactivated. Contact the administrator.";
         setError(msg);
         showAlert(msg, "error");
@@ -247,8 +280,9 @@ export default function LoginPage() {
       let label = labelMap[p.role] ?? "Loading your portal…";
 
       // Reps share the 'student' role — check if they're an active course rep
-      // and route them to the rep portal instead
+      // and route them to the rep portal instead.
       if (p.role === "student") {
+        setDestLabel("Checking access level…");
         const { data: repMembership } = await supabase
           .from("group_memberships")
           .select("id")
@@ -264,15 +298,14 @@ export default function LoginPage() {
         }
       }
 
-      // ── Show the transition overlay before the router takes over ──
-      setDestLabel(label);
-      setTransitioning(true);
+      // ── 3. Ensure overlay has been visible for at least MIN_OVERLAY_MS ──
+      await waitMinimum();
 
-      // Small rAF ensures the CSS transition fires (overlay becomes visible)
-      // before router.replace kicks off the navigation.
-      requestAnimationFrame(() => {
-        router.replace(destination);
-      });
+      setDestLabel(label);
+
+      // Route — overlay stays on screen until the new page renders.
+      router.replace(destination);
+
     } finally {
       setLoading(false);
     }
@@ -308,9 +341,9 @@ export default function LoginPage() {
             </svg>
           </span>
           <div className={styles.transitionCardBody}>
-            <p className={styles.transitionCardTitle}>Authentication Successful</p>
+            <p className={styles.transitionCardTitle}>{destLabel}</p>
             <p className={styles.transitionCardMsg}>
-              Identity verified. Preparing your workspace.
+              Please wait while we prepare your portal.
             </p>
           </div>
         </div>
@@ -319,8 +352,6 @@ export default function LoginPage() {
         <div className={styles.transitionProgress} aria-hidden="true">
           <div className={styles.transitionProgressBar} />
         </div>
-
-        <span className={styles.transitionDestLabel}>{destLabel}</span>
       </div>
 
       {/* Alert banner */}

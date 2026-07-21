@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./PortalLayout.module.css";
+import { PageShimmer } from "./PageTransition";
 
 type NavIcon =
   | "dashboard"
@@ -362,7 +363,10 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
 
       {/* ── Main content ─────────────────────────────────────────── */}
       <main className={styles.main}>
-        <div className={styles.content}>{children}</div>
+        <div className={styles.content} style={{ position: "relative" }}>
+          <PageShimmer />
+          {children}
+        </div>
       </main>
 
       {/* ── Bottom nav (mobile quick-access) ─────────────────────── */}

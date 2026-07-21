@@ -1,0 +1,164 @@
+/* ── NoticeBanner ─────────────────────────────────────────────────────────── */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ── Individual banner ────────────────────────────────────────────────────── */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  min-height: 38px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.4;
+  border-bottom: 1px solid transparent;
+
+  /* Slide-down entrance staggered by index */
+  animation: bannerSlideDown 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--stagger-index, 0) * 60ms);
+}
+
+@keyframes bannerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Signature move: the banner icon pulses once on entry to draw the eye */
+.bannerIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  animation: iconPulse 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--stagger-index, 0) * 60ms + 160ms);
+}
+
+@keyframes iconPulse {
+  0%   { transform: scale(0.7); opacity: 0.4; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.bannerMessage {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Kind: offline ────────────────────────────────────────────────────────── */
+
+.kind_offline {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border-bottom-color: rgba(239, 68, 68, 0.2);
+}
+
+/* ── Kind: notifications ──────────────────────────────────────────────────── */
+
+.kind_notifications {
+  background: rgba(245, 158, 11, 0.1);
+  color: #fcd34d;
+  border-bottom-color: rgba(245, 158, 11, 0.18);
+}
+
+/* ── Kind: pwa ────────────────────────────────────────────────────────────── */
+
+.kind_pwa {
+  background: rgba(59, 130, 246, 0.1);
+  color: #93c5fd;
+  border-bottom-color: rgba(59, 130, 246, 0.18);
+}
+
+/* ── Action button ────────────────────────────────────────────────────────── */
+
+.bannerAction {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px var(--space-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 140ms ease, border-color 140ms ease, transform 100ms ease;
+}
+
+.bannerAction:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.bannerAction:active {
+  transform: scale(0.95);
+}
+
+/* ── Dismiss button ───────────────────────────────────────────────────────── */
+
+.bannerClose {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.55;
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* min touch target */
+  min-width: 28px;
+  min-height: 28px;
+  transition: opacity 140ms ease, background 140ms ease, transform 100ms ease;
+}
+
+.bannerClose:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.bannerClose:active {
+  transform: scale(0.88);
+}
+
+/* ── Light portal overrides ───────────────────────────────────────────────── */
+
+[data-portal="portal-light"] .kind_offline {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border-bottom-color: rgba(239, 68, 68, 0.15);
+}
+
+[data-portal="portal-light"] .kind_notifications {
+  background: rgba(245, 158, 11, 0.08);
+  color: #b45309;
+  border-bottom-color: rgba(245, 158, 11, 0.15);
+}
+
+[data-portal="portal-light"] .kind_pwa {
+  background: rgba(59, 130, 246, 0.08);
+  color: #1d4ed8;
+  border-bottom-color: rgba(59, 130, 246, 0.15);
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .banner,
+  .bannerIcon {
+    animation: none;
+  }
+}

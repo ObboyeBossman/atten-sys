@@ -305,13 +305,14 @@
   gap: var(--space-4);
   text-align: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* never clip the ring SVG */
 }
 
 .ringWrap {
   position: relative;
   width: 100px;
   height: 100px;
+  flex-shrink: 0; /* never compress the ring container */
 }
 
 .ringLabel {
@@ -600,21 +601,38 @@
 
 /* ── ≤900px: tablet / large phone in landscape ─────────────── */
 @media (max-width: 900px) {
+  /* Shrink the ring column from 200px to 160px on tablet */
   .statsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Ring card becomes a horizontal strip — more space-efficient */
-  .ringCard {
-    flex-direction: row;
-    justify-content: flex-start;
-    text-align: left;
-    gap: var(--space-6);
-    padding: var(--space-5) var(--space-6);
+    grid-template-columns: 160px 1fr;
   }
 
   .detailCards {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── ≤768px: phone landscape / small tablet ─────────────────── */
+@media (max-width: 768px) {
+  /* Stack ring above the 4 stat cards */
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ring card: compact horizontal pill — ring left, text right */
+  .ringCard {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    overflow: hidden; /* safe now that flex-shrink: 0 on ringWrap */
+  }
+
+  /* Text group beside the ring */
+  .ringCardTitle {
+    font-size: var(--text-xs);
+    text-align: left;
   }
 }
 
@@ -777,20 +795,27 @@
     height: 28px;
   }
 
-  /* Ring card */
+  /* Ring card: back to column on narrow phones — cleanest layout, zero clipping risk */
   .ringCard {
-    padding: var(--space-4) var(--space-4);
-    gap: var(--space-4);
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-5) var(--space-4);
+    gap: var(--space-3);
   }
 
   .ringWrap {
-    width: 80px;
-    height: 80px;
+    width: 88px;
+    height: 88px;
     flex-shrink: 0;
   }
 
   .ringPct {
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
+  }
+
+  .ringCardTitle {
+    text-align: center;
   }
 
   /* Detail stat cards */

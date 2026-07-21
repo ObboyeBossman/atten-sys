@@ -1,12 +1,29 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SettingsClient, type Setting } from "./SettingsClient";
 
 export const metadata: Metadata = { title: "System Settings" };
 export const revalidate = 0; // always fresh — settings changes must be immediate
 
-async function getSettings(): Promise<Setting[]> {
+async function getSettings(): Promise<Setting[] | null> {
   const supabase = await createSupabaseServerClient();
+
+  // Gate: only active super_admins can view settings
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) return null;
+
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("role, is_active")
+    .eq("id", user.id)
+    .single();
+
+  const p = profile as { role: string; is_active: boolean } | null;
+  if (!p || p.role !== "super_admin" || !p.is_active) return null;
 
   type SettingRow = {
     key: string;
@@ -55,6 +72,7 @@ async function getSettings(): Promise<Setting[]> {
 
 export default async function SettingsPage() {
   const settings = await getSettings();
+  if (settings === null) redirect("/login");
 
   return (
     <div>

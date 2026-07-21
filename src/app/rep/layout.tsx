@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PortalLayout } from "@/components/layout/PortalLayout";
+import "@/app/portal-light-theme.css";
+import "@/app/portal-dark-theme.css";
 
 export const metadata: Metadata = {
   title: { default: "Rep Portal", template: "%s | Rep | ATTEN-SYS" },

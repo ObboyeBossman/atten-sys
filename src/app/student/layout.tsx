@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { PortalLayout } from "@/components/layout/PortalLayout";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import "@/app/portal-light-theme.css";
+import "@/app/portal-dark-theme.css";
 
 export const metadata: Metadata = {
   title: { default: "Student Portal", template: "%s | Student | ATTEN-SYS" },

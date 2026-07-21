@@ -256,7 +256,7 @@ export default async function CourseDetailPage({
                   background: "var(--color-surface-2)",
                 }}
               >
-                <div style={{
+                <div className="tt-day-label" style={{
                   flexShrink: 0, width: 88,
                   fontSize: "var(--text-xs)", fontWeight: 700,
                   color: "var(--color-text-2)", textTransform: "uppercase", letterSpacing: "0.04em",
@@ -388,6 +388,10 @@ export default async function CourseDetailPage({
         @keyframes pulse {
           0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
           50%       { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+        }
+        /* Shrink timetable day label on small phones — "Wed" not "Wednesday" */
+        @media (max-width: 400px) {
+          .tt-day-label { width: 52px; }
         }
       `}</style>
     </div>

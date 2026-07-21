@@ -166,7 +166,8 @@
 /* ── Notice banner bar ──────────────────────────────────────────────────── */
 
 .noticeBannerBar {
-  /* Desktop: sticky strip at the top of main — naturally pushes content down */
+  /* Desktop: sticky strip at the top of main — naturally pushes content down.
+     Lives inside .main (flex column), so sticky is scoped to main's scroll. */
   position: sticky;
   top: 0;
   z-index: 80;
@@ -175,7 +176,8 @@
 
 @media (max-width: 768px) {
   .noticeBannerBar {
-    /* Mobile: fixed below topbar; main gets extra padding via var below */
+    /* Mobile: fixed below the topbar; width constrained to viewport since
+       .main has no left margin on mobile. */
     position: fixed;
     top: 56px; /* matches .mobileTopbar height */
     left: 0;

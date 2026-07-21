@@ -1,6 +1,6 @@
 "use server";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export type FeedbackCategory =
   | "general"
@@ -80,7 +80,7 @@ export type AdminFeedbackItem = FeedbackItem & {
 };
 
 export async function getAllFeedback(): Promise<AdminFeedbackItem[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseAdminClient();
 
   const { data } = await (supabase as any)
     .from("feedback")
@@ -121,7 +121,7 @@ export async function getAllFeedback(): Promise<AdminFeedbackItem[]> {
 export async function markFeedbackRead(
   id: string
 ): Promise<{ error: string } | { success: true }> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseAdminClient();
 
   const { error } = await (supabase as any)
     .from("feedback")

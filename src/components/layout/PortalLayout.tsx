@@ -19,7 +19,8 @@ type NavIcon =
   | "user"
   | "check"
   | "bell"
-  | "calendar";
+  | "calendar"
+  | "star";
 
 function Icon({ name, size = 20 }: { name: NavIcon; size?: number }) {
   const props = { width: size, height: size, viewBox: `0 0 ${size} ${size}`, fill: "none", stroke: "currentColor", strokeWidth: "1.75", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -45,6 +46,8 @@ function Icon({ name, size = 20 }: { name: NavIcon; size?: number }) {
       return <svg {...props}><path d="M10 2a6 6 0 00-6 6v3l-2 4h16l-2-4V8a6 6 0 00-6-6z"/><path d="M8 17a2 2 0 004 0"/></svg>;
     case "calendar":
       return <svg {...props}><rect x="2" y="4" width="16" height="15" rx="1.5"/><path d="M2 9h16M7 2v4M13 2v4"/></svg>;
+    case "star":
+      return <svg {...props}><path d="M10 2l2.36 4.78 5.27.77-3.81 3.72.9 5.24L10 14.1l-4.72 2.41.9-5.24L2.37 7.55l5.27-.77L10 2z"/></svg>;
     default:
       return null;
   }

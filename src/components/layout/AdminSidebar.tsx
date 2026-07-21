@@ -106,6 +106,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    label: "Feedback",
+    href: "/admin/feedback",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75">
+        <path d="M2 2h14a1 1 0 011 1v9a1 1 0 01-1 1H5l-4 3V3a1 1 0 011-1z" />
+        <path d="M5 7h8M5 10h5" />
+      </svg>
+    ),
+  },
+  {
     label: "Settings",
     href: "/admin/settings",
     icon: (

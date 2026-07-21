@@ -123,9 +123,10 @@ interface NavLinksProps {
   switchTo?: SwitchTarget;
   closeDrawer: () => void;
   onSignOut: () => void;
+  userInitial: string;
 }
 
-function NavLinks({ navItems, pathname, roleColor, roleLabel, role, switchTo, closeDrawer, onSignOut }: NavLinksProps) {
+function NavLinks({ navItems, pathname, roleColor, roleLabel, role, switchTo, closeDrawer, onSignOut, userInitial }: NavLinksProps) {
   return (
     <>
       <nav className={styles.nav} aria-label={`${roleLabel} navigation`}>
@@ -186,7 +187,7 @@ function NavLinks({ navItems, pathname, roleColor, roleLabel, role, switchTo, cl
           className={styles.avatar}
           style={{ background: `linear-gradient(135deg, ${roleColor}, #3b82f6)` }}
         >
-          {ROLE_INITIALS[role]}
+          {userInitial}
         </div>
         <button onClick={onSignOut} className={styles.logoutBtn} title="Sign out">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -205,6 +206,24 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
   const supabase = createSupabaseBrowserClient();
   const roleColor = ROLE_COLORS[role];
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [userInitial, setUserInitial] = useState(ROLE_INITIALS[role]);
+
+  // Fetch the real user name on mount to replace the generic role initial
+  useEffect(() => {
+    async function fetchInitial() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const table = role === "rep" ? "students" : role === "lecturer" ? "lecturers" : "students";
+      const { data } = await (supabase as any)
+        .from(table)
+        .select("name")
+        .eq("id", user.id)
+        .single();
+      if (data?.name) setUserInitial((data.name as string).charAt(0).toUpperCase());
+    }
+    fetchInitial();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Close drawer on route change. This is a legitimate case of syncing
   // local UI state to an external signal (the URL) rather than deriving
@@ -261,6 +280,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
           switchTo={switchTo}
           closeDrawer={closeDrawer}
           onSignOut={openSignOut}
+          userInitial={userInitial}
         />
       </aside>
 
@@ -336,6 +356,7 @@ export function PortalLayout({ role, roleLabel, navItems, homeUrl, children, swi
           switchTo={switchTo}
           closeDrawer={closeDrawer}
           onSignOut={openSignOut}
+          userInitial={userInitial}
         />
       </aside>
 

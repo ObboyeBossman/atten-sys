@@ -55,7 +55,7 @@ export default async function AttendanceDetailPage(props: { params: Promise<{ se
   const canDispute = sessionEnded && !dispute && (record.status === "absent" || record.status === "late");
 
   return (
-    <div className="max-w-xl mx-auto mt-8">
+    <div className="max-w-xl mx-auto mt-8 px-4 sm:px-0">
       <div className="card border-t-4" style={{ 
         borderTopColor: record.status === 'present' ? 'var(--color-success)' : 
                         record.status === 'late' ? 'var(--color-warning)' : 'var(--color-danger)'
@@ -91,27 +91,27 @@ export default async function AttendanceDetailPage(props: { params: Promise<{ se
         </div>
 
         <div className="space-y-4">
-          <div className="flex justify-between border-b border-[var(--color-border)] pb-3">
-            <span className="text-[var(--color-text-2)]">Course</span>
-            <span className="font-medium text-right ml-4">{courseObj?.code}: {courseObj?.name}</span>
+          <div className="flex justify-between items-start gap-4 border-b border-[var(--color-border)] pb-3">
+            <span className="text-[var(--color-text-2)] shrink-0">Course</span>
+            <span className="font-medium text-right">{courseObj?.code}: {courseObj?.name}</span>
           </div>
-          <div className="flex justify-between border-b border-[var(--color-border)] pb-3">
-            <span className="text-[var(--color-text-2)]">Session Date</span>
-            <span className="font-medium text-right ml-4">
+          <div className="flex justify-between items-start gap-4 border-b border-[var(--color-border)] pb-3">
+            <span className="text-[var(--color-text-2)] shrink-0">Session Date</span>
+            <span className="font-medium text-right">
               {new Date(sessionObj?.started_at).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
             </span>
           </div>
           {sessionObj?.ended_at && (
-            <div className="flex justify-between border-b border-[var(--color-border)] pb-3">
-              <span className="text-[var(--color-text-2)]">Session Ended</span>
-              <span className="font-medium text-right ml-4">
+            <div className="flex justify-between items-start gap-4 border-b border-[var(--color-border)] pb-3">
+              <span className="text-[var(--color-text-2)] shrink-0">Session Ended</span>
+              <span className="font-medium text-right">
                 {new Date(sessionObj.ended_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           )}
-          <div className="flex justify-between border-b border-[var(--color-border)] pb-3">
-            <span className="text-[var(--color-text-2)]">Location GPS Verified</span>
-            <span className="font-medium text-right ml-4 flex items-center justify-end gap-2">
+          <div className="flex justify-between items-start gap-4 border-b border-[var(--color-border)] pb-3">
+            <span className="text-[var(--color-text-2)] shrink-0">GPS Verified</span>
+            <span className="font-medium text-right flex items-center justify-end gap-2">
               {record.geo_verified ? (
                 <><span className="text-[var(--color-success)]">✓</span> Yes</>
               ) : (
@@ -119,9 +119,9 @@ export default async function AttendanceDetailPage(props: { params: Promise<{ se
               )}
             </span>
           </div>
-          <div className="flex justify-between pb-3">
-            <span className="text-[var(--color-text-2)]">Check-in Reference</span>
-            <span className="font-mono text-xs text-[var(--color-text-3)] text-right ml-4">{record.id}</span>
+          <div className="border-b border-[var(--color-border)] pb-3">
+            <span className="text-[var(--color-text-2)] block mb-1">Check-in Reference</span>
+            <span className="font-mono text-xs text-[var(--color-text-3)] break-all">{record.id}</span>
           </div>
         </div>
 

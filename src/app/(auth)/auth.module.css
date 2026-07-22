@@ -1,6 +1,19 @@
 /* ============================================================
-   ATTEN-SYS — Auth Layout
-   Matches login.php design exactly
+   ATTEN-SYS — Auth Layout  |  Mobile-first redesign
+   Design tokens:
+     --red-primary: #9d0a12   (action, brand)
+     --red-deep:    #7f1d1d   (hover)
+     --red-tint:    #fef2f2   (surfaces)
+     --ink:         #0f172a   (headings)
+     --ink-mid:     #334155   (labels)
+     --ink-soft:    #64748b   (body)
+     --ink-ghost:   #94a3b8   (placeholders, icons)
+     --surface:     #f8fafc   (input bg)
+     --border:      #e2e8f0   (default border)
+     --white:       #ffffff
+   Spacing: 8pt grid (8/16/24/32/48/64px)
+   Type scale: 12/14/16/20/24/32px
+   Base body text: 16px (critical — prevents iOS Safari zoom)
    ============================================================ */
 
 /* ── Page shell ─────────────────────────────────────────── */
@@ -167,8 +180,6 @@
 }
 
 /* ── Right form panel ───────────────────────────────────── */
-/* This is the full-screen panel on mobile, right half on desktop.
-   The background image (lecture hall photo) lives here. */
 .formPanel {
   flex: 1;
   min-height: 100dvh;
@@ -176,9 +187,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* px-4 py-12 on mobile, padded below top of mobileBar */
-  padding: calc(56px + 2.5rem) 1rem 3rem; /* top clears mobile bar */
-  background-color: #f8fafc; /* fallback if image missing */
+  padding: calc(56px + 2.5rem) 1rem 3rem;
+  background-color: #f8fafc;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -187,7 +197,6 @@
   box-sizing: border-box;
 }
 
-/* bg-white/30 backdrop-blur-[6px] — exactly from PHP */
 .formPanelOverlay {
   position: absolute;
   inset: 0;
@@ -198,7 +207,6 @@
   z-index: 0;
 }
 
-/* Red glow blob — centre of panel */
 .formPanelGlow {
   position: absolute;
   top: 50%;
@@ -213,7 +221,7 @@
   z-index: 0;
 }
 
-/* ── Mobile app bar — absolutely over the bg image (lg: hidden) */
+/* ── Mobile app bar ─────────────────────────────────────── */
 .mobileBar {
   position: absolute;
   top: 0;
@@ -267,7 +275,6 @@
   box-sizing: border-box;
 }
 
-/* bg-white/80 backdrop-blur-2xl — exactly from PHP */
 .formCard {
   background: rgba(255, 255, 255, 0.80);
   backdrop-filter: blur(24px);
@@ -326,9 +333,9 @@
 }
 
 .formHeadingSub {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #94a3b8;
-  font-weight: 600;
+  font-weight: 500;
   text-align: center;
   margin-bottom: 2rem;
 }
@@ -345,6 +352,22 @@
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
+}
+
+/* Shake animation for error fields — spring physics feel */
+.fieldGroupShake {
+  animation: fieldShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes fieldShake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-6px); }
+  30%  { transform: translateX(5px); }
+  45%  { transform: translateX(-4px); }
+  60%  { transform: translateX(3px); }
+  75%  { transform: translateX(-2px); }
+  90%  { transform: translateX(1px); }
+  100% { transform: translateX(0); }
 }
 
 .fieldLabel {
@@ -368,34 +391,81 @@
   pointer-events: none;
   display: flex;
   align-items: center;
+  transition: color 0.2s ease;
 }
 
+/* Icon gets brand color when sibling input is focused */
+.fieldWrapper:focus-within .fieldIcon {
+  color: #9d0a12;
+}
+
+/* ─── CRITICAL: font-size MUST be exactly 16px ───────────
+   iOS Safari auto-zooms any input with font-size < 16px.
+   This single rule prevents that jarring behaviour.
+   ────────────────────────────────────────────────────── */
 .fieldInput {
   width: 100%;
-  height: 48px;
+  height: 52px;                       /* slightly taller = more touch-friendly */
   padding-left: 2.75rem;
   padding-right: 1rem;
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 0.9375rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.875rem;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-size: 16px;                    /* ← iOS Safari zoom prevention */
   color: #1e293b;
   outline: none;
-  transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow   0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    background   0.22s cubic-bezier(0.22, 1, 0.36, 1);
   -webkit-appearance: none;
   box-sizing: border-box;
 }
 
-.fieldInput::placeholder { color: #94a3b8; }
+.fieldInput::placeholder {
+  color: #94a3b8;
+  font-size: 16px;
+}
 
 .fieldInput:focus {
   border-color: #9d0a12;
-  box-shadow: 0 0 0 4px rgba(157, 10, 18, 0.08);
+  background: #fff;
+  box-shadow:
+    0 0 0 4px rgba(157, 10, 18, 0.08),
+    0 1px 3px rgba(0,0,0,0.06);
+}
+
+/* Error state for individual field */
+.fieldInputError {
+  border-color: #ef4444 !important;
+  background: #fff5f5 !important;
+}
+
+.fieldInputError:focus {
+  box-shadow:
+    0 0 0 4px rgba(239, 68, 68, 0.10),
+    0 1px 3px rgba(0,0,0,0.06) !important;
 }
 
 .fieldInputPassword { padding-right: 3rem; }
+
+/* Inline field error message (14px — per spec) */
+.fieldError {
+  font-size: 14px;
+  font-weight: 500;
+  color: #dc2626;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  animation: fadeInDown 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .pwToggle {
   position: absolute;
@@ -453,56 +523,146 @@
   justify-content: center;
   color: transparent;
   font-size: 0.625rem;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .checkboxInput:checked + .checkboxBox {
   background: #9d0a12;
   border-color: #9d0a12;
   color: #fff;
+  transform: scale(1.05);
 }
 
 .checkboxText {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: #64748b;
 }
 
 .forgotLink {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: #9d0a12;
   text-decoration: none;
   min-height: 44px;
   display: flex;
   align-items: center;
+  transition: opacity 0.15s ease;
 }
-.forgotLink:hover { text-decoration: underline; }
+.forgotLink:hover { opacity: 0.75; }
 
-/* ── Submit button ───────────────────────────────────────── */
+/* ── Submit button ───────────────────────────────────────────
+   SIGNATURE MOVE: The button label clips out upward on tap,
+   and "Signing in…" slides in from below — the text morphs
+   within the button boundary giving it a living, premium feel
+   without any external spinner distracting the eye.
+   Tactile press: scale(0.97) on :active for finger feedback.
+   ────────────────────────────────────────────────────────── */
 .submitBtn {
+  position: relative;
   width: 100%;
-  height: 48px;
+  height: 52px;
   background: #9d0a12;
   color: #fff;
   border: none;
-  border-radius: 0.75rem;
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 0.9375rem;
+  border-radius: 0.875rem;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 4px 14px rgba(157, 10, 18, 0.20);
+  overflow: hidden;
+  /* Tactile press feedback */
+  transition:
+    background   0.2s ease,
+    transform    0.1s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow   0.2s ease;
+  box-shadow: 0 4px 16px rgba(157, 10, 18, 0.25);
+  margin-top: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-top: 0.25rem;
 }
-.submitBtn:hover { background: #7f1d1d; }
-.submitBtn:active { transform: scale(0.98); }
-.submitBtn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+.submitBtn:not(:disabled):hover {
+  background: #7f1d1d;
+  box-shadow: 0 6px 20px rgba(157, 10, 18, 0.35);
+}
+
+/* Tactile squish on press */
+.submitBtn:not(:disabled):active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(157, 10, 18, 0.20);
+}
+
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Button inner label — wraps the text for clip animation */
+.submitBtnLabel {
+  position: relative;
+  overflow: hidden;
+  height: 1.25em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.submitBtnLabelDefault {
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.submitBtnLabelLoading {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity   0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* When loading, slide default label up, slide loading label into view */
+.submitBtnLoading .submitBtnLabelDefault {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.submitBtnLoading .submitBtnLabelLoading {
+  transform: translateY(-100%);
+  opacity: 1;
+}
+
+/* Inline pulse dots — 3 dots that pulse in sequence */
+.loadingDots {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.loadingDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.8);
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+.loadingDot:nth-child(2) { animation-delay: 0.2s; }
+.loadingDot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%            { transform: scale(1);   opacity: 1; }
+}
 
 /* ── Divider ─────────────────────────────────────────────── */
 .divider {
@@ -521,8 +681,8 @@
 }
 
 .footerLink {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: #94a3b8;
   text-decoration: none;
   background: none;
@@ -677,7 +837,7 @@
 .modalClose:hover { color: #1e293b; }
 
 .modalDesc {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #64748b;
   line-height: 1.6;
   margin-bottom: 1.25rem;
@@ -686,7 +846,7 @@
 .contactSection { margin-bottom: 1.25rem; }
 
 .contactName {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 0.5rem;
@@ -722,30 +882,30 @@
 .contactLinkIcon.whatsapp { color: #059669; }
 
 .contactLinkText {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: #334155;
 }
 
 .modalCloseBtn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.875rem;
   background: #9d0a12;
   color: #fff;
   border: none;
-  border-radius: 0.75rem;
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 0.75rem;
+  border-radius: 0.875rem;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.05em;
   cursor: pointer;
   margin-top: 1.25rem;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 .modalCloseBtn:hover { background: #7f1d1d; }
+.modalCloseBtn:active { transform: scale(0.98); }
 
-/* ── Inline error ────────────────────────────────────────── */
+/* ── Inline error (field-level, not banner) ──────────────── */
 .errorMsg {
   display: flex;
   align-items: center;
@@ -753,11 +913,12 @@
   padding: 0.75rem 1rem;
   background: #fef2f2;
   border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 0.75rem;
-  font-size: 0.8125rem;
+  border-radius: 0.875rem;
+  font-size: 14px;
   color: #b91c1c;
   font-weight: 500;
   width: 100%;
+  animation: fadeInDown 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ── Animations ──────────────────────────────────────────── */
@@ -773,10 +934,8 @@
   0% { transform: scale(1); opacity: 1; }
   75%, 100% { transform: scale(1.8); opacity: 0; }
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
+/* Legacy spinner (kept for overlay) */
 .spinner {
   width: 16px;
   height: 16px;
@@ -786,6 +945,7 @@
   animation: spin 0.6s linear infinite;
   flex-shrink: 0;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Tablet (640px+) ─────────────────────────────────────── */
 @media (min-width: 640px) {
@@ -793,7 +953,6 @@
     padding-left: 2rem;
     padding-right: 2rem;
   }
-
   .formCard {
     padding: 2.5rem;
   }
@@ -804,38 +963,29 @@
   .authRoot {
     flex-direction: row;
   }
-
   .heroPanel {
     display: flex;
     flex: 1;
     min-height: 100dvh;
   }
-
-  /* On desktop: no top bar so reset top padding to centred */
   .formPanel {
     flex: 1;
     min-height: 100dvh;
     padding: 3rem 2rem;
   }
-
-  /* Hide mobile bar on desktop */
   .mobileBar {
     display: none;
   }
-
-  /* Desktop: modal centred, not bottom sheet */
   .modalOverlay {
     align-items: center;
     padding: 1rem;
   }
-
   .modalBox {
     border-radius: 1.5rem;
     max-width: 26rem;
     transform: translateY(8px) scale(0.97);
     padding: 2rem;
   }
-
   .modalOverlay.open .modalBox {
     transform: translateY(0) scale(1);
   }
@@ -850,14 +1000,13 @@
   .heroBlob1, .heroBlob2, .heroPillDot { animation: none; }
   .formWrap { animation: none; }
   .alertBanner { transition: opacity 0.2s ease; }
+  .fieldGroupShake { animation: none; }
+  .submitBtnLabelDefault,
+  .submitBtnLabelLoading { transition: none; }
+  .loadingDot { animation: none; opacity: 1; transform: none; }
 }
 
 /* ── Post-auth Transition Overlay ───────────────────────── */
-/*
-   Full-screen overlay that covers the login page the moment
-   credentials are verified — bridging the gap between
-   successful auth and Next.js routing to the destination.
-*/
 .transitionOverlay {
   position: fixed;
   inset: 0;
@@ -870,8 +1019,6 @@
   background: rgba(10, 10, 15, 0.92);
   backdrop-filter: blur(20px) saturate(0.6);
   -webkit-backdrop-filter: blur(20px) saturate(0.6);
-
-  /* enter: slide up from slight below */
   opacity: 0;
   transform: translateY(12px);
   pointer-events: none;
@@ -886,7 +1033,6 @@
   pointer-events: auto;
 }
 
-/* Animated logo ring */
 .transitionLogoRing {
   position: relative;
   width: 88px;
@@ -918,13 +1064,8 @@
   animation: ringSpinInner 0.75s linear infinite reverse;
 }
 
-@keyframes ringSpinOuter {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes ringSpinInner {
-  to { transform: rotate(360deg); }
-}
+@keyframes ringSpinOuter { to { transform: rotate(360deg); } }
+@keyframes ringSpinInner { to { transform: rotate(360deg); } }
 
 .transitionLogo {
   width: 48px;
@@ -934,7 +1075,6 @@
   z-index: 1;
 }
 
-/* Notification card — same visual DNA as AlertBanner */
 .transitionCard {
   width: 90%;
   max-width: 22rem;
@@ -966,13 +1106,10 @@
   color: #4ade80;
 }
 
-.transitionCardBody {
-  flex: 1;
-  min-width: 0;
-}
+.transitionCardBody { flex: 1; min-width: 0; }
 
 .transitionCardTitle {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.9);
   margin: 0 0 0.25rem;
@@ -980,13 +1117,12 @@
 }
 
 .transitionCardMsg {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   color: rgba(255, 255, 255, 0.5);
   margin: 0;
   line-height: 1.5;
 }
 
-/* Indeterminate progress bar at bottom */
 .transitionProgress {
   width: 90%;
   max-width: 22rem;

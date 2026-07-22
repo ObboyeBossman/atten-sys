@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "../auth.module.css";
 
 /* ─────────────────────────────────────────────────────────
-   Alert banner (replaces PHP $error / $success flash)
+   Alert banner
 ───────────────────────────────────────────────────────── */
 type AlertType = "error" | "success";
 
@@ -62,10 +62,9 @@ function AlertBanner({
 }
 
 /* ─────────────────────────────────────────────────────────
-   Contact support modal (bottom sheet on mobile, centred on desktop)
+   Contact support modal
 ───────────────────────────────────────────────────────── */
 function ContactModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  // Trap focus & close on Escape
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -157,7 +156,11 @@ export default function LoginPage() {
   const [transitioning, setTransitioning] = useState(false);
   const [destLabel, setDestLabel] = useState("Loading your portal…");
 
-  // Alert banner state
+  /* Shake state — toggled to trigger CSS animation on error */
+  const [shakeEmail, setShakeEmail] = useState(false);
+  const [shakePw, setShakePw] = useState(false);
+
+  /* Alert banner */
   const [alert, setAlert] = useState<{ show: boolean; type: AlertType; message: string }>({
     show: false,
     type: "error",
@@ -165,20 +168,31 @@ export default function LoginPage() {
   });
   const alertTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Contact modal
+  /* Contact modal */
   const [contactOpen, setContactOpen] = useState(false);
 
-  function showAlert(message: string, type: AlertType = "error") {
+  const showAlert = useCallback((message: string, type: AlertType = "error") => {
     if (alertTimer.current) clearTimeout(alertTimer.current);
     setAlert({ show: true, type, message });
     alertTimer.current = setTimeout(() => {
       setAlert((a) => ({ ...a, show: false }));
     }, 4000);
-  }
+  }, []);
 
   function hideAlert() {
     if (alertTimer.current) clearTimeout(alertTimer.current);
     setAlert((a) => ({ ...a, show: false }));
+  }
+
+  /* Trigger field shake — remove class after animation completes */
+  function triggerShake(field: "email" | "pw") {
+    if (field === "email") {
+      setShakeEmail(true);
+      setTimeout(() => setShakeEmail(false), 550);
+    } else {
+      setShakePw(true);
+      setTimeout(() => setShakePw(false), 550);
+    }
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -187,19 +201,12 @@ export default function LoginPage() {
 
     setError(null);
     setLoading(true);
-
-    // ── 1. Show the overlay immediately — guaranteed to appear ──────
-    // The user sees the loading screen from this point on, no matter
-    // how fast or slow the network is.
     setTransitioning(true);
     setDestLabel("Verifying credentials…");
 
-    // Record when the overlay appeared so we can enforce the minimum
-    // visible duration regardless of how quickly auth resolves.
     const overlayStart = Date.now();
     const MIN_OVERLAY_MS = 1500;
 
-    // Helper: waits for the remainder of the minimum display time.
     const waitMinimum = () => {
       const elapsed = Date.now() - overlayStart;
       const remaining = MIN_OVERLAY_MS - elapsed;
@@ -209,7 +216,6 @@ export default function LoginPage() {
     };
 
     try {
-      // ── 2. Auth work runs behind the overlay ────────────────────
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
@@ -217,11 +223,13 @@ export default function LoginPage() {
 
       if (signInError) {
         await waitMinimum();
-        // Dismiss overlay, show error toast, return to login form.
         setTransitioning(false);
         const msg = "Invalid email or password. Please try again.";
         setError(msg);
         showAlert(msg, "error");
+        /* Spring-shake both fields — gives tactile "wrong credentials" signal */
+        triggerShake("email");
+        triggerShake("pw");
         return;
       }
 
@@ -232,6 +240,8 @@ export default function LoginPage() {
         const msg = "Authentication failed. Please try again.";
         setError(msg);
         showAlert(msg, "error");
+        triggerShake("email");
+        triggerShake("pw");
         return;
       }
 
@@ -279,8 +289,6 @@ export default function LoginPage() {
       let destination = portalMap[p.role] ?? "/login";
       let label = labelMap[p.role] ?? "Loading your portal…";
 
-      // Reps share the 'student' role — check if they're an active course rep
-      // and route them to the rep portal instead.
       if (p.role === "student") {
         setDestLabel("Checking access level…");
         const { data: repMembership } = await supabase
@@ -298,21 +306,14 @@ export default function LoginPage() {
         }
       }
 
-      // ── 3. Force password change if flagged ────────────────────────
-      // This applies to all roles. The destination is preserved in a
-      // query param so the change-password page can redirect correctly.
       if (p.must_change_password) {
         const encodedNext = encodeURIComponent(destination);
         destination = `/change-password?next=${encodedNext}`;
         label = "Password change required…";
       }
 
-      // ── 4. Ensure overlay has been visible for at least MIN_OVERLAY_MS ──
       await waitMinimum();
-
       setDestLabel(label);
-
-      // Route — overlay stays on screen until the new page renders.
       router.replace(destination);
 
     } finally {
@@ -329,7 +330,6 @@ export default function LoginPage() {
         aria-live="polite"
         aria-label="Authentication successful, redirecting"
       >
-        {/* Spinning logo ring */}
         <div className={styles.transitionLogoRing}>
           <Image
             src="/atten_sys_icon_logo.svg"
@@ -341,7 +341,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Notification card — same visual language as AlertBanner */}
         <div className={styles.transitionCard}>
           <span className={styles.transitionCardIcon} aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -357,7 +356,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Indeterminate progress bar */}
         <div className={styles.transitionProgress} aria-hidden="true">
           <div className={styles.transitionProgressBar} />
         </div>
@@ -391,13 +389,13 @@ export default function LoginPage() {
 
         {/* Heading */}
         <span className={styles.formHeadingEyebrow}>ATTEN SYS</span>
-        <h2 className={styles.formHeadingTitle}>Institutional Portal</h2>
+        <h1 className={styles.formHeadingTitle}>Institutional Portal</h1>
         <p className={styles.formHeadingSub}>Sign in with your institutional credentials</p>
 
         {/* Form */}
         <form className={styles.formBody} onSubmit={handleLogin} noValidate>
 
-          {/* Inline error */}
+          {/* Inline error banner */}
           {error && (
             <div className={styles.errorMsg} role="alert">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true" style={{ flexShrink: 0 }}>
@@ -408,8 +406,8 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Email */}
-          <div className={styles.fieldGroup}>
+          {/* Email field */}
+          <div className={`${styles.fieldGroup} ${shakeEmail ? styles.fieldGroupShake : ""}`}>
             <label htmlFor="email" className={styles.fieldLabel}>
               Institutional Email
             </label>
@@ -427,16 +425,17 @@ export default function LoginPage() {
                 required
                 placeholder="eg. boateng@ttu.edu.gh"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={styles.fieldInput}
+                onChange={(e) => { setEmail(e.target.value); if (error) setError(null); }}
+                className={`${styles.fieldInput} ${error ? styles.fieldInputError : ""}`}
                 disabled={loading}
                 inputMode="email"
+                aria-describedby={error ? "login-error" : undefined}
               />
             </div>
           </div>
 
-          {/* Password */}
-          <div className={styles.fieldGroup}>
+          {/* Password field */}
+          <div className={`${styles.fieldGroup} ${shakePw ? styles.fieldGroupShake : ""}`}>
             <label htmlFor="password" className={styles.fieldLabel}>
               Password
             </label>
@@ -454,8 +453,8 @@ export default function LoginPage() {
                 required
                 placeholder="••••••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`${styles.fieldInput} ${styles.fieldInputPassword}`}
+                onChange={(e) => { setPassword(e.target.value); if (error) setError(null); }}
+                className={`${styles.fieldInput} ${styles.fieldInputPassword} ${error ? styles.fieldInputError : ""}`}
                 disabled={loading}
               />
               <button
@@ -499,23 +498,33 @@ export default function LoginPage() {
               <span className={styles.checkboxText}>Keep session active</span>
             </label>
             <a href="?forgot_password=1" className={styles.forgotLink}>
-              Forgot?
+              Forgot password?
             </a>
           </div>
 
-          {/* Submit */}
+          {/* Submit — SIGNATURE MOVE: morphing label animation */}
           <button
             type="submit"
-            className={styles.submitBtn}
+            className={`${styles.submitBtn} ${loading ? styles.submitBtnLoading : ""}`}
             disabled={loading || !email || !password}
+            aria-busy={loading}
           >
-            {loading ? (
-              <>
-                <span className={styles.spinner} aria-hidden="true" />
-                Authenticating…
-              </>
-            ) : (
-              "Enter"
+            <span className={styles.submitBtnLabel} aria-hidden={loading}>
+              {/* Default label — clips up when loading */}
+              <span className={styles.submitBtnLabelDefault}>Sign In</span>
+              {/* Loading state — slides in from below */}
+              <span className={styles.submitBtnLabelLoading} aria-hidden="true">
+                Signing in
+                <span className={styles.loadingDots} aria-hidden="true">
+                  <span className={styles.loadingDot} />
+                  <span className={styles.loadingDot} />
+                  <span className={styles.loadingDot} />
+                </span>
+              </span>
+            </span>
+            {/* Screen-reader only live region for loading state */}
+            {loading && (
+              <span className="sr-only" aria-live="polite">Signing in, please wait</span>
             )}
           </button>
         </form>
